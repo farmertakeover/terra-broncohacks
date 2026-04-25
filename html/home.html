@@ -961,12 +961,12 @@ body {
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-icon">🔥</div>
-          <div class="stat-val">7</div>
+          <div class="stat-val" id="stat-streak">0</div>
           <div class="stat-label">day streak</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">🌿</div>
-          <div class="stat-val">340</div>
+          <div class="stat-val" id="stat-tokens">0</div>
           <div class="stat-label">eco tokens</div>
         </div>
       </div>
@@ -974,29 +974,15 @@ body {
       <div class="impact-strip">
         <div class="impact-strip-title">This week's impact</div>
         <div class="impact-cols">
-          <div class="impact-col"><div class="impact-num">847</div><div class="impact-unit">gal water<br>saved</div></div>
-          <div class="impact-col"><div class="impact-num">12.4</div><div class="impact-unit">lbs CO₂<br>avoided</div></div>
-          <div class="impact-col"><div class="impact-num">14</div><div class="impact-unit">eco<br>swaps</div></div>
+          <div class="impact-col"><div class="impact-num" id="impact-water">0</div><div class="impact-unit">gal water<br>saved</div></div>
+          <div class="impact-col"><div class="impact-num" id="impact-co2">0</div><div class="impact-unit">lbs CO₂<br>avoided</div></div>
+          <div class="impact-col"><div class="impact-num" id="impact-swaps">0</div><div class="impact-unit">eco<br>swaps</div></div>
         </div>
       </div>
 
       <div class="sec-hdr"><span class="sec-title">Recent scans</span><span class="sec-link">See all</span></div>
-      <div class="recent-card">
-        <div class="recent-row" onclick="doScan('lentils')">
-          <div class="recent-ic" style="background:#eaf3de">🫘</div>
-          <div class="recent-info"><div class="recent-name">Green Lentils, Bob's Red Mill</div><div class="recent-meta">Today · Whole Foods</div></div>
-          <div class="score-pill sp-good">9</div>
-        </div>
-        <div class="recent-row" onclick="doScan('oatmilk')">
-          <div class="recent-ic" style="background:#f5f0e8">🌾</div>
-          <div class="recent-info"><div class="recent-name">Oat Milk, Oatly</div><div class="recent-meta">Today · Target</div></div>
-          <div class="score-pill sp-good">8</div>
-        </div>
-        <div class="recent-row" onclick="doScan('beef')">
-          <div class="recent-ic" style="background:#fdeaea">🥩</div>
-          <div class="recent-info"><div class="recent-name">Ground Beef 80/20</div><div class="recent-meta">Yesterday · Safeway</div></div>
-          <div class="score-pill sp-bad">2</div>
-        </div>
+      <div class="recent-card" id="recent-card-home">
+        <div style="padding:18px;text-align:center;color:var(--ash);font-size:13px">No scans yet — tap Scan to start!</div>
       </div>
     </div>
     <nav class="bnav">
@@ -1099,7 +1085,7 @@ body {
     <div style="padding:2px 20px 8px;flex-shrink:0"><span style="font-family:'Fraunces',serif;font-size:24px;color:var(--char)">Your Impact</span></div>
     <div class="scroll-area" style="padding:0 20px calc(88px + var(--safe-bot))">
       <div class="week-card">
-        <div class="sec-hdr" style="margin-bottom:0"><span class="sec-title">🔥 7-day streak</span><span class="sec-link">Best: 12</span></div>
+        <div class="sec-hdr" style="margin-bottom:0"><span class="sec-title" id="impact-streak-title">🔥 0-day streak</span><span class="sec-link" id="impact-streak-best">Best: 0</span></div>
         <div class="streak-days">
           <div class="day-col"><div class="day-ring dr-done">✓</div><div class="day-lbl">Mon</div></div>
           <div class="day-col"><div class="day-ring dr-done">✓</div><div class="day-lbl">Tue</div></div>
@@ -1111,21 +1097,18 @@ body {
         </div>
       </div>
       <div class="ig2">
-        <div class="isc feat"><div class="ii">💧</div><div class="iv">847 <span class="iu">gal</span></div><div class="il">water saved this month</div></div>
-        <div class="isc feat"><div class="ii">🌿</div><div class="iv">12.4 <span class="iu">lbs</span></div><div class="il">CO₂ avoided this month</div></div>
-        <div class="isc"><div class="ii">🛒</div><div class="iv">38</div><div class="il">eco-friendly items</div></div>
-        <div class="isc"><div class="ii">🔁</div><div class="iv">14</div><div class="il">eco swaps made</div></div>
+        <div class="isc feat"><div class="ii">💧</div><div class="iv"><span id="impact-water2">0</span> <span class="iu">gal</span></div><div class="il">water saved this month</div></div>
+        <div class="isc feat"><div class="ii">🌿</div><div class="iv"><span id="impact-co22">0</span> <span class="iu">lbs</span></div><div class="il">CO₂ avoided this month</div></div>
+        <div class="isc"><div class="ii">🛒</div><div class="iv" id="impact-total-scans">0</div><div class="il">eco-friendly items</div></div>
+        <div class="isc"><div class="ii">🔁</div><div class="iv" id="impact-swaps2">0</div><div class="il">eco swaps made</div></div>
       </div>
       <div class="equiv-card">
         <div class="equiv-label">🌍 Real-world equivalent</div>
         <div class="equiv-text">Your choices equal <strong style="color:var(--mist)">3 trees planted</strong> and <strong style="color:var(--mist)">not driving 51 miles</strong> this month.</div>
       </div>
       <div class="sec-hdr"><span class="sec-title">Recent history</span></div>
-      <div class="recent-card">
-        <div class="recent-row" onclick="doScan('lentils')"><div class="recent-ic" style="background:#eaf3de">🫘</div><div class="recent-info"><div class="recent-name">Green Lentils</div><div class="recent-meta">Today, 2:14 PM</div></div><div class="score-pill sp-good">9</div></div>
-        <div class="recent-row" onclick="doScan('oatmilk')"><div class="recent-ic" style="background:#f5f0e8">🌾</div><div class="recent-info"><div class="recent-name">Oat Milk, Oatly</div><div class="recent-meta">Today, 2:11 PM</div></div><div class="score-pill sp-good">8</div></div>
-        <div class="recent-row" onclick="doScan('beef')"><div class="recent-ic" style="background:#fdeaea">🥩</div><div class="recent-info"><div class="recent-name">Ground Beef</div><div class="recent-meta">Yesterday</div></div><div class="score-pill sp-bad">2</div></div>
-        <div class="recent-row" onclick="doScan('water')"><div class="recent-ic" style="background:#fdeaea">🧴</div><div class="recent-info"><div class="recent-name">Bottled Water</div><div class="recent-meta">Yesterday</div></div><div class="score-pill sp-bad">3</div></div>
+      <div class="recent-card" id="recent-card-impact">
+        <div style="padding:18px;text-align:center;color:var(--ash);font-size:13px">No scans yet — tap Scan to start!</div>
       </div>
     </div>
     <nav class="bnav">
@@ -1143,7 +1126,7 @@ body {
     <div class="scroll-area" style="padding:0 20px calc(88px + var(--safe-bot))">
       <div class="token-hero-card">
         <div class="th-top">
-          <div><div class="th-label">Your balance</div><div class="th-amount">340</div><div class="th-sub">eco tokens</div></div>
+          <div><div class="th-label">Your balance</div><div class="th-amount" id="rewards-tokens">0</div><div class="th-sub">eco tokens</div></div>
           <span style="font-size:38px">🌿</span>
         </div>
         <div class="th-cols">

@@ -1,3 +1,111 @@
+// ── PER-ACCOUNT DATA ──
+function userKey() {
+  try {
+    const u = JSON.parse(localStorage.getItem('eco_user') || '{}');
+    return u.email ? 'eco_data_' + u.email : 'eco_data_guest';
+  } catch(e) { return 'eco_data_guest'; }
+}
+
+function blankData() {
+  return { tokens: 0, streak: 0, bestStreak: 0, lastScanDate: null, recentScans: [], waterSaved: 0, co2Avoided: 0, ecoSwaps: 0, totalScans: 0 };
+}
+
+function loadData() {
+  try { return Object.assign(blankData(), JSON.parse(localStorage.getItem(userKey())) || {}); }
+  catch(e) { return blankData(); }
+}
+
+function saveData(d) { localStorage.setItem(userKey(), JSON.stringify(d)); }
+
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+function timeAgo(ts) {
+  const diff = Date.now() - ts;
+  if (diff < 60000)     return 'Just now';
+  if (diff < 3600000)   return Math.floor(diff / 60000) + 'm ago';
+  if (diff < 86400000)  return 'Today';
+  if (diff < 172800000) return 'Yesterday';
+  return new Date(ts).toLocaleDateString();
+}
+
+function scoreClass(s) { return s >= 7 ? 'sp-good' : s >= 4 ? 'sp-warn' : 'sp-bad'; }
+function scoreBg(s)    { return s >= 7 ? '#eaf3de' : s >= 4 ? '#fef3e2' : '#fdeaea'; }
+
+function renderHomeStats(d) {
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+  set('stat-streak', d.streak);
+  set('stat-tokens', d.tokens);
+  set('impact-water', d.waterSaved);
+  set('impact-co2',   d.co2Avoided);
+  set('impact-swaps', d.ecoSwaps);
+
+  // Impact screen
+  set('impact-water2',       d.waterSaved);
+  set('impact-co22',         d.co2Avoided);
+  set('impact-swaps2',       d.ecoSwaps);
+  set('impact-total-scans',  d.totalScans);
+  set('impact-streak-title', '🔥 ' + d.streak + '-day streak');
+  set('impact-streak-best',  'Best: ' + d.bestStreak);
+
+  // Rewards
+  set('rewards-tokens', d.tokens);
+
+  // Recent scans — home
+  const recentHtml = d.recentScans.length === 0
+    ? '<div style="padding:18px;text-align:center;color:var(--ash);font-size:13px">No scans yet — tap Scan to start!</div>'
+    : d.recentScans.slice(0, 5).map(s => `
+        <div class="recent-row" onclick="doScan('${s.key}')">
+          <div class="recent-ic" style="background:${scoreBg(s.score)}">${s.em}</div>
+          <div class="recent-info">
+            <div class="recent-name">${s.name}</div>
+            <div class="recent-meta">${timeAgo(s.ts)}</div>
+          </div>
+          <div class="score-pill ${scoreClass(s.score)}">${s.score}</div>
+        </div>`).join('');
+  const homeCard = document.getElementById('recent-card-home');
+  if (homeCard) homeCard.innerHTML = recentHtml;
+
+  // Recent scans — impact tab (longer list)
+  const impactCard = document.getElementById('recent-card-impact');
+  if (impactCard) impactCard.innerHTML = d.recentScans.length === 0
+    ? '<div style="padding:18px;text-align:center;color:var(--ash);font-size:13px">No scans yet — tap Scan to start!</div>'
+    : d.recentScans.slice(0, 10).map(s => `
+        <div class="recent-row" onclick="doScan('${s.key}')">
+          <div class="recent-ic" style="background:${scoreBg(s.score)}">${s.em}</div>
+          <div class="recent-info">
+            <div class="recent-name">${s.name}</div>
+            <div class="recent-meta">${timeAgo(s.ts)}</div>
+          </div>
+          <div class="score-pill ${scoreClass(s.score)}">${s.score}</div>
+        </div>`).join('');
+}
+
+function recordScan(prod, key) {
+  const d = loadData();
+  d.tokens += 10;
+  d.totalScans += 1;
+
+  const today = todayStr();
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (d.lastScanDate !== today) {
+    d.streak = d.lastScanDate === yesterday ? d.streak + 1 : 1;
+    d.lastScanDate = today;
+    d.bestStreak = Math.max(d.bestStreak, d.streak);
+  }
+
+  if (prod.score >= 7) {
+    d.waterSaved  = +(d.waterSaved  + Math.round((prod.water || 0) / 3.785)).toFixed(0);
+    d.co2Avoided  = +(d.co2Avoided  + +((prod.co2   || 0) * 2.205).toFixed(1)).toFixed(1);
+    d.ecoSwaps   += 1;
+  }
+
+  d.recentScans.unshift({ key, name: prod.name, em: prod.em, score: prod.score, ts: Date.now() });
+  d.recentScans = d.recentScans.slice(0, 10);
+  saveData(d);
+  renderHomeStats(d);
+}
+
 // ── PRODUCTS ──
 const P = {
   beef: { name:'Ground Beef 80/20', brand:'Conventional Farming', code:'0-22000-02025-4', em:'🥩', score:2, co2:27.0, water:15400, pack:'Non-recyclable plastic', origin:'USA (factory farm)', cert:'None', details:{'CO₂ / kg':'27 kg CO₂','Water / kg':'15,400 L','Land use':'164 m²/kg','Packaging':'Non-recyclable plastic','Origin':'USA (CAFO)','Certifications':'None','Animal welfare':'Conventional CAFO','Biodiversity':'Very high impact'}, alts:[{em:'🌿',name:'Beyond Burger',score:8,why:'99% less water, 90% less land'},{em:'🫘',name:'Green Lentils',score:9,why:'Complete protein, nitrogen-fixing'},{em:'🐄',name:'Local Grass-Fed Beef',score:5,why:'Lower emissions, regenerative'}] },
@@ -252,6 +360,7 @@ async function lookupAndScan(code) {
       ov.classList.remove('show');
       renderResult(prod, ai);
       showScreen('result');
+      recordScan(prod, hit.variant);
       toast('+10 🌿 tokens earned!');
       return;
     }
@@ -330,6 +439,7 @@ async function doScan(key) {
   steps.forEach(s=>{ const el=document.getElementById(s); el.classList.remove('on','done'); });
   renderResult(prod, ai);
   showScreen('result');
+  recordScan(prod, key);
   toast('+10 🌿 tokens earned!');
 }
 
@@ -435,6 +545,21 @@ function redeem(item){ toast(`Redeeming ${item} reward…`); }
   const greetEl = document.getElementById('home-greet');
   if (greetEl) greetEl.textContent = greeting + ', ' + user.name;
   window.__ecoUser = user;
+
+  // Update streak for signing in on a new day, then render all stats
+  const d = loadData();
+  const today = todayStr();
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (d.lastScanDate && d.lastScanDate !== today) {
+    if (d.lastScanDate === yesterday) {
+      // Streak still alive — user signed in on consecutive day
+    } else {
+      // Gap in days — reset streak
+      d.streak = 0;
+      saveData(d);
+    }
+  }
+  renderHomeStats(d);
 })();
 
 // ── EARTH MASCOT + ONBOARDING SURVEY ──

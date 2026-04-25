@@ -110,35 +110,38 @@ function stopCamera() {
 }
 
 async function startScanLoop(video) {
+  let nativeStarted = false;
   if('BarcodeDetector' in window) {
     try {
       const formats = await window.BarcodeDetector.getSupportedFormats();
       _detector = new window.BarcodeDetector({ formats: formats.length ? formats : ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf'] });
-      _scanInterval = setInterval(()=>nativeDetect(video), 350);
-      return;
+      _scanInterval = setInterval(()=>nativeDetect(video), 250);
+      nativeStarted = true;
     } catch(_){ /* fall through to ZXing */ }
   }
-  await loadZXing();
-  if(!window.ZXing) {
-    document.getElementById('scan-hint').textContent = 'Live scanning unavailable — tap a product below';
-    return;
-  }
-  try {
-    const hints = new Map();
-    const formats = [
-      ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
-      ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E,
-      ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
-      ZXing.BarcodeFormat.ITF, ZXing.BarcodeFormat.QR_CODE
-    ];
-    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
-    _zxingReader = new ZXing.BrowserMultiFormatReader(hints, 300);
-    _zxingReader.decodeFromVideoElement(video, (result, err) => {
-      if(result && _scanning) onCodeDetected(result.getText());
-    });
-  } catch(e) {
-    document.getElementById('scan-hint').textContent = 'Live scanning unavailable — tap a product below';
-  }
+  setTimeout(async () => {
+    if(!_scanning || _zxingReader) return;
+    await loadZXing();
+    if(!_scanning || _zxingReader) return;
+    if(!window.ZXing) {
+      if(!nativeStarted) document.getElementById('scan-hint').textContent = 'Live scanning unavailable — type a code below';
+      return;
+    }
+    try {
+      const hints = new Map();
+      const formats = [
+        ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E,
+        ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
+        ZXing.BarcodeFormat.ITF, ZXing.BarcodeFormat.QR_CODE
+      ];
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+      _zxingReader = new ZXing.BrowserMultiFormatReader(hints, 250);
+      _zxingReader.decodeFromVideoElement(video, (result) => {
+        if(result && _scanning) onCodeDetected(result.getText());
+      });
+    } catch(e) { /* keep native detection going */ }
+  }, nativeStarted ? 1500 : 0);
 }
 
 async function nativeDetect(video) {
@@ -172,11 +175,69 @@ function onCodeDetected(rawCode) {
   doScanByCode(code);
 }
 
+function barcodeVariants(raw) {
+  const digits = String(raw||'').replace(/[^0-9]/g,'');
+  if(!digits) return [];
+  const out = new Set();
+  out.add(digits);
+  if(digits.length === 12) {
+    out.add('0' + digits);
+    out.add(digits.replace(/^0+/,''));
+  } else if(digits.length === 13) {
+    if(digits.startsWith('0')) out.add(digits.slice(1));
+    out.add(digits.replace(/^0+/,''));
+  } else if(digits.length === 11) {
+    out.add('0' + digits);
+    out.add('00' + digits);
+  } else if(digits.length === 8) {
+    out.add(digits);
+  } else {
+    out.add(digits.replace(/^0+/,''));
+    out.add('0' + digits);
+  }
+  return Array.from(out).filter(c => c && c.length >= 6 && c.length <= 14);
+}
+
+function findLocalProduct(code) {
+  const variants = barcodeVariants(code);
+  return Object.keys(P).find(k => {
+    const local = String(P[k].code||'').replace(/[^0-9]/g,'');
+    return variants.some(v => v === local || v === local.replace(/^0+/,''));
+  });
+}
+
 async function doScanByCode(code) {
-  const localKey = Object.keys(P).find(k => P[k].code && P[k].code.replace(/[^0-9]/g,'') === code.replace(/[^0-9]/g,''));
-  if(localKey) { stopCamera(); return doScan(localKey); }
   stopCamera();
+  const localKey = findLocalProduct(code);
+  if(localKey) return doScan(localKey);
   await lookupAndScan(code);
+}
+
+async function fetchOFFVariant(code) {
+  try {
+    const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json`);
+    if(!r.ok) return null;
+    const data = await r.json();
+    if(data && data.status === 1 && data.product) return { variant: code, product: data.product };
+    return null;
+  } catch(e) { return null; }
+}
+
+async function lookupOFFAnyVariant(code) {
+  const variants = barcodeVariants(code);
+  if(!variants.length) return null;
+  return new Promise(resolve => {
+    let remaining = variants.length;
+    let resolved = false;
+    variants.forEach(v => {
+      fetchOFFVariant(v).then(hit => {
+        if(resolved) return;
+        if(hit) { resolved = true; resolve(hit); return; }
+        remaining--;
+        if(remaining === 0 && !resolved) { resolved = true; resolve(null); }
+      });
+    });
+  });
 }
 
 async function lookupAndScan(code) {
@@ -184,10 +245,9 @@ async function lookupAndScan(code) {
   const ov = document.getElementById('analyzing');
   ov.classList.add('show');
   try {
-    const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json`);
-    const data = await r.json();
-    if(data && data.status === 1 && data.product) {
-      const prod = productFromOFF(data.product, code);
+    const hit = await lookupOFFAnyVariant(code);
+    if(hit) {
+      const prod = productFromOFF(hit.product, hit.variant);
       const ai = await fetchAI(prod);
       ov.classList.remove('show');
       renderResult(prod, ai);
@@ -196,13 +256,21 @@ async function lookupAndScan(code) {
       return;
     }
     ov.classList.remove('show');
-    toast('Barcode ' + code + ' not found');
+    toast('Barcode ' + code + ' not in Open Food Facts');
     setTimeout(()=>{ if(document.getElementById('s-scan').classList.contains('active')) startCamera(); }, 600);
   } catch(e) {
     ov.classList.remove('show');
     toast('Lookup failed — check connection');
     setTimeout(()=>{ if(document.getElementById('s-scan').classList.contains('active')) startCamera(); }, 600);
   }
+}
+
+function manualBarcodeEntry() {
+  const input = window.prompt('Enter a product barcode (8 to 13 digits):', '');
+  if(input == null) return;
+  const code = String(input).replace(/[^0-9]/g,'');
+  if(code.length < 6) { toast('That doesn\'t look like a barcode'); return; }
+  doScanByCode(code);
 }
 
 function productFromOFF(p, code) {
@@ -366,7 +434,204 @@ function redeem(item){ toast(`Redeeming ${item} reward…`); }
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const greetEl = document.getElementById('home-greet');
   if (greetEl) greetEl.textContent = greeting + ', ' + user.name;
+  window.__ecoUser = user;
 })();
+
+// ── EARTH MASCOT + ONBOARDING SURVEY ──
+const SURVEY_QUESTIONS = [
+  {
+    q: "How often do you check a product's environmental impact?",
+    sub: "Be honest — there's no wrong answer.",
+    key: "habit",
+    opts: [
+      { em: "🌱", label: "Almost every time I shop",  value: "always" },
+      { em: "🛒", label: "Sometimes, for big purchases", value: "sometimes" },
+      { em: "🤔", label: "Rarely — I'd like to start",   value: "rarely" },
+      { em: "🆕", label: "Never, this is new to me",     value: "never" }
+    ]
+  },
+  {
+    q: "Which sustainability goal matters most to you?",
+    sub: "We'll tailor your insights around it.",
+    key: "goal",
+    opts: [
+      { em: "💨", label: "Cut my carbon footprint", value: "carbon" },
+      { em: "♻️", label: "Reduce plastic & waste",   value: "plastic" },
+      { em: "💧", label: "Save water",               value: "water" },
+      { em: "🌳", label: "Protect forests & biodiversity", value: "biodiversity" }
+    ]
+  },
+  {
+    q: "What's your diet like?",
+    sub: "Helps us suggest meaningful swaps.",
+    key: "diet",
+    opts: [
+      { em: "🥩", label: "Eat meat regularly",       value: "omnivore" },
+      { em: "🍗", label: "Mostly chicken or fish",   value: "flex" },
+      { em: "🥗", label: "Vegetarian",               value: "veg" },
+      { em: "🌱", label: "Vegan / plant-based",      value: "vegan" }
+    ]
+  }
+];
+
+let _surveyStep = 0;
+const _surveyAnswers = {};
+
+function getMascotState() {
+  try { return JSON.parse(localStorage.getItem('eco_mascot') || '{}'); } catch(e) { return {}; }
+}
+function saveMascotState(patch) {
+  const s = Object.assign(getMascotState(), patch);
+  localStorage.setItem('eco_mascot', JSON.stringify(s));
+}
+function getSurveyAnswers() {
+  try { return JSON.parse(localStorage.getItem('eco_survey') || 'null'); } catch(e) { return null; }
+}
+
+function setMascotMessage(text, ctaLabel, ctaFn, skipLabel, skipFn) {
+  const speech = document.getElementById('mascot-speech');
+  if(!speech) return;
+  speech.style.animation = 'none';
+  void speech.offsetWidth;
+  speech.style.animation = '';
+  document.getElementById('mascot-msg').textContent = text;
+  const cta = document.getElementById('mascot-cta');
+  const skip = document.getElementById('mascot-skip');
+  if (ctaLabel) {
+    cta.textContent = ctaLabel;
+    cta.onclick = ctaFn;
+    cta.style.display = '';
+  } else {
+    cta.style.display = 'none';
+  }
+  if (skipLabel) {
+    skip.textContent = skipLabel;
+    skip.onclick = skipFn;
+    skip.style.display = '';
+  } else {
+    skip.style.display = 'none';
+  }
+  speech.style.display = '';
+}
+
+function hideMascotSpeech() {
+  const el = document.getElementById('mascot-speech');
+  if(el) el.style.display = 'none';
+}
+
+function mascotTap() {
+  const m = document.getElementById('mascot');
+  if(!m) return;
+  m.classList.remove('bounce');
+  void m.offsetWidth;
+  m.classList.add('bounce');
+  if (navigator.vibrate) navigator.vibrate(20);
+  const lines = [
+    "Hi there! 🌍",
+    "Every scan helps me breathe a little easier.",
+    "Try scanning your next snack!",
+    "Small swaps, big impact ✨",
+    "I'm rooting for you 🌱"
+  ];
+  const msg = lines[Math.floor(Math.random()*lines.length)];
+  setMascotMessage(msg, null, null, 'Got it', hideMascotSpeech);
+}
+
+function dismissMascot() {
+  hideMascotSpeech();
+  saveMascotState({ greeted: true });
+}
+
+function initMascotGreeting() {
+  const user = window.__ecoUser || {};
+  const state = getMascotState();
+  const answers = getSurveyAnswers();
+
+  if (!answers) {
+    setMascotMessage(
+      `Hi ${user.name || 'there'}! I'm Terra 🌍 Mind answering 3 quick questions so I can tailor things for you?`,
+      "Sure, let's go", openSurvey,
+      "Maybe later", dismissMascot
+    );
+  } else if (!state.greeted) {
+    setMascotMessage(
+      `Welcome back, ${user.name || 'friend'}! Tap me anytime for an eco-tip.`,
+      null, null,
+      'Got it', dismissMascot
+    );
+  } else {
+    hideMascotSpeech();
+  }
+}
+
+function openSurvey() {
+  hideMascotSpeech();
+  _surveyStep = 0;
+  Object.keys(_surveyAnswers).forEach(k => delete _surveyAnswers[k]);
+  document.getElementById('survey').classList.add('show');
+  renderSurveyStep();
+}
+
+function skipSurvey() {
+  document.getElementById('survey').classList.remove('show');
+  saveMascotState({ greeted: true });
+  setMascotMessage("No worries — tap me whenever you're ready.", null, null, 'Got it', hideMascotSpeech);
+}
+
+function renderSurveyStep() {
+  const step = SURVEY_QUESTIONS[_surveyStep];
+  const prog = document.getElementById('survey-progress');
+  prog.innerHTML = SURVEY_QUESTIONS.map((_, i) =>
+    `<div class="survey-pip${i <= _surveyStep ? ' on' : ''}"></div>`
+  ).join('');
+  document.getElementById('survey-q').textContent = step.q;
+  document.getElementById('survey-sub').textContent = step.sub;
+  const opts = document.getElementById('survey-opts');
+  opts.innerHTML = step.opts.map(o =>
+    `<button class="survey-opt" data-val="${o.value}">
+      <span class="survey-opt-em">${o.em}</span><span>${o.label}</span>
+    </button>`
+  ).join('');
+  opts.querySelectorAll('.survey-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      opts.querySelectorAll('.survey-opt').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+      _surveyAnswers[step.key] = btn.dataset.val;
+      document.getElementById('survey-next').disabled = false;
+    });
+  });
+  const next = document.getElementById('survey-next');
+  next.disabled = true;
+  next.textContent = (_surveyStep === SURVEY_QUESTIONS.length - 1) ? 'Finish' : 'Next';
+}
+
+function nextSurvey() {
+  if (_surveyStep < SURVEY_QUESTIONS.length - 1) {
+    _surveyStep++;
+    renderSurveyStep();
+  } else {
+    finishSurvey();
+  }
+}
+
+function finishSurvey() {
+  localStorage.setItem('eco_survey', JSON.stringify({
+    answers: _surveyAnswers,
+    completed_at: new Date().toISOString()
+  }));
+  saveMascotState({ greeted: true });
+  document.getElementById('survey').classList.remove('show');
+  const goal = _surveyAnswers.goal;
+  const goalLine = goal === 'carbon' ? "We'll highlight low-carbon picks for you. 💨"
+                 : goal === 'plastic' ? "I'll flag plastic-heavy packaging. ♻️"
+                 : goal === 'water' ? "Water-saving swaps coming up. 💧"
+                 : goal === 'biodiversity' ? "Forest-friendly options first. 🌳"
+                 : "Let's make some greener choices together!";
+  setMascotMessage("Thanks! " + goalLine, "Scan a product", () => { hideMascotSpeech(); goScan(); }, 'Later', hideMascotSpeech);
+  toast('+25 🌿 tokens for completing your profile!');
+}
+
+setTimeout(initMascotGreeting, 350);
 
 // Live clock
 function updateClock(){

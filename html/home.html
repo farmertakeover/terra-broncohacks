@@ -185,6 +185,187 @@ body {
   color: var(--forest); line-height: 1.1;
 }
 
+/* ── EARTH MASCOT ── */
+.mascot-row {
+  display: flex; align-items: flex-end; gap: 12px;
+  padding: 14px 20px 6px;
+  flex-shrink: 0;
+}
+.mascot-wrap {
+  position: relative;
+  width: 96px; height: 110px;
+  flex-shrink: 0;
+  cursor: pointer;
+  -webkit-user-select: none;
+  animation: mascot-float 3.4s ease-in-out infinite;
+}
+@keyframes mascot-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+.mascot-wrap:active { animation-play-state: paused; }
+.mascot-svg { width: 100%; height: 100%; overflow: visible; display: block; }
+
+.m-shadow {
+  position: absolute; left: 50%; bottom: -2px;
+  width: 50px; height: 6px;
+  background: rgba(0,0,0,.12);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  filter: blur(2px);
+  animation: mascot-shadow 3.4s ease-in-out infinite;
+  z-index: 0;
+}
+@keyframes mascot-shadow {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: .14; }
+  50%      { transform: translateX(-50%) scale(.8); opacity: .08; }
+}
+
+.m-eye { transform-origin: center; animation: m-blink 4.5s infinite; }
+.m-eye.right { animation-delay: .04s; }
+@keyframes m-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  94%, 96%      { transform: scaleY(.1); }
+}
+.m-arm-r { transform-origin: 56px 60px; animation: m-wave 2.6s ease-in-out infinite; }
+@keyframes m-wave {
+  0%, 100% { transform: rotate(-12deg); }
+  25%      { transform: rotate(28deg); }
+  50%      { transform: rotate(-4deg); }
+  75%      { transform: rotate(22deg); }
+}
+.m-arm-l { transform-origin: 40px 60px; animation: m-arm-sway 3.4s ease-in-out infinite; }
+@keyframes m-arm-sway {
+  0%, 100% { transform: rotate(8deg); }
+  50%      { transform: rotate(-6deg); }
+}
+.m-leg-l { transform-origin: 42px 86px; animation: m-leg 3.4s ease-in-out infinite; }
+.m-leg-r { transform-origin: 54px 86px; animation: m-leg 3.4s ease-in-out infinite reverse; }
+@keyframes m-leg {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(4deg); }
+}
+.mascot-wrap.bounce { animation: mascot-bounce .55s ease; }
+@keyframes mascot-bounce {
+  0%   { transform: translateY(0) scale(1); }
+  30%  { transform: translateY(-14px) scale(1.06); }
+  60%  { transform: translateY(0) scale(.96); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.speech {
+  position: relative;
+  background: var(--white);
+  border-radius: 16px;
+  padding: 10px 14px;
+  font-size: 13px; line-height: 1.4;
+  color: var(--char);
+  box-shadow: 0 2px 10px rgba(26,58,31,.08), 0 0 0 .5px rgba(0,0,0,.04);
+  max-width: 220px;
+  margin-bottom: 14px;
+  animation: speech-pop .35s cubic-bezier(.34,1.56,.64,1);
+}
+.speech::before {
+  content: '';
+  position: absolute; left: -8px; bottom: 14px;
+  width: 0; height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 10px solid var(--white);
+  filter: drop-shadow(-1px 0 0 rgba(0,0,0,.04));
+}
+.speech-cta {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px; font-weight: 600;
+  color: var(--leaf);
+  background: var(--mist);
+  padding: 5px 10px; border-radius: 10px;
+  cursor: pointer;
+  border: none; font-family: inherit;
+}
+.speech-cta:active { background: var(--sage); color: white; }
+.speech-skip {
+  display: inline-block; margin-top: 8px; margin-left: 8px;
+  font-size: 12px; color: var(--ash);
+  background: none; border: none; cursor: pointer;
+  font-family: inherit;
+}
+@keyframes speech-pop {
+  0%   { transform: scale(.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── SURVEY MODAL ── */
+.survey-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(8,15,8,.55);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  z-index: 200;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 28px;
+  animation: fade-in .25s ease;
+}
+.survey-backdrop.show { display: flex; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.survey-card {
+  background: var(--cream);
+  border-radius: 24px;
+  width: 100%; max-width: 340px;
+  padding: 22px 22px 20px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  animation: card-rise .35s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes card-rise {
+  from { transform: translateY(20px) scale(.96); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+.survey-progress { display: flex; gap: 6px; margin-bottom: 14px; }
+.survey-pip {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: var(--parch);
+  transition: background .25s;
+}
+.survey-pip.on { background: var(--leaf); }
+.survey-q {
+  font-family: 'Fraunces', serif;
+  font-size: 20px; line-height: 1.25;
+  color: var(--forest);
+  margin-bottom: 4px;
+}
+.survey-sub { font-size: 12px; color: var(--ash); margin-bottom: 16px; }
+.survey-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.survey-opt {
+  background: var(--white);
+  border: 1.5px solid transparent;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px; color: var(--char);
+  text-align: left; cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; gap: 10px;
+  transition: all .15s;
+}
+.survey-opt:active { transform: scale(.98); }
+.survey-opt.sel { border-color: var(--leaf); background: var(--glight); }
+.survey-opt-em { font-size: 18px; flex-shrink: 0; }
+.survey-actions { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+.survey-skip {
+  font-size: 12px; color: var(--ash);
+  background: none; border: none; cursor: pointer;
+  padding: 8px 4px; font-family: inherit;
+}
+.survey-next {
+  flex: 1;
+  background: var(--forest); color: white;
+  border: none; border-radius: 14px;
+  padding: 13px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  transition: opacity .15s;
+}
+.survey-next:disabled { opacity: .35; cursor: not-allowed; }
+.survey-next:not(:disabled):active { background: var(--moss); }
+
 .hscroll { padding: 16px 20px; }
 
 /* Hero card */
@@ -404,7 +585,23 @@ body {
   padding: 14px 16px 18px;
   z-index: 20;
 }
-.chips-lbl { font-size: 10px; color: var(--fog); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+.chips-lbl { font-size: 10px; color: var(--fog); letter-spacing: .08em; text-transform: uppercase; }
+.chips-lbl-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; gap: 12px;
+}
+.manual-btn {
+  background: rgba(255,255,255,.08);
+  border: .5px solid rgba(255,255,255,.16);
+  color: white;
+  font-family: inherit;
+  font-size: 11px; font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.manual-btn:active { background: rgba(111,172,94,.25); border-color: rgba(111,172,94,.5); }
 .chips-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .chips-row::-webkit-scrollbar { display: none; }
 .pchip {
@@ -708,6 +905,48 @@ body {
       <div class="home-greet" id="home-greet">Good morning</div>
       <div class="home-title">Shop green<br>today 🌿</div>
     </div>
+
+    <div class="mascot-row">
+      <div class="mascot-wrap" id="mascot" onclick="mascotTap()" aria-label="Terra the Earth mascot">
+        <div class="m-shadow"></div>
+        <svg class="mascot-svg" viewBox="0 0 96 110" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="earthGrad" cx="35%" cy="32%" r="75%">
+              <stop offset="0%"  stop-color="#7fc5ff"/>
+              <stop offset="55%" stop-color="#3a8fd9"/>
+              <stop offset="100%" stop-color="#1a5da8"/>
+            </radialGradient>
+          </defs>
+          <line class="m-arm-l" x1="20"  y1="60" x2="6"   y2="74" stroke="#1c1c1e" stroke-width="2.2" stroke-linecap="round"/>
+          <circle class="m-arm-l" cx="6"  cy="74" r="3" fill="#1c1c1e"/>
+          <line class="m-arm-r" x1="76" y1="60" x2="92"  y2="48" stroke="#1c1c1e" stroke-width="2.2" stroke-linecap="round"/>
+          <circle class="m-arm-r" cx="92" cy="48" r="3" fill="#1c1c1e"/>
+          <line class="m-leg-l" x1="42" y1="86" x2="36" y2="106" stroke="#1c1c1e" stroke-width="2.2" stroke-linecap="round"/>
+          <ellipse class="m-leg-l" cx="34" cy="107" rx="5" ry="2.2" fill="#1c1c1e"/>
+          <line class="m-leg-r" x1="54" y1="86" x2="60" y2="106" stroke="#1c1c1e" stroke-width="2.2" stroke-linecap="round"/>
+          <ellipse class="m-leg-r" cx="62" cy="107" rx="5" ry="2.2" fill="#1c1c1e"/>
+          <circle cx="48" cy="50" r="32" fill="url(#earthGrad)"/>
+          <path d="M28 38 q6 -4 13 1 q5 4 12 1 q5 -2 11 3 q3 4 -1 8 q-6 2 -11 -2 q-5 -4 -11 0 q-7 4 -13 -1 q-3 -4 0 -10 z" fill="#3d7a32"/>
+          <path d="M22 60 q5 -3 10 0 q4 3 9 0 q4 -2 8 1 q3 3 0 6 q-5 3 -10 0 q-4 -3 -9 0 q-5 3 -8 -1 q-2 -3 0 -6 z" fill="#3d7a32"/>
+          <path d="M55 70 q4 -2 9 0 q4 2 9 -1 q3 -2 5 1 q1 3 -2 4 q-5 2 -9 0 q-4 -2 -8 1 q-3 1 -4 -2 z" fill="#3d7a32"/>
+          <ellipse cx="40" cy="48" rx="4" ry="5" fill="white"/>
+          <circle class="m-eye" cx="40" cy="49" r="2.2" fill="#1c1c1e"/>
+          <circle cx="40.7" cy="48" r=".8" fill="white"/>
+          <ellipse cx="56" cy="48" rx="4" ry="5" fill="white"/>
+          <circle class="m-eye right" cx="56" cy="49" r="2.2" fill="#1c1c1e"/>
+          <circle cx="56.7" cy="48" r=".8" fill="white"/>
+          <path d="M42 60 q6 5 12 0" stroke="#1c1c1e" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <ellipse cx="34" cy="56" rx="3" ry="1.6" fill="#ff9a9a" opacity=".55"/>
+          <ellipse cx="62" cy="56" rx="3" ry="1.6" fill="#ff9a9a" opacity=".55"/>
+        </svg>
+      </div>
+      <div class="speech" id="mascot-speech">
+        <div id="mascot-msg">Hey! I'm Terra. Ready to learn about your eco-habits?</div>
+        <button class="speech-cta" id="mascot-cta" onclick="openSurvey()">Sure, let's go</button>
+        <button class="speech-skip" id="mascot-skip" onclick="dismissMascot()">Maybe later</button>
+      </div>
+    </div>
+
     <div class="scroll-area hscroll">
       <div class="hero-card" onclick="goScan()">
         <div class="hero-label">Quick action</div>
@@ -766,6 +1005,20 @@ body {
       <button class="bnav-btn" id="nav-impact" onclick="showTab('impact')"><div class="bnav-pip"><span class="bnav-em">📊</span></div><span class="bnav-lbl">Impact</span></button>
       <button class="bnav-btn" id="nav-rewards" onclick="showTab('rewards')"><div class="bnav-pip"><span class="bnav-em">🏆</span></div><span class="bnav-lbl">Rewards</span></button>
     </nav>
+
+    <!-- Onboarding survey overlay -->
+    <div class="survey-backdrop" id="survey">
+      <div class="survey-card">
+        <div class="survey-progress" id="survey-progress"></div>
+        <div class="survey-q" id="survey-q"></div>
+        <div class="survey-sub" id="survey-sub"></div>
+        <div class="survey-opts" id="survey-opts"></div>
+        <div class="survey-actions">
+          <button class="survey-skip" onclick="skipSurvey()">Skip</button>
+          <button class="survey-next" id="survey-next" onclick="nextSurvey()" disabled>Next</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ════ SCAN ════ -->
@@ -813,7 +1066,10 @@ body {
         </div>
       </div>
       <div class="chips-strip">
-        <div class="chips-lbl">Tap to simulate scan</div>
+        <div class="chips-lbl-row">
+          <div class="chips-lbl">Tap to simulate scan</div>
+          <button class="manual-btn" onclick="manualBarcodeEntry()">⌨ Type a code</button>
+        </div>
         <div class="chips-row">
           <div class="pchip" onclick="doScan('beef')"><div class="pchip-em">🥩</div><div class="pchip-name">Ground Beef</div><div class="pchip-brand">Conventional</div></div>
           <div class="pchip" onclick="doScan('lentils')"><div class="pchip-em">🫘</div><div class="pchip-name">Green Lentils</div><div class="pchip-brand">Bob's Red Mill</div></div>

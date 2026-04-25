@@ -1,61 +1,71 @@
 # terra-broncohacks
 
-A sustainability-focused shopping app prototype (single-page `home.html`) with a barcode scanner.
+A sustainability-focused shopping app prototype (single-page `home.html`) with a **live barcode scanner** that uses your phone's camera and looks up products via [Open Food Facts](https://world.openfoodfacts.org/).
 
 ## Test the barcode scanner on your phone
 
-Follow these simple steps to open the app on your phone and try the scanner.
+The scanner uses your phone camera, so it needs **HTTPS** (browsers block camera access on plain `http://` for non-localhost URLs). Two paths below — pick whichever is easier.
 
-### 1. Make sure your phone and computer are on the same Wi-Fi
+### Option A — Easiest: use a free HTTPS tunnel (recommended)
 
-The phone needs to reach your computer over the local network.
+This works whether you're on Wi-Fi or not, and avoids any firewall fiddling.
 
-### 2. Start a local web server in this folder
+1. **Start a local web server** in the project folder (where `home.html` lives):
 
-Open a terminal in the project folder (where `home.html` lives) and run **one** of these:
+   - macOS / Linux:
+     ```bash
+     python3 -m http.server 8000
+     ```
+   - Windows (PowerShell):
+     ```powershell
+     python -m http.server 8000
+     ```
 
-**Python (already installed on most computers):**
+   Leave that terminal open.
 
-```bash
-python3 -m http.server 8000
-```
+2. **In a second terminal**, start a Cloudflare quick tunnel (no signup, no install if you have Node.js):
 
-**Or with Node.js:**
+   ```bash
+   npx --yes cloudflared tunnel --url http://localhost:8000
+   ```
 
-```bash
-npx serve -l 8000
-```
+   Don't have Node? Install `cloudflared` directly: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
 
-Leave the terminal running.
+   Or use localtunnel: `npx --yes localtunnel --port 8000`
 
-### 3. Find your computer's local IP address
+3. The tunnel prints a URL like `https://something-random.trycloudflare.com`. **Open that URL + `/home.html` on your phone**, e.g.:
 
-- **macOS:** `ipconfig getifaddr en0`
-- **Linux:** `hostname -I`
-- **Windows:** `ipconfig` (look for "IPv4 Address")
+   ```
+   https://something-random.trycloudflare.com/home.html
+   ```
 
-You'll get something like `192.168.1.42`.
+4. Tap **Scan barcode**. Your phone will prompt for camera permission — tap **Allow**.
 
-### 4. Open the app on your phone
+5. Point the rear camera at any product barcode (UPC, EAN, etc.). The app will detect it, look it up on Open Food Facts, and show a sustainability report.
 
-In your phone's browser (Safari on iPhone, Chrome on Android), go to:
+### Option B — Same Wi-Fi, no tunnel
 
-```
-http://YOUR-IP:8000/home.html
-```
+This works for the UI and the simulated-scan chips, but **the live camera will be disabled** (browsers require HTTPS for camera on non-localhost URLs).
 
-Example: `http://192.168.1.42:8000/home.html`
+1. Start the local server as in Option A step 1.
+2. Find your computer's local IP:
+   - macOS: `ipconfig getifaddr en0`
+   - Linux: `hostname -I`
+   - Windows: `ipconfig` (look at the IPv4 Address under your Wi-Fi adapter)
+3. Make sure your phone is on the same Wi-Fi.
+4. Open `http://YOUR-IP:8000/home.html` on your phone (e.g. `http://192.168.1.42:8000/home.html`).
+5. Tap any of the **"Tap to simulate scan"** chips at the bottom of the scan screen to try the analyze + result flow without a camera.
 
-### 5. Allow camera access and try the scanner
+## How the live scanner works
 
-1. Tap **Scan barcode** on the home screen (or the 📷 tab at the bottom).
-2. When prompted, allow the browser to use your camera.
-3. Point the camera at a product barcode, or tap one of the sample products to simulate a scan.
+- Uses the browser's native [`BarcodeDetector` API](https://developer.mozilla.org/docs/Web/API/Barcode_Detection_API) where available (Chrome on Android).
+- Falls back to the [ZXing](https://github.com/zxing-js/library) JS library for iOS Safari and other browsers.
+- Detected barcodes are matched against the built-in demo products first, then looked up via the public Open Food Facts API.
+- The video feed stays on the device — nothing is uploaded.
 
-### Troubleshooting
+## Troubleshooting
 
-- **Camera won't open:** Browsers only allow camera access on `https://` or `localhost`. If your phone blocks the camera over plain `http://`, use one of these:
-  - Run [`ngrok`](https://ngrok.com/) to expose `http://localhost:8000` over HTTPS, then open the `https://...ngrok.io/home.html` URL on your phone.
-  - Or run `npx localtunnel --port 8000` and use the HTTPS URL it prints.
-- **Page won't load:** Check that your computer's firewall allows incoming connections on port 8000, and that both devices are on the same Wi-Fi network.
-- **Barcode not detected:** Use the "Tap to simulate scan" chips at the bottom of the scan screen to try the flow without a real barcode.
+- **Camera permission was denied:** Tap the lock/info icon in your browser's address bar, allow Camera, then reload.
+- **"HTTPS required" message:** You're on a plain `http://` URL. Use the tunnel (Option A) so the URL is `https://...`.
+- **Barcode not detected:** Hold the phone steady ~10–20 cm from the barcode in good lighting. If it still doesn't read, tap one of the sample chips at the bottom to simulate a scan.
+- **"Barcode … not found" toast:** That product isn't in Open Food Facts. Try a common grocery item (most boxed/canned foods are indexed).

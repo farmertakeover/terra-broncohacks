@@ -332,6 +332,22 @@ body {
   display: flex; align-items: center; justify-content: center;
   background: #080f08;
 }
+#cam-feed {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+#cam-error {
+  position: absolute; inset: 0; z-index: 6;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; padding: 32px; text-align: center;
+  background: rgba(8,15,8,.92);
+}
+#cam-error.show { display: flex; }
+.cam-error-icon { font-size: 36px; }
+.cam-error-msg { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.6; }
 /* Ambient grid */
 .cam-view::before {
   content: '';
@@ -687,12 +703,12 @@ body {
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-icon">🔥</div>
-          <div class="stat-val">7</div>
+          <div class="stat-val" id="stat-streak">0</div>
           <div class="stat-label">day streak</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">🌿</div>
-          <div class="stat-val">340</div>
+          <div class="stat-val" id="stat-tokens">0</div>
           <div class="stat-label">eco tokens</div>
         </div>
       </div>
@@ -700,29 +716,15 @@ body {
       <div class="impact-strip">
         <div class="impact-strip-title">This week's impact</div>
         <div class="impact-cols">
-          <div class="impact-col"><div class="impact-num">847</div><div class="impact-unit">gal water<br>saved</div></div>
-          <div class="impact-col"><div class="impact-num">12.4</div><div class="impact-unit">lbs CO₂<br>avoided</div></div>
-          <div class="impact-col"><div class="impact-num">14</div><div class="impact-unit">eco<br>swaps</div></div>
+          <div class="impact-col"><div class="impact-num" id="impact-water">0</div><div class="impact-unit">gal water<br>saved</div></div>
+          <div class="impact-col"><div class="impact-num" id="impact-co2">0</div><div class="impact-unit">lbs CO₂<br>avoided</div></div>
+          <div class="impact-col"><div class="impact-num" id="impact-swaps">0</div><div class="impact-unit">eco<br>swaps</div></div>
         </div>
       </div>
 
       <div class="sec-hdr"><span class="sec-title">Recent scans</span><span class="sec-link">See all</span></div>
-      <div class="recent-card">
-        <div class="recent-row" onclick="doScan('lentils')">
-          <div class="recent-ic" style="background:#eaf3de">🫘</div>
-          <div class="recent-info"><div class="recent-name">Green Lentils, Bob's Red Mill</div><div class="recent-meta">Today · Whole Foods</div></div>
-          <div class="score-pill sp-good">9</div>
-        </div>
-        <div class="recent-row" onclick="doScan('oatmilk')">
-          <div class="recent-ic" style="background:#f5f0e8">🌾</div>
-          <div class="recent-info"><div class="recent-name">Oat Milk, Oatly</div><div class="recent-meta">Today · Target</div></div>
-          <div class="score-pill sp-good">8</div>
-        </div>
-        <div class="recent-row" onclick="doScan('beef')">
-          <div class="recent-ic" style="background:#fdeaea">🥩</div>
-          <div class="recent-info"><div class="recent-name">Ground Beef 80/20</div><div class="recent-meta">Yesterday · Safeway</div></div>
-          <div class="score-pill sp-bad">2</div>
-        </div>
+      <div class="recent-card" id="recent-card-home">
+        <div style="padding:18px;text-align:center;color:var(--ash);font-size:13px">No scans yet — tap Scan to start!</div>
       </div>
     </div>
     <nav class="bnav">
@@ -741,6 +743,11 @@ body {
       <div class="scan-title">Scan Product</div>
     </div>
     <div class="cam-view">
+      <video id="cam-feed" autoplay playsinline muted></video>
+      <div id="cam-error">
+        <div class="cam-error-icon">📷</div>
+        <div class="cam-error-msg" id="cam-error-msg">Camera unavailable</div>
+      </div>
       <div class="cam-overlay">
         <div class="scan-frame">
           <div class="sc-corner sc-tl"></div><div class="sc-corner sc-tr"></div>
@@ -839,7 +846,7 @@ body {
     <div class="scroll-area" style="padding:0 20px calc(88px + var(--safe-bot))">
       <div class="token-hero-card">
         <div class="th-top">
-          <div><div class="th-label">Your balance</div><div class="th-amount">340</div><div class="th-sub">eco tokens</div></div>
+          <div><div class="th-label">Your balance</div><div class="th-amount" id="rewards-tokens">0</div><div class="th-sub">eco tokens</div></div>
           <span style="font-size:38px">🌿</span>
         </div>
         <div class="th-cols">
@@ -878,170 +885,7 @@ body {
   <div id="toast"></div>
 </div>
 
-<script>
-// ── PRODUCTS ──
-const P = {
-  beef: { name:'Ground Beef 80/20', brand:'Conventional Farming', code:'0-22000-02025-4', em:'🥩', score:2, co2:27.0, water:15400, pack:'Non-recyclable plastic', origin:'USA (factory farm)', cert:'None', details:{'CO₂ / kg':'27 kg CO₂','Water / kg':'15,400 L','Land use':'164 m²/kg','Packaging':'Non-recyclable plastic','Origin':'USA (CAFO)','Certifications':'None','Animal welfare':'Conventional CAFO','Biodiversity':'Very high impact'}, alts:[{em:'🌿',name:'Beyond Burger',score:8,why:'99% less water, 90% less land'},{em:'🫘',name:'Green Lentils',score:9,why:'Complete protein, nitrogen-fixing'},{em:'🐄',name:'Local Grass-Fed Beef',score:5,why:'Lower emissions, regenerative'}] },
-  lentils: { name:'Green Lentils 1 lb', brand:"Bob's Red Mill", code:'0-39978-01531-4', em:'🫘', score:9, co2:0.9, water:1250, pack:'Recyclable paper bag', origin:'USA / Canada', cert:'Non-GMO Project', details:{'CO₂ / kg':'0.9 kg CO₂','Water / kg':'1,250 L','Land use':'3.4 m²/kg','Packaging':'Recyclable paper','Origin':'USA / Canada','Certifications':'Non-GMO Project','Soil impact':'Nitrogen-fixing ✓','Biodiversity':'Low impact'}, alts:[{em:'🥙',name:'Organic Chickpeas',score:9,why:'Equal protein, USDA Organic'},{em:'🫘',name:'Black Beans',score:9,why:'Comparable sustainability profile'}] },
-  water: { name:'Purified Water 16.9 oz', brand:'Dasani / Coca-Cola', code:'0-12000-82066-1', em:'🧴', score:3, co2:0.55, water:3, pack:'Single-use PET plastic', origin:'Municipal tap', cert:'None', details:{'CO₂ / bottle':'0.55 kg CO₂','Plastic waste':'18.9g PET','Recyclability':'~30% actually recycled','Packaging':'Single-use PET','Ocean impact':'High (plastic leakage)','Source':'Municipal tap + filter','Fossil fuel':'PET from petroleum','RSPO':'N/A'}, alts:[{em:'💧',name:'Reusable Steel Bottle',score:10,why:'Zero waste after purchase'},{em:'📦',name:'Boxed Water',score:7,why:'92% renewable materials'},{em:'🚰',name:'Brita Filter + Tap',score:10,why:'Lowest possible footprint'}] },
-  oatmilk: { name:'Oat Milk Original', brand:'Oatly', code:'8-10022-03014-0', em:'🌾', score:8, co2:0.9, water:48, pack:'Tetra Pak (recyclable)', origin:'Sweden / USA', cert:'Non-GMO, Vegan', details:{'CO₂ / litre':'0.9 kg CO₂','Water / litre':'48 L (vs 628L dairy)','Land use':'0.76 m² (vs 9 dairy)','Packaging':'Tetra Pak recyclable','Origin':'Sweden / USA','Certifications':'Non-GMO, Vegan','vs Dairy CO₂':'73% less','Pesticide risk':'Low'}, alts:[{em:'🥣',name:'Homemade Oat Milk',score:10,why:'No packaging, freshest option'}] },
-  chips: { name:"Classic Potato Chips", brand:"Lay's", code:'0-28400-08406-5', em:'🍟', score:4, co2:3.8, water:790, pack:'Mylar (non-recyclable)', origin:'USA + SE Asia palm', cert:'None (non-RSPO)', details:{'CO₂ / kg':'3.8 kg CO₂','Palm oil':'Non-RSPO certified','Deforestation risk':'High','Packaging':'Mylar — not recyclable','Origin':'USA + SE Asia','Processing':'Ultra-processed NOVA 4','Recyclability':'0% (multilayer film)','Biodiversity':'High (palm deforestation)'}, alts:[{em:'✅',name:'RSPO Certified Chips',score:7,why:'Certified sustainable palm oil'},{em:'🍿',name:'Air-popped Popcorn',score:9,why:'Whole grain, minimal processing'},{em:'🥑',name:'Avocado Oil Chips',score:7,why:'Better oil sourcing'}] },
-  organic_milk: { name:'Organic Whole Milk', brand:'Organic Valley', code:'0-93966-00414-9', em:'🥛', score:7, co2:1.9, water:628, pack:'HDPE jug (recyclable)', origin:'USA (family farms)', cert:'USDA Organic, Non-GMO', details:{'CO₂ / litre':'1.9 kg CO₂','Water / litre':'628 L','Land use':'9 m²/litre','Packaging':'HDPE recyclable','Origin':'USA family farms','Certifications':'USDA Organic, Non-GMO','Animal welfare':'Pasture standards','Pesticide risk':'None (Organic)'}, alts:[{em:'🌾',name:'Oat Milk',score:8,why:'73% less CO₂ than dairy'},{em:'🏡',name:'Local Farm Milk',score:7,why:'Reduced transport emissions'}] }
-};
-
-// ── NAV ──
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('s-'+id).classList.add('active');
-}
-
-function showTab(id) {
-  showScreen(id);
-  ['home','scan','impact','rewards'].forEach(t=>{
-    const btn = document.getElementById('nav-'+t);
-    if(btn) btn.classList.toggle('active', t===id);
-  });
-}
-
-function goScan() { showScreen('scan'); }
-
-// ── SCAN FLOW ──
-async function doScan(key) {
-  const prod = P[key];
-  if(!prod) return;
-  showScreen('scan');
-  const ov = document.getElementById('analyzing');
-  ov.classList.add('show');
-  const steps = ['as1','as2','as3','as4'];
-  const delays = [0,700,1400,2150];
-  steps.forEach((id,i)=>{
-    setTimeout(()=>{
-      steps.forEach(s=>{ document.getElementById(s).classList.remove('on'); });
-      if(i>0) document.getElementById(steps[i-1]).classList.add('done');
-      document.getElementById(id).classList.add('on');
-    }, delays[i]);
-  });
-
-  const aiP = fetchAI(prod);
-  await sleep(2900);
-  document.getElementById(steps[steps.length-1]).classList.add('done');
-  const ai = await aiP;
-  await sleep(350);
-  ov.classList.remove('show');
-  steps.forEach(s=>{ const el=document.getElementById(s); el.classList.remove('on','done'); });
-  renderResult(prod, ai);
-  showScreen('result');
-  toast('+10 🌿 tokens earned!');
-}
-
-function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-// ── AI CALL ──
-async function fetchAI(p) {
-  try {
-    const r = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:600,
-        messages:[{role:'user',content:`You are a sustainability analyst. Given ONLY this verified data, write a short factual assessment. Do NOT invent facts.
-
-Product: ${p.name} by ${p.brand}
-CO2: ${p.co2} kg/kg | Water: ${p.water} L/kg | Score: ${p.score}/10
-Packaging: ${p.pack} | Certifications: ${p.cert}
-
-Respond ONLY in JSON (no markdown):
-{"headline":"max 12 words verdict","explanation":"2-3 sentences max 55 words, cite actual numbers","top_concern":"max 7 words","positive":"max 7 words or 'None significant'"}`}]
-      })
-    });
-    const d = await r.json();
-    return JSON.parse((d.content?.[0]?.text||'').replace(/```json|```/g,'').trim());
-  } catch(e) { return localAI(p); }
-}
-
-function localAI(p) {
-  const h = p.score>=8?'One of the most sustainable choices available.':p.score>=6?'Good choice with manageable trade-offs.':p.score>=4?'Significant environmental concerns present.':'Among the least sustainable in its category.';
-  const ex = p.score>=7
-    ? `This product has a verified footprint of ${p.co2} kg CO₂ and ${p.water.toLocaleString()}L water per kg — well below category averages. ${p.cert!=='None'?`${p.cert} certification confirms responsible production.`:'Its packaging and origin further reduce environmental burden.'}`
-    : `This product generates ${p.co2} kg CO₂ and requires ${p.water.toLocaleString()}L water per kg — among the highest in its category. ${p.pack.includes('Non')||p.pack.includes('Mylar')?'Its non-recyclable packaging compounds the environmental cost.':'Better alternatives exist with significantly lower footprints.'}`;
-  const c = p.co2>10?'Very high GHG emissions':p.pack.includes('Non')||p.pack.includes('Mylar')?'Non-recyclable packaging':p.water>5000?'Excessive freshwater use':'No sustainability certifications';
-  const pos = p.score<4?'None significant':p.cert!=='None'?p.cert+' certified':p.co2<2?'Low carbon footprint':'Lower than conventional options';
-  return { headline:h, explanation:ex, top_concern:c, positive:pos };
-}
-
-// ── RENDER RESULT ──
-function renderResult(p, ai) {
-  const good=p.score>=7, mid=p.score>=4&&p.score<7;
-  const cc = good?'sc-eco':mid?'sc-mid':'sc-bad';
-  const iconBg = good?'#eaf3de':mid?'#fef3e2':'#fdeaea';
-  const verdict = good?'✓ Eco-friendly':mid?'⚠ Use with caution':'✗ Not eco-friendly';
-  const w = p.water>=1000?(p.water/1000).toFixed(1)+'K':p.water;
-
-  document.getElementById('prod-bar').innerHTML=`
-    <div class="prod-icon" style="background:${iconBg}">${p.em}</div>
-    <div><div class="prod-name">${p.name}</div><div class="prod-brand">${p.brand}</div><div class="prod-code">${p.code}</div></div>`;
-
-  const drows = Object.entries(p.details).map(([k,v])=>`<div class="drow"><span class="drow-k">${k}</span><span class="drow-v">${v}</span></div>`).join('');
-  const altrows = p.alts.map(a=>`<div class="alt-row" onclick="doScan('${altKey(a.name)}')"><span class="alt-em">${a.em}</span><div class="alt-info"><div class="alt-name">${a.name}</div><div class="alt-why">${a.why}</div></div><div class="alt-sc">${a.score}</div></div>`).join('');
-  const altsBlock = p.alts.length ? `<div class="alts-card fi"><div class="dcard-title">${good?'💡 Even greener options':'♻️ Greener alternatives'}</div>${altrows}</div>` : '';
-
-  document.getElementById('rbody').innerHTML=`
-    <div class="score-card ${cc} fi">
-      <div class="sc-top">
-        <div><div class="sc-verdict">${verdict}</div><div class="sc-sub">${ai.headline}</div></div>
-        <div><span class="sc-num">${p.score}</span><span class="sc-denom">/10</span></div>
-      </div>
-      <div class="sc-bar"><div class="sc-fill" style="width:${p.score*10}%"></div></div>
-      <div class="sc-metrics">
-        <div class="sc-metric"><span class="sc-mic">💨</span><div><div class="sc-mval">${p.co2} kg</div><div class="sc-mlbl">CO₂ per kg</div></div></div>
-        <div class="sc-metric"><span class="sc-mic">💧</span><div><div class="sc-mval">${w} L</div><div class="sc-mlbl">water per kg</div></div></div>
-        <div class="sc-metric"><span class="sc-mic">⚠️</span><div><div class="sc-mval" style="font-size:10px;line-height:1.3">${ai.top_concern}</div><div class="sc-mlbl">top concern</div></div></div>
-        <div class="sc-metric"><span class="sc-mic">✅</span><div><div class="sc-mval" style="font-size:10px;line-height:1.3">${ai.positive}</div><div class="sc-mlbl">positive</div></div></div>
-      </div>
-    </div>
-    <div class="ai-card fi">
-      <div class="ai-hdr"><span class="ai-badge">AI ANALYSIS</span><span class="ai-title">Claude's assessment</span></div>
-      <div class="ai-text">${ai.explanation}</div>
-    </div>
-    ${altsBlock}
-    <div class="dcard fi"><div class="dcard-title">📊 Full environmental data</div>${drows}</div>`;
-
-  document.getElementById('rbody').scrollTop=0;
-}
-
-function altKey(n){
-  if(n.includes('Lentil')||n.includes('Chickpea')||n.includes('Black Bean'))return'lentils';
-  if(n.includes('Oat'))return'oatmilk';
-  if(n.includes('Water')||n.includes('Brita')||n.includes('Boxed'))return'water';
-  if(n.includes('Popcorn')||n.includes('RSPO')||n.includes('Avocado'))return'chips';
-  return'lentils';
-}
-
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2700);
-}
-function redeem(item){ toast(`Redeeming ${item} reward…`); }
-
-// Load user from Google sign-in
-(function() {
-  try {
-    const user = JSON.parse(localStorage.getItem('eco_user') || '{}');
-    const name = user.name || 'there';
-    const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-    document.getElementById('home-greet').textContent = greeting + ', ' + name;
-  } catch(e) {}
-})();
-
-// Live clock
-function updateClock(){
-  const now=new Date();
-  const t=`${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
-  document.querySelectorAll('.sbar-time').forEach(el=>el.textContent=t);
-}
-updateClock(); setInterval(updateClock,30000);
-</script>
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+<script src="/javascript/home.js"></script>
 </body>
 </html>

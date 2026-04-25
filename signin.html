@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1a3a1f">
+<title>EcoBasket — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; }
+
+/* ── TOKENS ── */
+:root {
+  --forest: #1a3a1f;
+  --moss:   #2d5a27;
+  --leaf:   #3d7a32;
+  --sage:   #6fac5e;
+  --mist:   #c4e3bb;
+  --cream:  #f5f0e8;
+  --parch:  #ede7d9;
+  --white:  #ffffff;
+  --char:   #1c1c1e;
+  --smoke:  #3a3a3c;
+  --ash:    #636366;
+  --fog:    #aeaeb2;
+  --sand:   #d4c5a9;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #0e1a0f;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.app-shell {
+  width: 100%;
+  height: 100dvh;
+  background: var(--cream);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 600px) {
+  body {
+    background: #0e1a0f;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(42,80,35,.35) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 20%, rgba(26,58,31,.2) 0%, transparent 50%);
+  }
+  .app-shell {
+    width: 390px;
+    height: 844px;
+    border-radius: 52px;
+    box-shadow:
+      0 0 0 .5px rgba(255,255,255,.18),
+      0 0 0 1px rgba(0,0,0,.7),
+      0 32px 80px rgba(0,0,0,.55),
+      inset 0 0 0 .5px rgba(255,255,255,.06);
+  }
+  .phone-notch {
+    display: block !important;
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 32px;
+    background: #111;
+    border-radius: 0 0 22px 22px;
+    z-index: 999;
+    pointer-events: none;
+  }
+}
+.phone-notch { display: none; }
+
+/* ── HERO ── */
+.auth-hero {
+  background: var(--forest);
+  padding: calc(var(--safe-top) + 64px) 28px 44px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+@media (min-width:600px) { .auth-hero { padding-top: 80px; } }
+
+.auth-hero::before {
+  content: '';
+  position: absolute; top: -70px; right: -50px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(111,172,94,.2) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none;
+}
+.auth-hero::after {
+  content: '';
+  position: absolute; bottom: -40px; left: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(196,227,187,.07) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none;
+}
+
+.hero-icon-wrap {
+  width: 72px; height: 72px;
+  background: rgba(255,255,255,.1);
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+}
+.auth-app-name {
+  font-family: 'Fraunces', serif;
+  font-size: 32px; font-weight: 600;
+  color: var(--white); line-height: 1.1;
+  margin-bottom: 8px;
+}
+.auth-tagline {
+  font-size: 14px;
+  color: rgba(255,255,255,.5);
+  line-height: 1.5;
+  max-width: 240px;
+}
+
+/* ── BODY ── */
+.auth-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 28px calc(24px + var(--safe-bot));
+  gap: 20px;
+  margin-top: -300px;
+}
+
+.auth-label {
+  font-size: 15px;
+  color: var(--smoke);
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ── GOOGLE BUTTON WRAPPER ── */
+/* Centers the GIS-rendered button and makes it fill available width */
+#google-btn {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Override Google's iframe container to match our radius */
+#google-btn > div {
+  border-radius: 14px !important;
+  overflow: hidden;
+}
+
+/* ── DIVIDER ── */
+.auth-divider {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--fog); font-size: 12px;
+  width: 100%;
+}
+.auth-divider::before, .auth-divider::after {
+  content: ''; flex: 1; height: .5px; background: var(--sand);
+}
+
+/* ── FEATURES LIST ── */
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  background: var(--white);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+}
+.feature-row {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13px; color: var(--smoke);
+}
+.feature-ic {
+  width: 32px; height: 32px;
+  background: var(--parch);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* ── LOADING STATE ── */
+#loading-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+#loading-state.show { display: flex; }
+.spin-ring {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid rgba(26,58,31,.15);
+  border-top-color: var(--leaf);
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: var(--ash); }
+
+/* ── TERMS ── */
+.terms-note {
+  font-size: 11px; color: var(--fog);
+  text-align: center; line-height: 1.6;
+}
+.terms-note a { color: var(--ash); text-decoration: underline; }
+
+/* ── ERROR BANNER ── */
+#error-banner {
+  background: #fdeaea;
+  border: 1px solid #f5c0c0;
+  border-radius: 12px;
+  padding: 11px 15px;
+  font-size: 13px; color: #b83232;
+  text-align: center;
+  display: none;
+  width: 100%;
+}
+#error-banner.show { display: block; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="phone-notch"></div>
+
+  <!-- Hero branding -->
+  <div class="auth-hero">
+    <div class="hero-icon-wrap">🌿</div>
+    <div class="auth-app-name">EcoBasket</div>
+    <div class="auth-tagline">Scan products, track your environmental impact, earn rewards</div>
+  </div>
+
+  <!-- Sign-in body -->
+  <div class="auth-body" id="auth-body">
+
+    <div class="auth-label">Sign in or create an account</div>
+
+    <!-- Google Sign-In button rendered by GIS -->
+    <div id="google-btn"></div>
+
+    <div id="error-banner">Something went wrong. Please try again.</div>
+  </div>
+
+  <!-- Loading overlay (shown while authenticating) -->
+  <div class="auth-body" id="loading-body" style="display:none">
+    <div id="loading-state" class="show">
+      <div class="spin-ring"></div>
+      <div class="loading-text">Signing you in…</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+const GOOGLE_CLIENT_ID = '293655502401-42pv9boildv5svdcl8n5466bgvr1nhgm.apps.googleusercontent.com'
+;
+
+function decodeJWT(token) {
+  const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(atob(base64));
+}
+
+function onSignIn(response) {
+  document.getElementById('auth-body').style.display = 'none';
+  document.getElementById('loading-body').style.display = 'flex';
+
+  try {
+    const payload = decodeJWT(response.credential);
+    localStorage.setItem('eco_user', JSON.stringify({
+      name:    payload.given_name || payload.name || 'Friend',
+      email:   payload.email,
+      picture: payload.picture || ''
+    }));
+    window.location.href = 'home.html';
+  } catch (e) {
+    document.getElementById('auth-body').style.display = 'flex';
+    document.getElementById('loading-body').style.display = 'none';
+    document.getElementById('error-banner').classList.add('show');
+  }
+}
+
+window.addEventListener('load', () => {
+  if (typeof google === 'undefined') {
+    document.getElementById('error-banner').textContent =
+      'Google Sign-In failed to load. Check your internet connection.';
+    document.getElementById('error-banner').classList.add('show');
+    return;
+  }
+
+  google.accounts.id.initialize({
+    client_id:            GOOGLE_CLIENT_ID,
+    callback:             onSignIn,
+    auto_select:          false,
+    cancel_on_tap_outside: true
+  });
+
+  google.accounts.id.renderButton(
+    document.getElementById('google-btn'),
+    {
+      type:   'standard',
+      theme:  'outline',
+      size:   'large',
+      text:   'signin_with',
+      shape:  'rectangular',
+      width:  334
+    }
+  );
+});
+</script>
+</body>
+</html>

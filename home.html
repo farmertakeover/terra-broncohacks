@@ -670,7 +670,7 @@ body {
       </div>
     </div>
     <div class="home-top">
-      <div class="home-greet">Good morning, Alex</div>
+      <div class="home-greet" id="home-greet">Good morning</div>
       <div class="home-title">Shop green<br>today 🌿</div>
     </div>
     <div class="scroll-area hscroll">
@@ -1023,6 +1023,17 @@ function toast(msg){
   setTimeout(()=>t.classList.remove('show'),2700);
 }
 function redeem(item){ toast(`Redeeming ${item} reward…`); }
+
+// Load user from Google sign-in
+(function() {
+  try {
+    const user = JSON.parse(localStorage.getItem('eco_user') || '{}');
+    const name = user.name || 'there';
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('home-greet').textContent = greeting + ', ' + name;
+  } catch(e) {}
+})();
 
 // Live clock
 function updateClock(){

@@ -361,6 +361,41 @@ body {
 .scan-hint { font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 6px; }
 .scan-sub  { font-size: 11px; color: rgba(255,255,255,.28); }
 
+.cam-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  background: #000;
+}
+.cam-overlay { pointer-events: none; }
+.cam-overlay > * { pointer-events: auto; }
+.cam-permission, .cam-error {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 40px 30px;
+  background: rgba(8,15,8,.96);
+  z-index: 40; gap: 14px;
+}
+.cam-permission.show, .cam-error.show { display: flex; }
+.cam-permission-em, .cam-error-em { font-size: 48px; }
+.cam-permission-title, .cam-error-title {
+  font-family: 'Fraunces', serif; font-size: 22px; color: white;
+}
+.cam-permission-text, .cam-error-text {
+  font-size: 13px; color: rgba(255,255,255,.65);
+  max-width: 280px; line-height: 1.5;
+}
+.cam-allow-btn {
+  margin-top: 8px;
+  background: var(--sage); color: white; border: none;
+  padding: 12px 28px; border-radius: 14px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  font-family: inherit;
+}
+.cam-allow-btn:active { background: var(--leaf); }
+
 /* Product chips */
 .chips-strip {
   position: absolute; bottom: 0; left: 0; right: 0;
@@ -741,14 +776,27 @@ body {
       <div class="scan-title">Scan Product</div>
     </div>
     <div class="cam-view">
+      <video id="cam-video" class="cam-video" playsinline autoplay muted></video>
       <div class="cam-overlay">
         <div class="scan-frame">
           <div class="sc-corner sc-tl"></div><div class="sc-corner sc-tr"></div>
           <div class="sc-corner sc-bl"></div><div class="sc-corner sc-br"></div>
           <div class="scan-beam"></div>
         </div>
-        <div class="scan-hint">Point at barcode or tap below</div>
+        <div class="scan-hint" id="scan-hint">Point at a product barcode</div>
         <div class="scan-sub">Open Food Facts · Claude AI</div>
+      </div>
+      <div class="cam-permission" id="cam-permission">
+        <div class="cam-permission-em">📷</div>
+        <div class="cam-permission-title">Allow camera access</div>
+        <div class="cam-permission-text">EcoBasket needs your camera to scan product barcodes. Your camera feed never leaves this device.</div>
+        <button class="cam-allow-btn" onclick="startCamera()">Enable camera</button>
+      </div>
+      <div class="cam-error" id="cam-error">
+        <div class="cam-error-em">🚫</div>
+        <div class="cam-error-title" id="cam-error-title">Camera unavailable</div>
+        <div class="cam-error-text" id="cam-error-text">We couldn't access your camera.</div>
+        <button class="cam-allow-btn" onclick="startCamera()">Try again</button>
       </div>
       <!-- Analyzing -->
       <div id="analyzing">
@@ -891,8 +939,13 @@ const P = {
 
 // ── NAV ──
 function showScreen(id) {
+  const prev = document.querySelector('.screen.active');
+  const prevId = prev ? prev.id.replace(/^s-/,'') : null;
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('s-'+id).classList.add('active');
+  if(prevId === 'scan' && id !== 'scan' && typeof stopCamera === 'function') {
+    stopCamera();
+  }
 }
 
 function showTab(id) {
@@ -903,12 +956,219 @@ function showTab(id) {
   });
 }
 
-function goScan() { showScreen('scan'); }
+function goScan() {
+  showScreen('scan');
+  startCamera();
+}
+
+// ── LIVE CAMERA + BARCODE SCANNER ──
+let _camStream = null;
+let _scanRAF = null;
+let _scanInterval = null;
+let _detector = null;
+let _zxingReader = null;
+let _scanning = false;
+let _lastDetectedCode = null;
+let _lastDetectedAt = 0;
+
+function showCamScreen(which) {
+  ['cam-permission','cam-error'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('show', id===which);
+  });
+}
+
+function setCamError(title, text) {
+  document.getElementById('cam-error-title').textContent = title;
+  document.getElementById('cam-error-text').textContent = text;
+  showCamScreen('cam-error');
+}
+
+async function startCamera() {
+  if(_scanning) return;
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    setCamError('Camera not supported',
+      'This browser doesn\'t support camera access. Try Chrome or Safari, and make sure the page is served over HTTPS or localhost.');
+    return;
+  }
+  if(!window.isSecureContext) {
+    setCamError('HTTPS required',
+      'Browsers only allow camera access on https:// or localhost. Open this page over HTTPS (e.g. via a tunnel like cloudflared/ngrok) and try again.');
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    _camStream = stream;
+    const video = document.getElementById('cam-video');
+    video.srcObject = stream;
+    await video.play().catch(()=>{});
+    showCamScreen(null);
+    document.getElementById('scan-hint').textContent = 'Point at a product barcode';
+    _scanning = true;
+    startScanLoop(video);
+  } catch(err) {
+    if(err && (err.name==='NotAllowedError' || err.name==='SecurityError')) {
+      setCamError('Camera permission denied',
+        'You blocked camera access. Tap the lock icon in your browser\'s address bar, allow Camera, then reload.');
+    } else if(err && err.name==='NotFoundError') {
+      setCamError('No camera found', 'This device doesn\'t seem to have a camera available.');
+    } else {
+      setCamError('Camera error', (err && err.message) ? err.message : 'Could not start the camera.');
+    }
+  }
+}
+
+function stopCamera() {
+  _scanning = false;
+  if(_scanRAF) { cancelAnimationFrame(_scanRAF); _scanRAF = null; }
+  if(_scanInterval) { clearInterval(_scanInterval); _scanInterval = null; }
+  if(_zxingReader && _zxingReader.reset) { try { _zxingReader.reset(); } catch(_){} }
+  _zxingReader = null;
+  if(_camStream) {
+    _camStream.getTracks().forEach(t => t.stop());
+    _camStream = null;
+  }
+  const video = document.getElementById('cam-video');
+  if(video) { try { video.pause(); } catch(_){} video.srcObject = null; }
+  _lastDetectedCode = null;
+}
+
+async function startScanLoop(video) {
+  if('BarcodeDetector' in window) {
+    try {
+      const formats = await window.BarcodeDetector.getSupportedFormats();
+      _detector = new window.BarcodeDetector({ formats: formats.length ? formats : ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf'] });
+      _scanInterval = setInterval(()=>nativeDetect(video), 350);
+      return;
+    } catch(_){ /* fall through to ZXing */ }
+  }
+  await loadZXing();
+  if(!window.ZXing) {
+    document.getElementById('scan-hint').textContent = 'Live scanning unavailable — tap a product below';
+    return;
+  }
+  try {
+    const hints = new Map();
+    const formats = [
+      ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E,
+      ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.ITF, ZXing.BarcodeFormat.QR_CODE
+    ];
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+    _zxingReader = new ZXing.BrowserMultiFormatReader(hints, 300);
+    _zxingReader.decodeFromVideoElement(video, (result, err) => {
+      if(result && _scanning) onCodeDetected(result.getText());
+    });
+  } catch(e) {
+    document.getElementById('scan-hint').textContent = 'Live scanning unavailable — tap a product below';
+  }
+}
+
+async function nativeDetect(video) {
+  if(!_scanning || !_detector || video.readyState < 2) return;
+  try {
+    const codes = await _detector.detect(video);
+    if(codes && codes.length) onCodeDetected(codes[0].rawValue);
+  } catch(_){}
+}
+
+function loadZXing() {
+  return new Promise(resolve => {
+    if(window.ZXing) return resolve();
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.0/umd/index.min.js';
+    s.onload = ()=>resolve();
+    s.onerror = ()=>resolve();
+    document.head.appendChild(s);
+  });
+}
+
+function onCodeDetected(rawCode) {
+  if(!_scanning || !rawCode) return;
+  const code = String(rawCode).trim();
+  const now = Date.now();
+  if(code === _lastDetectedCode && (now - _lastDetectedAt) < 2500) return;
+  _lastDetectedCode = code;
+  _lastDetectedAt = now;
+  if(navigator.vibrate) navigator.vibrate(60);
+  document.getElementById('scan-hint').textContent = 'Detected: ' + code;
+  doScanByCode(code);
+}
+
+async function doScanByCode(code) {
+  const localKey = Object.keys(P).find(k => P[k].code && P[k].code.replace(/[^0-9]/g,'') === code.replace(/[^0-9]/g,''));
+  if(localKey) { stopCamera(); return doScan(localKey); }
+  stopCamera();
+  await lookupAndScan(code);
+}
+
+async function lookupAndScan(code) {
+  showScreen('scan');
+  const ov = document.getElementById('analyzing');
+  ov.classList.add('show');
+  try {
+    const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json`);
+    const data = await r.json();
+    if(data && data.status === 1 && data.product) {
+      const prod = productFromOFF(data.product, code);
+      const ai = await fetchAI(prod);
+      ov.classList.remove('show');
+      renderResult(prod, ai);
+      showScreen('result');
+      toast('+10 🌿 tokens earned!');
+      return;
+    }
+    ov.classList.remove('show');
+    toast('Barcode ' + code + ' not found');
+    setTimeout(()=>{ if(document.getElementById('s-scan').classList.contains('active')) startCamera(); }, 600);
+  } catch(e) {
+    ov.classList.remove('show');
+    toast('Lookup failed — check connection');
+    setTimeout(()=>{ if(document.getElementById('s-scan').classList.contains('active')) startCamera(); }, 600);
+  }
+}
+
+function productFromOFF(p, code) {
+  const name = p.product_name || p.generic_name || 'Unknown product';
+  const brand = (p.brands || 'Unknown brand').split(',')[0].trim();
+  const eco = (p.ecoscore_grade || '').toLowerCase();
+  const ecoMap = { a: 9, b: 7, c: 5, d: 3, e: 2 };
+  const score = ecoMap[eco] || 5;
+  const co2 = p.ecoscore_data?.agribalyse?.co2_total ?? null;
+  const pack = p.packaging || 'Unknown packaging';
+  const origin = p.origins || p.countries || 'Unknown origin';
+  const labels = p.labels || 'None';
+  const em = score>=8?'🌿':score>=6?'🥗':score>=4?'📦':'⚠️';
+  const details = {
+    'Eco-Score': eco ? eco.toUpperCase() : 'Unknown',
+    'CO₂ / kg': co2!=null ? `${co2.toFixed(1)} kg CO₂` : 'Not reported',
+    'Packaging': pack,
+    'Origin': origin,
+    'Labels': labels,
+    'Categories': (p.categories || 'N/A').split(',').slice(0,3).join(', '),
+    'Brand': brand,
+    'Source': 'Open Food Facts'
+  };
+  return {
+    name, brand, code, em, score,
+    co2: co2!=null ? +co2.toFixed(2) : 0,
+    water: 0,
+    pack, origin, cert: labels,
+    details, alts: []
+  };
+}
 
 // ── SCAN FLOW ──
 async function doScan(key) {
   const prod = P[key];
   if(!prod) return;
+  if(typeof stopCamera === 'function') stopCamera();
   showScreen('scan');
   const ov = document.getElementById('analyzing');
   ov.classList.add('show');
@@ -1024,15 +1284,17 @@ function toast(msg){
 }
 function redeem(item){ toast(`Redeeming ${item} reward…`); }
 
-// Load user from Google sign-in
 (function() {
-  try {
-    const user = JSON.parse(localStorage.getItem('eco_user') || '{}');
-    const name = user.name || 'there';
-    const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-    document.getElementById('home-greet').textContent = greeting + ', ' + name;
-  } catch(e) {}
+  let user = null;
+  try { user = JSON.parse(localStorage.getItem('eco_user') || 'null'); } catch(e) {}
+  if (!user || !user.name) {
+    window.location.replace('signin.html');
+    return;
+  }
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const greetEl = document.getElementById('home-greet');
+  if (greetEl) greetEl.textContent = greeting + ', ' + user.name;
 })();
 
 // Live clock
@@ -1042,6 +1304,10 @@ function updateClock(){
   document.querySelectorAll('.sbar-time').forEach(el=>el.textContent=t);
 }
 updateClock(); setInterval(updateClock,30000);
+
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden && typeof stopCamera === 'function') stopCamera();
+});
 </script>
 </body>
 </html>

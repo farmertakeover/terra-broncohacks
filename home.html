@@ -1284,15 +1284,17 @@ function toast(msg){
 }
 function redeem(item){ toast(`Redeeming ${item} reward…`); }
 
-// Load user from Google sign-in
 (function() {
-  try {
-    const user = JSON.parse(localStorage.getItem('eco_user') || '{}');
-    const name = user.name || 'there';
-    const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-    document.getElementById('home-greet').textContent = greeting + ', ' + name;
-  } catch(e) {}
+  let user = null;
+  try { user = JSON.parse(localStorage.getItem('eco_user') || 'null'); } catch(e) {}
+  if (!user || !user.name) {
+    window.location.replace('signin.html');
+    return;
+  }
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const greetEl = document.getElementById('home-greet');
+  if (greetEl) greetEl.textContent = greeting + ', ' + user.name;
 })();
 
 // Live clock

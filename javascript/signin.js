@@ -1,4 +1,5 @@
-const GOOGLE_CLIENT_ID = '293655502401-42pv9boildv5svdcl8n5466bgvr1nhgm.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '293655502401-42pv9boildv5svdcl8n5466bgvr1nhgm.apps.googleusercontent.com'
+;
 
 function decodeJWT(token) {
   const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -33,21 +34,21 @@ window.addEventListener('load', () => {
   }
 
   google.accounts.id.initialize({
-    client_id:             GOOGLE_CLIENT_ID,
-    callback:              onSignIn,
-    auto_select:           false,
+    client_id:            GOOGLE_CLIENT_ID,
+    callback:             onSignIn,
+    auto_select:          false,
     cancel_on_tap_outside: true
   });
 
   google.accounts.id.renderButton(
     document.getElementById('google-btn'),
     {
-      type:  'standard',
-      theme: 'outline',
-      size:  'large',
-      text:  'signin_with',
-      shape: 'rectangular',
-      width: 334
+      type:   'standard',
+      theme:  'outline',
+      size:   'large',
+      text:   'signin_with',
+      shape:  'rectangular',
+      width:  334
     }
   );
 });

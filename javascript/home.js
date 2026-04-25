@@ -8,69 +8,15 @@ const P = {
   organic_milk: { name:'Organic Whole Milk', brand:'Organic Valley', code:'0-93966-00414-9', em:'🥛', score:7, co2:1.9, water:628, pack:'HDPE jug (recyclable)', origin:'USA (family farms)', cert:'USDA Organic, Non-GMO', details:{'CO₂ / litre':'1.9 kg CO₂','Water / litre':'628 L','Land use':'9 m²/litre','Packaging':'HDPE recyclable','Origin':'USA family farms','Certifications':'USDA Organic, Non-GMO','Animal welfare':'Pasture standards','Pesticide risk':'None (Organic)'}, alts:[{em:'🌾',name:'Oat Milk',score:8,why:'73% less CO₂ than dairy'},{em:'🏡',name:'Local Farm Milk',score:7,why:'Reduced transport emissions'}] }
 };
 
-// ── PER-ACCOUNT DATA ──
-function userKey() {
-  try {
-    const u = JSON.parse(localStorage.getItem('eco_user') || '{}');
-    return u.email ? 'eco_data_' + u.email : 'eco_data_guest';
-  } catch(e) { return 'eco_data_guest'; }
-}
-
-function loadData() {
-  try { return JSON.parse(localStorage.getItem(userKey())) || blankData(); }
-  catch(e) { return blankData(); }
-}
-
-function saveData(d) { localStorage.setItem(userKey(), JSON.stringify(d)); }
-
-function blankData() {
-  return { tokens:0, streak:0, lastScanDate:null, recentScans:[], waterSaved:0, co2Avoided:0, ecoSwaps:0 };
-}
-
-function todayStr() { return new Date().toISOString().slice(0,10); }
-
-function timeAgo(ts) {
-  const diff = Date.now() - ts;
-  if(diff < 60000) return 'Just now';
-  if(diff < 3600000) return Math.floor(diff/60000) + 'm ago';
-  if(diff < 86400000) return 'Today';
-  if(diff < 172800000) return 'Yesterday';
-  return new Date(ts).toLocaleDateString();
-}
-
-function renderHomeStats(d) {
-  const g = id => document.getElementById(id);
-  if(g('stat-streak'))    g('stat-streak').textContent    = d.streak;
-  if(g('stat-tokens'))    g('stat-tokens').textContent    = d.tokens;
-  if(g('impact-water'))   g('impact-water').textContent   = d.waterSaved;
-  if(g('impact-co2'))     g('impact-co2').textContent     = d.co2Avoided;
-  if(g('impact-swaps'))   g('impact-swaps').textContent   = d.ecoSwaps;
-  if(g('rewards-tokens')) g('rewards-tokens').textContent = d.tokens;
-
-  const card = g('recent-card-home');
-  if(!card) return;
-  if(d.recentScans.length === 0) {
-    card.innerHTML = '<div style="padding:18px;text-align:center;color:var(--ash);font-size:13px">No scans yet — tap Scan to start!</div>';
-  } else {
-    const scoreClass = s => s>=7?'sp-good':s>=4?'sp-warn':'sp-bad';
-    const bg = s => s>=7?'#eaf3de':s>=4?'#fef3e2':'#fdeaea';
-    card.innerHTML = d.recentScans.slice(0,5).map(s=>`
-      <div class="recent-row" onclick="doScan('${s.key}')">
-        <div class="recent-ic" style="background:${bg(s.score)}">${s.em}</div>
-        <div class="recent-info">
-          <div class="recent-name">${s.name}</div>
-          <div class="recent-meta">${timeAgo(s.ts)}</div>
-        </div>
-        <div class="score-pill ${scoreClass(s.score)}">${s.score}</div>
-      </div>`).join('');
-  }
-}
-
 // ── NAV ──
 function showScreen(id) {
-  if (id !== 'scan') stopCamera();
+  const prev = document.querySelector('.screen.active');
+  const prevId = prev ? prev.id.replace(/^s-/,'') : null;
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('s-'+id).classList.add('active');
+  if(prevId === 'scan' && id !== 'scan' && typeof stopCamera === 'function') {
+    stopCamera();
+  }
 }
 
 function showTab(id) {
@@ -81,139 +27,219 @@ function showTab(id) {
   });
 }
 
-function goScan() { showScreen('scan'); startCamera(); }
+function goScan() {
+  showScreen('scan');
+  startCamera();
+}
 
-// ── CAMERA ──
-const BARCODES = {
-  '0022000020254': 'beef',  '022000020254': 'beef',
-  '0399780153140': 'lentils', '399780153140': 'lentils',
-  '0120008206610': 'water',   '120008206610': 'water',
-  '8100220301400': 'oatmilk',
-  '0284000840650': 'chips',   '284000840650': 'chips',
-  '0939660041490': 'organic_milk', '939660041490': 'organic_milk'
-};
+// ── LIVE CAMERA + BARCODE SCANNER ──
+let _camStream = null;
+let _scanRAF = null;
+let _scanInterval = null;
+let _detector = null;
+let _zxingReader = null;
+let _scanning = false;
+let _lastDetectedCode = null;
+let _lastDetectedAt = 0;
 
-let zxingReader = null;
-let lastScanned = null;
-
-async function startCamera() {
-  document.getElementById('cam-error').classList.remove('show');
-  lastScanned = null;
-  stopCamera();
-
-  if (typeof ZXing === 'undefined') {
-    showCamError('Scanner library failed to load. Please refresh.');
-    return;
-  }
-
-  let stream;
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' } }
-    });
-  } catch (err) {
-    showCamError(
-      err.name === 'NotAllowedError'
-        ? 'Camera permission denied.\nAllow access and try again.'
-        : 'Could not start camera.\nUse the chips below to demo a scan.'
-    );
-    return;
-  }
-
-  const video = document.getElementById('cam-feed');
-  zxingReader = new ZXing.BrowserMultiFormatReader();
-  zxingReader.decodeFromStream(stream, video, (result, err) => {
-    if (result) onBarcodeDetected(result.getText().replace(/[^0-9]/g, ''));
+function showCamScreen(which) {
+  ['cam-permission','cam-error'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('show', id===which);
   });
 }
 
-function stopCamera() {
-  if (zxingReader) { try { zxingReader.reset(); } catch(e) {} zxingReader = null; }
-  const video = document.getElementById('cam-feed');
-  if (video && video.srcObject) {
-    video.srcObject.getTracks().forEach(t => t.stop());
-    video.srcObject = null;
+function setCamError(title, text) {
+  document.getElementById('cam-error-title').textContent = title;
+  document.getElementById('cam-error-text').textContent = text;
+  showCamScreen('cam-error');
+}
+
+async function startCamera() {
+  if(_scanning) return;
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    setCamError('Camera not supported',
+      'This browser doesn\'t support camera access. Try Chrome or Safari, and make sure the page is served over HTTPS or localhost.');
+    return;
+  }
+  if(!window.isSecureContext) {
+    setCamError('HTTPS required',
+      'Browsers only allow camera access on https:// or localhost. Open this page over HTTPS (e.g. via a tunnel like cloudflared/ngrok) and try again.');
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    _camStream = stream;
+    const video = document.getElementById('cam-video');
+    video.srcObject = stream;
+    await video.play().catch(()=>{});
+    showCamScreen(null);
+    document.getElementById('scan-hint').textContent = 'Point at a product barcode';
+    _scanning = true;
+    startScanLoop(video);
+  } catch(err) {
+    if(err && (err.name==='NotAllowedError' || err.name==='SecurityError')) {
+      setCamError('Camera permission denied',
+        'You blocked camera access. Tap the lock icon in your browser\'s address bar, allow Camera, then reload.');
+    } else if(err && err.name==='NotFoundError') {
+      setCamError('No camera found', 'This device doesn\'t seem to have a camera available.');
+    } else {
+      setCamError('Camera error', (err && err.message) ? err.message : 'Could not start the camera.');
+    }
   }
 }
 
-function showCamError(msg) {
-  document.getElementById('cam-error-msg').textContent = msg;
-  document.getElementById('cam-error').classList.add('show');
+function stopCamera() {
+  _scanning = false;
+  if(_scanRAF) { cancelAnimationFrame(_scanRAF); _scanRAF = null; }
+  if(_scanInterval) { clearInterval(_scanInterval); _scanInterval = null; }
+  if(_zxingReader && _zxingReader.reset) { try { _zxingReader.reset(); } catch(_){} }
+  _zxingReader = null;
+  if(_camStream) {
+    _camStream.getTracks().forEach(t => t.stop());
+    _camStream = null;
+  }
+  const video = document.getElementById('cam-video');
+  if(video) { try { video.pause(); } catch(_){} video.srcObject = null; }
+  _lastDetectedCode = null;
 }
 
-function onBarcodeDetected(raw) {
-  if (!raw || raw === lastScanned) return;
-  lastScanned = raw;
+async function startScanLoop(video) {
+  if('BarcodeDetector' in window) {
+    try {
+      const formats = await window.BarcodeDetector.getSupportedFormats();
+      _detector = new window.BarcodeDetector({ formats: formats.length ? formats : ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf'] });
+      _scanInterval = setInterval(()=>nativeDetect(video), 350);
+      return;
+    } catch(_){ /* fall through to ZXing */ }
+  }
+  await loadZXing();
+  if(!window.ZXing) {
+    document.getElementById('scan-hint').textContent = 'Live scanning unavailable — tap a product below';
+    return;
+  }
+  try {
+    const hints = new Map();
+    const formats = [
+      ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E,
+      ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.ITF, ZXing.BarcodeFormat.QR_CODE
+    ];
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+    _zxingReader = new ZXing.BrowserMultiFormatReader(hints, 300);
+    _zxingReader.decodeFromVideoElement(video, (result, err) => {
+      if(result && _scanning) onCodeDetected(result.getText());
+    });
+  } catch(e) {
+    document.getElementById('scan-hint').textContent = 'Live scanning unavailable — tap a product below';
+  }
+}
+
+async function nativeDetect(video) {
+  if(!_scanning || !_detector || video.readyState < 2) return;
+  try {
+    const codes = await _detector.detect(video);
+    if(codes && codes.length) onCodeDetected(codes[0].rawValue);
+  } catch(_){}
+}
+
+function loadZXing() {
+  return new Promise(resolve => {
+    if(window.ZXing) return resolve();
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.0/umd/index.min.js';
+    s.onload = ()=>resolve();
+    s.onerror = ()=>resolve();
+    document.head.appendChild(s);
+  });
+}
+
+function onCodeDetected(rawCode) {
+  if(!_scanning || !rawCode) return;
+  const code = String(rawCode).trim();
+  const now = Date.now();
+  if(code === _lastDetectedCode && (now - _lastDetectedAt) < 2500) return;
+  _lastDetectedCode = code;
+  _lastDetectedAt = now;
+  if(navigator.vibrate) navigator.vibrate(60);
+  document.getElementById('scan-hint').textContent = 'Detected: ' + code;
+  doScanByCode(code);
+}
+
+async function doScanByCode(code) {
+  const localKey = Object.keys(P).find(k => P[k].code && P[k].code.replace(/[^0-9]/g,'') === code.replace(/[^0-9]/g,''));
+  if(localKey) { stopCamera(); return doScan(localKey); }
   stopCamera();
-  const key = BARCODES[raw] || BARCODES[raw.replace(/^0+/, '')];
-  doScan(key || raw);
+  await lookupAndScan(code);
 }
 
-// ── OPEN FOOD FACTS ──
-async function fetchOpenFoodFacts(barcode) {
-  const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=product_name,product_name_en,brands,ecoscore_grade,ecoscore_score,ecoscore_data,packaging,countries,labels,categories,image_front_small_url`);
-  if (!r.ok) return null;
-  const data = await r.json();
-  if (data.status !== 1 || !data.product) return null;
-  return data.product;
+async function lookupAndScan(code) {
+  showScreen('scan');
+  const ov = document.getElementById('analyzing');
+  ov.classList.add('show');
+  try {
+    const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json`);
+    const data = await r.json();
+    if(data && data.status === 1 && data.product) {
+      const prod = productFromOFF(data.product, code);
+      const ai = await fetchAI(prod);
+      ov.classList.remove('show');
+      renderResult(prod, ai);
+      showScreen('result');
+      toast('+10 🌿 tokens earned!');
+      return;
+    }
+    ov.classList.remove('show');
+    toast('Barcode ' + code + ' not found');
+    setTimeout(()=>{ if(document.getElementById('s-scan').classList.contains('active')) startCamera(); }, 600);
+  } catch(e) {
+    ov.classList.remove('show');
+    toast('Lookup failed — check connection');
+    setTimeout(()=>{ if(document.getElementById('s-scan').classList.contains('active')) startCamera(); }, 600);
+  }
 }
 
-function ecoGradeToScore(grade, numericScore) {
-  if (numericScore != null) return Math.max(1, Math.min(10, Math.round(numericScore / 10)));
-  return { a:9, b:7, c:5, d:3, e:1 }[grade?.toLowerCase()] ?? 5;
-}
-
-function categoryEmoji(categories) {
-  const c = (categories || '').toLowerCase();
-  if (c.includes('beef') || c.includes('meat') || c.includes('pork') || c.includes('poultry')) return '🥩';
-  if (c.includes('milk') || c.includes('dairy') || c.includes('cheese') || c.includes('yogurt')) return '🥛';
-  if (c.includes('water') || c.includes('beverage') || c.includes('drink') || c.includes('juice')) return '🥤';
-  if (c.includes('oat') || c.includes('cereal') || c.includes('grain') || c.includes('bread')) return '🌾';
-  if (c.includes('fish') || c.includes('seafood')) return '🐟';
-  if (c.includes('vegetable') || c.includes('fruit')) return '🥦';
-  if (c.includes('snack') || c.includes('chip') || c.includes('crisp')) return '🍿';
-  if (c.includes('chocolate') || c.includes('candy') || c.includes('sweet')) return '🍫';
-  if (c.includes('coffee') || c.includes('tea')) return '☕';
-  if (c.includes('egg')) return '🥚';
-  return '🛒';
-}
-
-function buildProductFromOFF(off, barcode) {
-  const name   = off.product_name_en || off.product_name || 'Unknown Product';
-  const brand  = off.brands || 'Unknown Brand';
-  const grade  = off.ecoscore_grade;
-  const nscore = off.ecoscore_score;
-  const score  = ecoGradeToScore(grade, nscore);
-  const co2    = off.ecoscore_data?.agribalyse?.co2_total ?? null;
-  const pack   = off.packaging || 'Unknown packaging';
-  const origin = off.countries || 'Unknown';
-  const cert   = off.labels   || 'None';
-  const cats   = off.categories || '';
-
-  const details = {};
-  if (grade)  details['Eco-Score']     = grade.toUpperCase() + ' (A=best, E=worst)';
-  if (nscore != null) details['Eco-Score numeric'] = nscore + ' / 100';
-  if (co2 != null)    details['CO₂ / kg']          = co2.toFixed(2) + ' kg CO₂';
-  details['Packaging']      = pack;
-  details['Origin']         = origin;
-  details['Certifications'] = cert || 'None';
-  if (cats) details['Category'] = cats.split(',')[0].trim();
-
+function productFromOFF(p, code) {
+  const name = p.product_name || p.generic_name || 'Unknown product';
+  const brand = (p.brands || 'Unknown brand').split(',')[0].trim();
+  const eco = (p.ecoscore_grade || '').toLowerCase();
+  const ecoMap = { a: 9, b: 7, c: 5, d: 3, e: 2 };
+  const score = ecoMap[eco] || 5;
+  const co2 = p.ecoscore_data?.agribalyse?.co2_total ?? null;
+  const pack = p.packaging || 'Unknown packaging';
+  const origin = p.origins || p.countries || 'Unknown origin';
+  const labels = p.labels || 'None';
+  const em = score>=8?'🌿':score>=6?'🥗':score>=4?'📦':'⚠️';
+  const details = {
+    'Eco-Score': eco ? eco.toUpperCase() : 'Unknown',
+    'CO₂ / kg': co2!=null ? `${co2.toFixed(1)} kg CO₂` : 'Not reported',
+    'Packaging': pack,
+    'Origin': origin,
+    'Labels': labels,
+    'Categories': (p.categories || 'N/A').split(',').slice(0,3).join(', '),
+    'Brand': brand,
+    'Source': 'Open Food Facts'
+  };
   return {
-    name, brand,
-    code: barcode,
-    em:   categoryEmoji(cats),
-    score, co2: co2 ?? 0, water: 0,
-    pack, origin, cert,
-    details,
-    alts: []
+    name, brand, code, em, score,
+    co2: co2!=null ? +co2.toFixed(2) : 0,
+    water: 0,
+    pack, origin, cert: labels,
+    details, alts: []
   };
 }
 
 // ── SCAN FLOW ──
-async function doScan(input) {
-  // input is either a hardcoded key ('beef') or a raw barcode string ('0123456789012')
-  const isKey = input in P;
+async function doScan(key) {
+  const prod = P[key];
+  if(!prod) return;
+  if(typeof stopCamera === 'function') stopCamera();
   showScreen('scan');
   const ov = document.getElementById('analyzing');
   ov.classList.add('show');
@@ -227,64 +253,15 @@ async function doScan(input) {
     }, delays[i]);
   });
 
-  let prod;
-  if (isKey) {
-    prod = P[input];
-    // Let the animation run its normal duration for demo products
-    const aiP = fetchAI(prod);
-    await sleep(2900);
-    document.getElementById(steps[steps.length-1]).classList.add('done');
-    const ai = await aiP;
-    await sleep(350);
-    ov.classList.remove('show');
-    steps.forEach(s=>{ const el=document.getElementById(s); el.classList.remove('on','done'); });
-    renderResult(prod, ai);
-    showScreen('result');
-  } else {
-    // Live barcode — fetch from Open Food Facts in parallel with the animation
-    const offP = fetchOpenFoodFacts(input);
-    await sleep(2900);
-    document.getElementById(steps[steps.length-1]).classList.add('done');
-    const off = await offP;
-    await sleep(350);
-    ov.classList.remove('show');
-    steps.forEach(s=>{ const el=document.getElementById(s); el.classList.remove('on','done'); });
-
-    if (!off) {
-      toast('Product not found in database.');
-      showScreen('scan');
-      startCamera();
-      return;
-    }
-
-    prod = buildProductFromOFF(off, input);
-    const ai = await fetchAI(prod);
-    renderResult(prod, ai);
-    showScreen('result');
-  }
-
-  // ── Save scan to account ──
-  const d = loadData();
-  d.tokens += 10;
-
-  const today = todayStr();
-  const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
-  if(d.lastScanDate !== today) {
-    d.streak = d.lastScanDate === yesterday ? d.streak + 1 : 1;
-    d.lastScanDate = today;
-  }
-
-  if(prod.score >= 7) {
-    d.waterSaved = +(d.waterSaved + Math.round(prod.water / 3.785)).toFixed(0);
-    d.co2Avoided = +(d.co2Avoided + +(prod.co2 * 2.205).toFixed(1)).toFixed(1);
-    d.ecoSwaps  += 1;
-  }
-
-  d.recentScans.unshift({ key: input, name:prod.name, em:prod.em, score:prod.score, ts:Date.now() });
-  d.recentScans = d.recentScans.slice(0,10);
-  saveData(d);
-  renderHomeStats(d);
-
+  const aiP = fetchAI(prod);
+  await sleep(2900);
+  document.getElementById(steps[steps.length-1]).classList.add('done');
+  const ai = await aiP;
+  await sleep(350);
+  ov.classList.remove('show');
+  steps.forEach(s=>{ const el=document.getElementById(s); el.classList.remove('on','done'); });
+  renderResult(prod, ai);
+  showScreen('result');
   toast('+10 🌿 tokens earned!');
 }
 
@@ -376,25 +353,29 @@ function toast(msg){
   t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2700);
 }
-
 function redeem(item){ toast(`Redeeming ${item} reward…`); }
 
-// ── INIT ──
 (function() {
-  try {
-    const user = JSON.parse(localStorage.getItem('eco_user') || '{}');
-    const name = user.name || 'there';
-    const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-    document.getElementById('home-greet').textContent = greeting + ', ' + name;
-  } catch(e) {}
-  renderHomeStats(loadData());
+  let user = null;
+  try { user = JSON.parse(localStorage.getItem('eco_user') || 'null'); } catch(e) {}
+  if (!user || !user.name) {
+    window.location.replace('signin.html');
+    return;
+  }
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const greetEl = document.getElementById('home-greet');
+  if (greetEl) greetEl.textContent = greeting + ', ' + user.name;
 })();
 
-// ── CLOCK ──
+// Live clock
 function updateClock(){
   const now=new Date();
   const t=`${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
   document.querySelectorAll('.sbar-time').forEach(el=>el.textContent=t);
 }
 updateClock(); setInterval(updateClock,30000);
+
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden && typeof stopCamera === 'function') stopCamera();
+});

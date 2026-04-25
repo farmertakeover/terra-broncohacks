@@ -332,22 +332,6 @@ body {
   display: flex; align-items: center; justify-content: center;
   background: #080f08;
 }
-#cam-feed {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
-  z-index: 1;
-}
-#cam-error {
-  position: absolute; inset: 0; z-index: 6;
-  display: none; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 10px; padding: 32px; text-align: center;
-  background: rgba(8,15,8,.92);
-}
-#cam-error.show { display: flex; }
-.cam-error-icon { font-size: 36px; }
-.cam-error-msg { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.6; }
 /* Ambient grid */
 .cam-view::before {
   content: '';
@@ -376,6 +360,41 @@ body {
 @keyframes beam { 0%{top:10px;opacity:.5} 50%{opacity:1} 100%{top:calc(100% - 12px);opacity:.5} }
 .scan-hint { font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 6px; }
 .scan-sub  { font-size: 11px; color: rgba(255,255,255,.28); }
+
+.cam-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  background: #000;
+}
+.cam-overlay { pointer-events: none; }
+.cam-overlay > * { pointer-events: auto; }
+.cam-permission, .cam-error {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 40px 30px;
+  background: rgba(8,15,8,.96);
+  z-index: 40; gap: 14px;
+}
+.cam-permission.show, .cam-error.show { display: flex; }
+.cam-permission-em, .cam-error-em { font-size: 48px; }
+.cam-permission-title, .cam-error-title {
+  font-family: 'Fraunces', serif; font-size: 22px; color: white;
+}
+.cam-permission-text, .cam-error-text {
+  font-size: 13px; color: rgba(255,255,255,.65);
+  max-width: 280px; line-height: 1.5;
+}
+.cam-allow-btn {
+  margin-top: 8px;
+  background: var(--sage); color: white; border: none;
+  padding: 12px 28px; border-radius: 14px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  font-family: inherit;
+}
+.cam-allow-btn:active { background: var(--leaf); }
 
 /* Product chips */
 .chips-strip {
@@ -703,12 +722,12 @@ body {
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-icon">🔥</div>
-          <div class="stat-val" id="stat-streak">0</div>
+          <div class="stat-val">7</div>
           <div class="stat-label">day streak</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">🌿</div>
-          <div class="stat-val" id="stat-tokens">0</div>
+          <div class="stat-val">340</div>
           <div class="stat-label">eco tokens</div>
         </div>
       </div>
@@ -716,15 +735,29 @@ body {
       <div class="impact-strip">
         <div class="impact-strip-title">This week's impact</div>
         <div class="impact-cols">
-          <div class="impact-col"><div class="impact-num" id="impact-water">0</div><div class="impact-unit">gal water<br>saved</div></div>
-          <div class="impact-col"><div class="impact-num" id="impact-co2">0</div><div class="impact-unit">lbs CO₂<br>avoided</div></div>
-          <div class="impact-col"><div class="impact-num" id="impact-swaps">0</div><div class="impact-unit">eco<br>swaps</div></div>
+          <div class="impact-col"><div class="impact-num">847</div><div class="impact-unit">gal water<br>saved</div></div>
+          <div class="impact-col"><div class="impact-num">12.4</div><div class="impact-unit">lbs CO₂<br>avoided</div></div>
+          <div class="impact-col"><div class="impact-num">14</div><div class="impact-unit">eco<br>swaps</div></div>
         </div>
       </div>
 
       <div class="sec-hdr"><span class="sec-title">Recent scans</span><span class="sec-link">See all</span></div>
-      <div class="recent-card" id="recent-card-home">
-        <div style="padding:18px;text-align:center;color:var(--ash);font-size:13px">No scans yet — tap Scan to start!</div>
+      <div class="recent-card">
+        <div class="recent-row" onclick="doScan('lentils')">
+          <div class="recent-ic" style="background:#eaf3de">🫘</div>
+          <div class="recent-info"><div class="recent-name">Green Lentils, Bob's Red Mill</div><div class="recent-meta">Today · Whole Foods</div></div>
+          <div class="score-pill sp-good">9</div>
+        </div>
+        <div class="recent-row" onclick="doScan('oatmilk')">
+          <div class="recent-ic" style="background:#f5f0e8">🌾</div>
+          <div class="recent-info"><div class="recent-name">Oat Milk, Oatly</div><div class="recent-meta">Today · Target</div></div>
+          <div class="score-pill sp-good">8</div>
+        </div>
+        <div class="recent-row" onclick="doScan('beef')">
+          <div class="recent-ic" style="background:#fdeaea">🥩</div>
+          <div class="recent-info"><div class="recent-name">Ground Beef 80/20</div><div class="recent-meta">Yesterday · Safeway</div></div>
+          <div class="score-pill sp-bad">2</div>
+        </div>
       </div>
     </div>
     <nav class="bnav">
@@ -743,19 +776,27 @@ body {
       <div class="scan-title">Scan Product</div>
     </div>
     <div class="cam-view">
-      <video id="cam-feed" autoplay playsinline muted></video>
-      <div id="cam-error">
-        <div class="cam-error-icon">📷</div>
-        <div class="cam-error-msg" id="cam-error-msg">Camera unavailable</div>
-      </div>
+      <video id="cam-video" class="cam-video" playsinline autoplay muted></video>
       <div class="cam-overlay">
         <div class="scan-frame">
           <div class="sc-corner sc-tl"></div><div class="sc-corner sc-tr"></div>
           <div class="sc-corner sc-bl"></div><div class="sc-corner sc-br"></div>
           <div class="scan-beam"></div>
         </div>
-        <div class="scan-hint">Point at barcode or tap below</div>
+        <div class="scan-hint" id="scan-hint">Point at a product barcode</div>
         <div class="scan-sub">Open Food Facts · Claude AI</div>
+      </div>
+      <div class="cam-permission" id="cam-permission">
+        <div class="cam-permission-em">📷</div>
+        <div class="cam-permission-title">Allow camera access</div>
+        <div class="cam-permission-text">EcoBasket needs your camera to scan product barcodes. Your camera feed never leaves this device.</div>
+        <button class="cam-allow-btn" onclick="startCamera()">Enable camera</button>
+      </div>
+      <div class="cam-error" id="cam-error">
+        <div class="cam-error-em">🚫</div>
+        <div class="cam-error-title" id="cam-error-title">Camera unavailable</div>
+        <div class="cam-error-text" id="cam-error-text">We couldn't access your camera.</div>
+        <button class="cam-allow-btn" onclick="startCamera()">Try again</button>
       </div>
       <!-- Analyzing -->
       <div id="analyzing">
@@ -846,7 +887,7 @@ body {
     <div class="scroll-area" style="padding:0 20px calc(88px + var(--safe-bot))">
       <div class="token-hero-card">
         <div class="th-top">
-          <div><div class="th-label">Your balance</div><div class="th-amount" id="rewards-tokens">0</div><div class="th-sub">eco tokens</div></div>
+          <div><div class="th-label">Your balance</div><div class="th-amount">340</div><div class="th-sub">eco tokens</div></div>
           <span style="font-size:38px">🌿</span>
         </div>
         <div class="th-cols">

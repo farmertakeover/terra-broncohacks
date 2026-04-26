@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#f5f0e8">
+<title>terra.ai</title>
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
+<link rel="apple-touch-icon" href="../icons/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(() => {});
+  });
+}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+:root{
+  /* ─── BRAND PALETTE ─── all colours flow from these 8 tokens.
+     To swap palette: change ONLY these eight values. */
+  --bg:        #f3ede0;   /* page background — warm sand cream, never pure white */
+  --surface:   #fbf6ec;   /* card surface — slightly lighter than bg */
+  --surface-2: #ede4d3;   /* alt surface for hairline depth */
+  --ink:       #1b2a1a;   /* primary text on light bg (deep forest-black) */
+  --ink-soft:  #5a6657;   /* secondary text */
+  --ink-mute:  #8a8e83;   /* muted text */
+  --line:      rgba(27,42,26,.10);  /* hairlines */
+  --accent:    #2d5a27;   /* primary brand colour (deep forest) */
+  --accent-2:  #6fac5e;   /* light/secondary accent (sage) */
+  --on-accent: #f4ead6;   /* text/icons on accent bg (warm cream, not white) */
+
+  /* ─── DERIVED — keep these in sync with the brand tokens above ─── */
+  --forest:    #1a3a1f;
+  --moss:      var(--accent);
+  --leaf:      #3d7a32;
+  --sage:      var(--accent-2);
+  --mist:      #c4e3bb;
+  --cream:     var(--bg);
+  --parch:     var(--surface-2);
+
+  --char:      var(--ink);
+  --smoke:     #2c3a2a;
+  --ash:       var(--ink-soft);
+  --fog:       var(--ink-mute);
+
+  --danger:    #b8463c;
+  --dlight:    #f6dad6;
+  --warn:      #94652d;
+  --wlight:    #f3e6cf;
+  --good:      var(--accent);
+  --glight:    #e1ecd4;
+
+  --r-sm:12px;--r-md:18px;--r-lg:22px;--r-xl:28px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+/* Pin body to the actual visible viewport on every device.
+   Avoids 100vh / 100dvh oddities on Android Chrome where the URL-bar
+   layout pass can push the bottom nav off-screen on first paint. */
+html,body{height:100%;width:100%;overflow:hidden;overscroll-behavior:none}
+body{font-family:'DM Sans',sans-serif;background:#0a140b;display:flex;align-items:center;justify-content:center;position:fixed;inset:0}
+.shell{width:100%;height:100%;background:var(--cream);overflow:hidden;position:relative;display:flex;flex-direction:column}
+@media(min-width:600px){
+  body{background:#0a140b;background-image:radial-gradient(ellipse at 20% 50%,rgba(42,80,35,.4) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(26,58,31,.25) 0%,transparent 50%)}
+  .shell{width:390px;height:min(844px,100%);border-radius:52px;box-shadow:0 0 0 .5px rgba(255,255,255,.18),0 0 0 1px rgba(0,0,0,.7),0 32px 80px rgba(0,0,0,.6),inset 0 0 0 .5px rgba(255,255,255,.06)}
+  .notch{display:block!important}
+}
+.notch{display:none;position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:32px;background:#111;border-radius:0 0 22px 22px;z-index:999;pointer-events:none}
+
+/* ── BORDERED ICON-TILE COMPONENT ── used everywhere an icon needs a chip */
+.itile{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:11px;
+  background:transparent;border:.5px solid var(--line);
+  color:var(--accent);flex-shrink:0;
+}
+.itile svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.itile.sm{width:28px;height:28px;border-radius:9px}
+.itile.sm svg{width:14px;height:14px}
+.itile.lg{width:48px;height:48px;border-radius:14px}
+.itile.lg svg{width:24px;height:24px}
+.itile.solid{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.itile.on-dark{border-color:rgba(255,255,255,.18);color:var(--on-accent)}
+.itile.danger{border-color:rgba(184,70,60,.4);color:var(--danger)}
+.itile.warn{border-color:rgba(148,101,45,.4);color:var(--warn)}
+.itile.good{border-color:rgba(45,90,39,.4);color:var(--good)}
+
+/* SCREENS */
+.scr{position:absolute;inset:0;overflow:hidden;display:none;flex-direction:column;background:var(--cream)}
+.scr.on{display:flex}
+
+/* Safe-area spacer on every screen so content clears the device notch */
+.scr{padding-top:var(--safe-top)}
+
+/* BOTTOM NAV */
+.bnav{position:absolute;bottom:0;left:0;right:0;height:calc(64px + var(--safe-bot));padding-bottom:var(--safe-bot);background:rgba(245,240,232,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:.5px solid rgba(0,0,0,.09);display:flex;align-items:flex-start;padding-top:10px;z-index:100}
+@media(min-width:600px){.bnav{border-radius:0 0 44px 44px}}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:4px 0}
+.nb-pip{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:background .18s}
+.nb.on .nb-pip{background:rgba(29,65,24,.13)}
+.nb-em{font-size:19px;line-height:1}
+.nb-pip svg.nb-svg{width:22px;height:22px;stroke:var(--ash);stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke .18s}
+.nb.on .nb-pip svg.nb-svg{stroke:var(--forest)}
+.nb-lbl{font-size:10px;color:var(--ash);font-family:'DM Sans',sans-serif}
+.nb.on .nb-lbl{color:var(--forest);font-weight:500}
+.nb-scan-fab{margin-top:-18px;gap:5px}
+.nb-scan-fab .nb-pip{width:56px;height:56px;border-radius:50%;background:var(--accent);color:var(--on-accent);box-shadow:0 4px 16px rgba(26,58,31,.45);transition:transform .15s,box-shadow .15s}
+.nb-scan-fab:active .nb-pip{transform:scale(.92);box-shadow:0 2px 8px rgba(26,58,31,.25)}
+.nb-scan-fab .nb-lbl{color:var(--forest);font-weight:600;font-size:11px}
+.nb-scan-fab.on .nb-pip{background:var(--forest)}
+
+/* SCROLL */
+.sv{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(80px + var(--safe-bot))}
+.sv::-webkit-scrollbar{display:none}
+
+/* ===== HOME ===== */
+.h-top{padding:calc(var(--safe-top) + 12px) 24px 0;flex-shrink:0}
+.h-greet{font-size:12px;color:var(--ash);letter-spacing:.04em;margin-bottom:1px}
+.h-title{font-family:'Fraunces',serif;font-size:30px;font-weight:600;color:var(--forest);line-height:1.1}
+.hp{padding:16px 20px}
+.hero{background:var(--forest);border-radius:var(--r-xl);padding:22px 22px 18px;margin-bottom:14px;position:relative;overflow:hidden;cursor:pointer;transition:transform .15s;-webkit-user-select:none}
+.hero:active{transform:scale(.98)}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(111,172,94,.3) 0%,transparent 70%);border-radius:50%;pointer-events:none}
+.hero-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--sage);font-weight:500;margin-bottom:6px}
+.hero-ttl{font-family:'Fraunces',serif;font-size:22px;color:var(--on-accent);line-height:1.2;margin-bottom:18px}
+.hero-btn{display:flex;align-items:center;gap:11px;background:var(--sage);color:var(--forest);border:none;border-radius:var(--r-md);padding:13px 16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;width:100%;transition:background .18s}
+.hero-btn:active{background:var(--mist)}
+.hbi{width:34px;height:34px;background:rgba(255,255,255,.24);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.sr2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.sc{background:var(--surface);border-radius:var(--r-lg);padding:16px 18px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;transition:border-color .18s}
+.sc:active{border-color:rgba(26,58,31,.2)}
+.sc-lbl{font-size:10px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+.sc-v{font-family:'Fraunces',serif;font-size:34px;font-weight:600;color:var(--char);line-height:1;letter-spacing:-.01em}
+.sc-meta{font-size:11px;color:var(--fog);margin-top:6px}
+.ist{background:var(--forest);border-radius:var(--r-lg);padding:18px 22px;margin-bottom:14px}
+.ist-t{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500;margin-bottom:14px}
+.ics{display:flex;gap:14px}
+.ic{flex:1;text-align:left}
+.ic+.ic{padding-left:14px;border-left:.5px solid rgba(255,255,255,.08)}
+.icn{font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:var(--on-accent);line-height:1;letter-spacing:-.01em}
+.icu{font-size:11px;color:rgba(196,227,187,.7);margin-top:4px;line-height:1.4}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;margin-top:4px}
+.sh-t{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase}
+.sh-l{font-size:12px;color:var(--leaf)}
+.rc{background:var(--surface);border-radius:var(--r-lg);padding:4px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
+.rc-empty{padding:24px 18px;text-align:center;color:var(--ash);font-size:13px;line-height:1.5}
+.rr{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;cursor:pointer;transition:background .15s;-webkit-user-select:none}
+.rr:active{background:var(--parch)}
+.ric{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ri{flex:1;min-width:0}
+.rn{font-size:13px;font-weight:500;color:var(--char);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rm{font-size:11px;color:var(--ash);margin-top:1px}
+.sp{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0}
+.sg{background:var(--glight);color:var(--good)}
+.sw{background:var(--wlight);color:var(--warn)}
+.sb{background:var(--dlight);color:var(--danger)}
+
+/* ===== SCAN ===== */
+#s-scan{background:#0d1a0e}
+.s-top{padding:calc(var(--safe-top) + 14px) 20px 12px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.r-top{padding:calc(var(--safe-top) + 12px) 20px 10px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.bk{width:36px;height:36px;background:rgba(255,255,255,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:none;color:var(--on-accent);flex-shrink:0;transition:background .15s}
+.bk:active{background:rgba(255,255,255,.2)}
+.s-ttl{font-family:'Fraunces',serif;font-size:20px;color:var(--on-accent)}
+.cam{flex:1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#080f08}
+.cam::before{content:'';position:absolute;inset:0;opacity:.03;background-image:linear-gradient(rgba(111,172,94,1) 1px,transparent 1px),linear-gradient(90deg,rgba(111,172,94,1) 1px,transparent 1px);background-size:42px 42px;pointer-events:none}
+.co{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5}
+.sf{width:230px;height:150px;position:relative;margin-bottom:18px}
+.sc2{position:absolute;width:26px;height:26px;border-color:var(--sage);border-style:solid}
+.sc2.tl{top:0;left:0;border-width:3px 0 0 3px;border-radius:6px 0 0 0}
+.sc2.tr{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 6px 0 0}
+.sc2.bl{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 6px}
+.sc2.br{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 6px 0}
+.sbeam{position:absolute;left:10px;right:10px;height:2px;background:linear-gradient(90deg,transparent,var(--sage),rgba(196,227,187,.9),var(--sage),transparent);border-radius:1px;animation:beam 2.4s ease-in-out infinite;box-shadow:0 0 10px 1px rgba(111,172,94,.6)}
+@keyframes beam{0%{top:10px;opacity:.5}50%{opacity:1}100%{top:calc(100% - 12px);opacity:.5}}
+.sh2{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:6px}
+.ss2{font-size:11px;color:rgba(255,255,255,.28)}
+.cstrip{position:absolute;bottom:0;left:0;right:0;background:rgba(10,10,10,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:14px 16px 18px;z-index:20}
+.cl{font-size:10px;color:var(--fog);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.cr{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.cr::-webkit-scrollbar{display:none}
+.pc{flex-shrink:0;background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 12px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:6px;align-items:flex-start;min-width:108px;-webkit-user-select:none}
+.pc:active{background:rgba(111,172,94,.2);border-color:rgba(111,172,94,.5)}
+.pcn{font-size:11px;font-weight:500;color:var(--on-accent);white-space:nowrap}
+.pcb{font-size:10px;color:rgba(255,255,255,.5)}
+#anlz{position:absolute;inset:0;background:rgba(8,15,8,.97);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:50;gap:22px}
+#anlz.on{display:flex}
+.sp-r{width:76px;height:76px;border-radius:50%;border:2px solid rgba(111,172,94,.2);border-top-color:var(--sage);animation:spin 1.1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spw{position:relative;display:flex;align-items:center;justify-content:center}
+.spi{position:absolute;font-size:28px}
+.at{font-family:'Fraunces',serif;font-size:20px;color:var(--on-accent)}
+.as{display:flex;flex-direction:column;gap:9px;width:240px}
+.as-s{display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.35);transition:color .4s}
+.as-s.on{color:var(--on-accent)}.as-s.dn{color:var(--sage)}
+.as-d{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0;transition:background .4s}
+.as-s.on .as-d{background:var(--surface);box-shadow:0 0 6px rgba(255,255,255,.6)}
+.as-s.dn .as-d{background:var(--sage)}
+
+/* ===== RESULT ===== */
+#s-result{background:var(--cream)}
+/* .r-top defined above with safe-top padding */
+.r-ttl{font-family:'Fraunces',serif;font-size:20px;color:var(--char)}
+.pb{display:flex;align-items:center;gap:14px;padding:14px 20px 16px;background:var(--surface);border-radius:0 0 22px 22px;box-shadow:0 2px 8px rgba(0,0,0,.06);flex-shrink:0}
+.pi{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.pn{font-family:'Fraunces',serif;font-size:17px;color:var(--char);line-height:1.2}
+.pbr{font-size:12px;color:var(--ash);margin-top:2px}
+.pbc{font-size:10px;color:var(--fog);font-family:monospace;margin-top:1px}
+.rb{padding:14px 20px 14px}
+.result-footer{flex-shrink:0;padding:12px 20px calc(12px + var(--safe-bot));background:var(--cream);border-top:.5px solid rgba(0,0,0,.08)}
+.result-home-btn{width:100%;padding:14px;background:var(--forest);color:var(--white);border:none;border-radius:var(--r-md);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:background .18s}
+.result-home-btn:active{background:var(--moss)}
+.score-c{border-radius:var(--r-xl);padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
+.eco-c{background:var(--forest)}.mid-c{background:#7a4218}.bad-c{background:#8a2020}
+.sc-tp{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.sc-n{font-family:'Fraunces',serif;font-size:60px;color:var(--on-accent);line-height:1}
+.sc-d{font-size:18px;color:rgba(255,255,255,.45);font-weight:300}
+.sc-v{font-size:17px;font-weight:500;color:var(--on-accent);line-height:1.2;margin-bottom:3px}
+.sc-s{font-size:12px;color:rgba(255,255,255,.6);line-height:1.45;max-width:180px}
+.sc-bar{height:5px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden;margin-bottom:14px}
+.sc-fill{height:100%;border-radius:3px;background:rgba(255,255,255,.65);transition:width 1.1s cubic-bezier(.4,0,.2,1)}
+.sc-ms{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.08);border-radius:12px;overflow:hidden;margin-top:14px}
+.sc-m{background:var(--forest);padding:11px 14px;display:flex;flex-direction:column;gap:3px;min-height:54px;justify-content:center}
+.score-c.mid-c .sc-m{background:#7a4218}
+.score-c.bad-c .sc-m{background:#8a2020}
+.sc-mv{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--on-accent);line-height:1;letter-spacing:-.01em}
+.sc-ml{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.dc{background:var(--surface);border-radius:var(--r-lg);padding:18px;margin-bottom:10px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
+.dc-t{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
+.dr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:.5px solid rgba(0,0,0,.06);font-size:13px}
+.dr:last-child{border-bottom:none;padding-bottom:0}
+.dk{color:var(--ash)}.dv{font-weight:500;color:var(--char);text-align:right;max-width:58%;font-size:12px}
+.sc-grade-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.sc-grade{font-family:'Fraunces',serif;font-size:46px;font-weight:600;color:var(--on-accent);line-height:1;letter-spacing:-.02em;background:rgba(255,255,255,.1);width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,.18)}
+.sc-grade-num{font-size:11px;color:rgba(255,255,255,.7);font-weight:500;margin-top:4px}
+.sc-grade-lbl{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em}
+.rationale-card{background:var(--surface);border-radius:var(--r-lg);padding:18px;margin-bottom:10px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
+.rat-row{display:flex;gap:14px;padding:14px 0;border-bottom:.5px solid rgba(26,58,31,.08)}
+.rat-row:first-of-type{padding-top:0}
+.rat-row:last-of-type{border-bottom:none;padding-bottom:0}
+.rat-h{font-family:'Fraunces',serif;font-weight:600;font-size:14px;color:var(--char);letter-spacing:-.01em;margin-bottom:4px;text-transform:none}
+/* .rat-ic replaced by .itile component */
+.rat-body{flex:1;min-width:0}
+.rat-tx{font-size:13px;color:var(--char);line-height:1.5}
+.rat-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:14px;border-top:.5px solid rgba(26,58,31,.08)}
+.rat-pill{font-size:11px;font-weight:500;padding:6px 12px;border-radius:8px;letter-spacing:.02em;border:.5px solid transparent}
+.rat-pill-bad{background:transparent;color:var(--danger);border-color:rgba(184,50,50,.25)}
+.rat-pill-good{background:transparent;color:var(--good);border-color:rgba(42,95,42,.25)}
+.aic{background:var(--forest);border-radius:var(--r-lg);padding:18px;margin-bottom:10px}
+.ai-h{display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.ai-b{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500}
+.ai-tt{font-size:13px;color:var(--on-accent);font-weight:500}
+.ai-tx{font-size:13px;color:rgba(255,255,255,.78);line-height:1.65}
+
+/* ─── ALTERNATIVES — NEW DESIGN ─── */
+.alts-section{margin-bottom:12px}
+.alts-hdr{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
+.alts-grid{display:flex;flex-direction:column;gap:10px}
+.alt-card{background:var(--surface);border-radius:20px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);border:.5px solid rgba(0,0,0,.05)}
+.alt-img-wrap{height:130px;position:relative;overflow:hidden;background:#f0ece4}
+.alt-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s ease}
+.alt-card:active .alt-img{transform:scale(1.02)}
+.alt-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px}
+.alt-eco-badge{position:absolute;top:10px;right:10px;background:var(--forest);color:var(--on-accent);font-size:10px;font-weight:500;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(8px)}
+.alt-cert-badge{position:absolute;top:10px;left:10px;background:var(--surface);color:var(--good);font-size:9px;font-weight:500;padding:3px 8px;border-radius:20px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(8px);border:.5px solid var(--line)}
+.alt-body{padding:13px 14px 14px}
+.alt-brand-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.alt-brand{font-size:10px;color:var(--ash);letter-spacing:.04em;text-transform:uppercase}
+.alt-score-row{display:flex;align-items:center;gap:5px}
+.alt-score-num{font-family:'Fraunces',serif;font-size:18px;color:var(--good);line-height:1}
+.alt-score-denom{font-size:11px;color:var(--fog)}
+.alt-name{font-family:'Fraunces',serif;font-size:16px;color:var(--char);line-height:1.25;margin-bottom:6px}
+.alt-reason{font-size:12px;color:var(--ash);line-height:1.5;margin-bottom:10px}
+.alt-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.alt-pill{font-size:10px;padding:3px 9px;border-radius:20px;background:var(--glight);color:var(--good)}
+.alt-pill.neutral{background:var(--parch);color:var(--ash)}
+.alt-where{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--cream);border-radius:10px;font-size:11px;color:var(--ash)}
+.alt-where-icon{font-size:14px}
+.alt-where strong{color:var(--char);font-weight:500}
+
+/* ===== IMPACT ===== */
+#s-impact{background:var(--cream)}
+.wc{background:var(--surface);border-radius:var(--r-lg);padding:15px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.sd{display:flex;gap:5px;justify-content:space-between;margin-top:11px}
+.dc2{display:flex;flex-direction:column;align-items:center;gap:4px}
+.dr2{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500}
+.dd{background:var(--forest);color:var(--on-accent)}.dt{background:var(--glight);border:2px solid var(--leaf);color:var(--leaf)}.dsk{background:var(--parch);color:var(--fog)}
+.dl{font-size:10px;color:var(--ash)}
+.page-h{padding:calc(var(--safe-top) + 22px) 20px 16px;flex-shrink:0}
+.page-h-t{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--char);line-height:1.1;letter-spacing:-.01em}
+.page-h-s{font-size:13px;color:var(--ash);margin-top:4px}
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.is{background:var(--surface);border-radius:var(--r-lg);padding:16px 18px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;display:flex;flex-direction:column;justify-content:flex-end;min-height:96px}
+.is.ft{background:var(--forest);border-color:transparent}
+.is.ft .iv{color:var(--on-accent)}.is.ft .il{color:rgba(196,227,187,.7)}
+.iv{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--char);line-height:1;letter-spacing:-.01em;margin-top:6px}
+.iu{font-size:11px;color:var(--ash);font-weight:400;margin-left:2px}
+.is.ft .iu{color:rgba(196,227,187,.7)}
+.il{font-size:10px;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;font-weight:500;line-height:1.3}
+.eqc{background:var(--forest);border-radius:var(--r-lg);padding:18px 22px;margin-bottom:14px}
+.eql{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500;margin-bottom:8px}
+.eqt{font-size:14px;color:var(--on-accent);line-height:1.55}
+.eqt strong{color:var(--mist);font-weight:600}
+
+/* ===== RECIPES ===== */
+#s-recipes{background:var(--cream)}
+.rp-header{padding:calc(var(--safe-top) + 22px) 20px 4px;flex-shrink:0}
+.rp-title{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--char);line-height:1.1;letter-spacing:-.01em}
+.rp-sub{font-size:13px;color:var(--ash);margin-top:4px}
+.cat-row{display:flex;gap:8px;overflow-x:auto;padding:12px 20px 0;scrollbar-width:none;flex-shrink:0}
+.cat-row::-webkit-scrollbar{display:none}
+.ctp{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid rgba(0,0,0,.1);background:var(--surface);color:var(--ash);transition:all .18s;-webkit-user-select:none;white-space:nowrap}
+.ctp.on{background:var(--forest);color:var(--on-accent);border-color:var(--forest)}
+.ctp:active{transform:scale(.96)}
+.ai-gen{margin:12px 20px 0;background:var(--forest);border-radius:var(--r-xl);padding:16px 18px;position:relative;overflow:hidden;cursor:pointer;transition:transform .15s;flex-shrink:0}
+.ai-gen:active{transform:scale(.98)}
+.ai-gen::before{content:'';position:absolute;top:-30px;right:-30px;width:130px;height:130px;background:radial-gradient(circle,rgba(111,172,94,.3) 0%,transparent 70%);border-radius:50%;pointer-events:none}
+.ag-row{display:flex;align-items:center;gap:12px}
+.ag-ic{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ag-lbl{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500}
+.ag-ttl{font-family:'Fraunces',serif;font-size:16px;color:var(--on-accent);line-height:1.2;margin-top:1px}
+.rp-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(80px + var(--safe-bot))}
+.rp-scroll::-webkit-scrollbar{display:none}
+.feat-wrap{padding:12px 20px 0}
+.feat-lbl{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.feat-card{background:var(--forest);border-radius:var(--r-xl);overflow:hidden;cursor:pointer;-webkit-user-select:none;transition:transform .15s}
+.feat-card:active{transform:scale(.99)}
+.feat-img{height:150px;width:100%;display:flex;align-items:center;justify-content:center;font-size:72px;position:relative;overflow:hidden}
+.feat-img-bg{position:absolute;inset:0}
+.feat-img-em{position:relative;z-index:2;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
+.feat-img::after{content:'';position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,var(--forest))}
+.feat-body{padding:0 16px 16px}
+.feat-meta{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.feat-cat{font-size:10px;color:var(--sage);letter-spacing:.07em;text-transform:uppercase;font-weight:500}
+.feat-dot{width:3px;height:3px;border-radius:50%;background:var(--sage);opacity:.5}
+.feat-eco{font-size:10px;color:var(--mist)}
+.feat-name{font-family:'Fraunces',serif;font-size:20px;color:var(--on-accent);line-height:1.2;margin-bottom:8px}
+.feat-desc{font-size:12px;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:12px}
+.feat-tags{display:flex;gap:6px;flex-wrap:wrap}
+.ftg{font-size:10px;padding:4px 9px;border-radius:20px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+.ftg.g{background:rgba(111,172,94,.2);color:var(--sage)}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 20px 0}
+.rcard{background:var(--surface);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.07);transition:transform .15s;-webkit-user-select:none}
+.rcard:active{transform:scale(.97)}
+.rthumb{height:90px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden}
+.rthumb-bg{position:absolute;inset:0}
+.rthumb-em{position:relative;z-index:2;filter:drop-shadow(0 2px 6px rgba(0,0,0,.2))}
+.rthumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.rd-hphoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.rinfo{padding:10px 10px 12px}
+.rcat{font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.rname{font-size:13px;font-weight:500;color:var(--char);line-height:1.3;margin-bottom:6px}
+.rfooter{display:flex;align-items:center;justify-content:space-between}
+.rtime{font-size:10px;color:var(--ash)}
+.reco{font-size:10px;font-weight:500;padding:2px 7px;border-radius:6px;background:var(--glight);color:var(--good)}
+#rgen-ov{position:absolute;inset:0;background:rgba(8,15,8,.97);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;gap:20px}
+#rgen-ov.on{display:flex}
+.rg-r{width:72px;height:72px;border-radius:50%;border:2px solid rgba(111,172,94,.2);border-top-color:var(--sage);animation:spin 1.1s linear infinite}
+.rg-w{position:relative;display:flex;align-items:center;justify-content:center}
+.rg-i{position:absolute;width:30px;height:30px;color:var(--sage)}
+.rg-t{font-family:'Fraunces',serif;font-size:20px;color:var(--on-accent)}
+.rg-s{font-size:12px;color:rgba(255,255,255,.45);text-align:center;max-width:220px;line-height:1.5}
+
+/* ===== RECIPE DETAIL ===== */
+#s-rdet{background:var(--cream)}
+.rd-hero{height:200px;position:relative;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:90px}
+.rd-hbg{position:absolute;inset:0}
+.rd-hphoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.rd-hem{position:relative;z-index:3;filter:drop-shadow(0 6px 20px rgba(0,0,0,.3))}
+.rd-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,var(--cream));z-index:4}
+.rd-bk{position:absolute;top:calc(var(--safe-top) + 14px);left:16px;width:36px;height:36px;border-radius:12px;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--on-accent);z-index:10;cursor:pointer;border:none}
+@media(min-width:600px){.rd-bk{top:46px}}
+.rd-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 20px calc(40px + var(--safe-bot))}
+.rd-body::-webkit-scrollbar{display:none}
+.rd-top{padding:4px 0 14px}
+.rd-cat{font-size:10px;color:var(--leaf);letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:4px}
+.rd-name{font-family:'Fraunces',serif;font-size:26px;color:var(--forest);line-height:1.15;margin-bottom:8px}
+.rd-desc{font-size:13px;color:var(--ash);line-height:1.6;margin-bottom:14px}
+.rd-stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.rd-st{display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:10px;padding:6px 10px;font-size:12px;color:var(--smoke);border:.5px solid var(--line)}
+.rd-sti{width:13px;height:13px;color:var(--accent);flex-shrink:0}
+.rd-eco{background:var(--forest);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.rd-en{font-family:'Fraunces',serif;font-size:32px;color:var(--on-accent);line-height:1}
+.rd-el{font-size:10px;color:var(--sage);letter-spacing:.05em}
+.rd-et{font-size:11px;color:rgba(255,255,255,.65);line-height:1.45;flex:1}
+.rd-sec{margin-bottom:16px}
+.rd-sec-t{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.ing-r{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface);border-radius:12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.ing-r:last-child{margin-bottom:0}
+.ing-em{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.ing-in{flex:1}
+.ing-n{font-size:13px;font-weight:500;color:var(--char)}
+.ing-q{font-size:11px;color:var(--ash);margin-top:1px}
+.ing-e{font-size:10px;color:var(--leaf);font-weight:500;margin-top:1px}
+.stp-r{display:flex;gap:12px;margin-bottom:10px}
+.stp-n{width:28px;height:28px;border-radius:50%;background:var(--forest);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;margin-top:1px}
+.stp-c{flex:1;background:var(--surface);border-radius:13px;padding:11px 13px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.stp-t{font-size:12px;font-weight:500;color:var(--forest);margin-bottom:3px}
+.stp-x{font-size:12px;color:var(--smoke);line-height:1.55}
+.etips{background:var(--glight);border-radius:var(--r-lg);padding:14px;margin-bottom:14px;border:.5px solid rgba(42,95,42,.15)}
+.etips-t{font-size:11px;font-weight:500;color:var(--good);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.etip{display:flex;gap:10px;font-size:13px;color:var(--good);line-height:1.55;margin-bottom:6px;padding-left:2px}
+.etip:last-child{margin-bottom:0}
+.etip::before{content:"";display:block;width:4px;flex-shrink:0;border-radius:2px;background:var(--good);margin:6px 0}
+
+/* ===== REWARDS ===== */
+#s-rewards{background:var(--cream)}
+.thc{background:var(--forest);border-radius:var(--r-xl);padding:22px;margin-bottom:14px;position:relative;overflow:hidden}
+.th-tp{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.th-l{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px;font-weight:500}
+.th-a{font-family:'Fraunces',serif;font-size:48px;font-weight:600;color:var(--on-accent);line-height:1;letter-spacing:-.02em}
+.th-s{font-size:12px;color:rgba(255,255,255,.45);margin-top:4px}
+.th-cs{display:flex;gap:10px}
+.th-c{flex:1;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;border:.5px solid rgba(255,255,255,.08)}
+.th-cl{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;margin-bottom:4px;font-weight:500}
+.th-cv{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--on-accent);letter-spacing:-.01em}
+.bg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.bc{background:var(--surface);border-radius:var(--r-md);padding:14px;text-align:left;border:.5px solid var(--line);display:flex;align-items:center;gap:12px;min-height:64px}
+.bc.ul{background:var(--surface);border-color:var(--accent)}
+.bw{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bn{font-size:13px;font-weight:600;color:var(--char);line-height:1.2}
+.bs{font-size:11px;color:var(--ash)}
+.bc.ul .bs{color:var(--leaf)}
+.stl{background:var(--surface);border-radius:var(--r-lg);padding:4px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;margin-bottom:14px}
+.str{display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;cursor:pointer;transition:background .15s;-webkit-user-select:none}
+.str:active{background:var(--parch)}
+.sti{flex:1}
+.stn{font-size:14px;font-weight:500;color:var(--char)}
+.stc{font-size:11px;color:var(--ash);margin-top:2px;letter-spacing:.04em}
+.rdb{padding:9px 16px;background:var(--forest);color:var(--on-accent);border:none;border-radius:10px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s;flex-shrink:0}
+.rdb:active{background:var(--moss)}
+.stdv{height:.5px;background:rgba(0,0,0,.06);margin:0 14px}
+
+/* TOAST */
+#toast{position:absolute;bottom:calc(76px + var(--safe-bot));left:16px;right:16px;background:rgba(28,28,30,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--on-accent);border-radius:14px;padding:12px 16px;font-size:13px;font-weight:500;text-align:center;z-index:500;opacity:0;transform:translateY(8px);transition:all .28s cubic-bezier(.4,0,.2,1);pointer-events:none}
+#toast.on{opacity:1;transform:translateY(0)}
+
+/* ALT DETAIL MODAL */
+#alt-modal{position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:300;display:none;align-items:flex-end;padding:12px}
+#alt-modal.on{display:flex}
+.am-card{background:var(--cream);border-radius:28px;width:100%;max-height:85vh;overflow-y:auto;scrollbar-width:none}
+.am-card::-webkit-scrollbar{display:none}
+.am-img-wrap{height:220px;position:relative;overflow:hidden;border-radius:20px 20px 0 0;background:#f0ece4}
+.am-img{width:100%;height:100%;object-fit:cover;display:block}
+.am-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px}
+.am-close{position:absolute;top:14px;right:14px;width:32px;height:32px;background:rgba(0,0,0,.35);backdrop-filter:blur(8px);border-radius:50%;border:none;color:var(--on-accent);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.am-eco{position:absolute;top:14px;left:14px;background:var(--forest);color:var(--on-accent);font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px}
+.am-body{padding:20px 20px 28px}
+.am-brand{font-size:10px;color:var(--ash);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.am-name{font-family:'Fraunces',serif;font-size:24px;color:var(--forest);line-height:1.2;margin-bottom:8px}
+.am-score-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.am-score{font-family:'Fraunces',serif;font-size:36px;color:var(--good);line-height:1}
+.am-score-denom{font-size:14px;color:var(--fog)}
+.am-score-label{font-size:12px;color:var(--good);background:var(--glight);padding:4px 10px;border-radius:20px}
+.am-desc{font-size:13px;color:var(--ash);line-height:1.65;margin-bottom:14px}
+.am-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.am-pill{font-size:11px;padding:4px 11px;border-radius:20px;background:var(--glight);color:var(--good)}
+.am-pill.neutral{background:var(--parch);color:var(--ash)}
+.am-rows{background:var(--surface);border-radius:16px;padding:4px;margin-bottom:14px}
+.am-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:.5px solid rgba(0,0,0,.06);font-size:13px}
+.am-row:last-child{border-bottom:none}
+.am-rk{color:var(--ash)}
+.am-rv{font-weight:500;color:var(--char)}
+.am-where{background:var(--parch);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--smoke)}
+.am-where-icon{font-size:18px}
+
+.fi{animation:fi .35s ease forwards}
+@keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- ── ICON LIBRARY ── one-time defs; reference with <svg><use href="#i-NAME"/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 8V4h4"/><path d="M21 8V4h-4"/><path d="M3 16v4h4"/><path d="M21 16v4h-4"/><path d="M7 12h10"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c2 4 6 6 6 11a6 6 0 1 1-12 0c0-3 2-5 3-7 1 2 3 3 3 5 0-3 0-6 0-9z"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c8 0 14-6 14-14C9 5 5 11 5 19z"/><path d="M5 19l8-8"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.7-1.5A4 4 0 0 0 7 18z"/></symbol>
+    <symbol id="i-droplet" viewBox="0 0 24 24"><path d="M12 3s7 7 7 12a7 7 0 1 1-14 0c0-5 7-12 7-12z"/></symbol>
+    <symbol id="i-recycle" viewBox="0 0 24 24"><path d="M7 4l-4 6 4 6"/><path d="M3 10h12a4 4 0 0 1 4 4v2"/><path d="M19 22l-3-4 3-4"/><path d="M21 14h-8a4 4 0 0 0-4 4v2"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2l3 12h11l2-8H7"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 7h13l-3-3"/><path d="M17 17H4l3 3"/></symbol>
+    <symbol id="i-tree" viewBox="0 0 24 24"><path d="M12 3l5 7h-3l4 6h-4v5h-4v-5H6l4-6H7l5-7z"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13 13 0 0 1 0 18"/><path d="M12 3a13 13 0 0 0 0 18"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4"/><path d="M12 11v10"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12 3l9 9-9 9-9-9 4-4 5-5z"/><circle cx="9" cy="9" r="1.5"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 4v6"/><path d="M12 14v6"/><path d="M4 12h6"/><path d="M14 12h6"/><path d="M6 6l4 4"/><path d="M14 14l4 4"/><path d="M6 18l4-4"/><path d="M14 10l4-4"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><circle cx="12" cy="17" r=".7" fill="currentColor"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></symbol>
+    <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M9 10h4a2 2 0 0 1 0 4h-4"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2"/><path d="M12 19v2"/><path d="M3 12h2"/><path d="M19 12h2"/><path d="M5.6 5.6l1.4 1.4"/><path d="M17 17l1.4 1.4"/><path d="M5.6 18.4l1.4-1.4"/><path d="M17 7l1.4-1.4"/></symbol>
+    <symbol id="i-bowl" viewBox="0 0 24 24"><path d="M3 11h18"/><path d="M4 11a8 8 0 0 0 16 0"/><path d="M9 6c1 2 4 2 6 0"/></symbol>
+    <symbol id="i-utensils" viewBox="0 0 24 24"><path d="M7 3v8a3 3 0 0 0 0 0v10"/><path d="M11 3v6"/><path d="M3 3v6a4 4 0 0 0 4 0"/><path d="M17 3c0 5 0 10 0 18"/><path d="M21 3c-3 0-3 6-3 8s2 2 3 2"/></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="11" rx="1"/><path d="M3 13h18"/><path d="M12 9v11"/><path d="M8 9c-2 0-3-2-2-3 1-1 4 0 4 3"/><path d="M16 9c2 0 3-2 2-3-1-1-4 0-4 3"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 8z"/><path d="M9 8a3 3 0 1 1 6 0"/></symbol>
+    <symbol id="i-meat" viewBox="0 0 24 24"><path d="M5 19l4-4a4 4 0 0 1 6-6l4-4"/><circle cx="8" cy="16" r="2"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24"><path d="M12 8c0-3 3-4 5-3-1 4-3 5-5 5z"/><path d="M12 21c-4 0-7-3-7-8 0-4 3-6 7-5 4-1 7 1 7 5 0 5-3 8-7 8z"/></symbol>
+    <symbol id="i-bottle" viewBox="0 0 24 24"><path d="M10 2h4v4l2 3v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9l2-3z"/></symbol>
+    <symbol id="i-grain" viewBox="0 0 24 24"><path d="M12 22V8"/><path d="M12 14c-3-1-5-3-5-7 4 0 5 3 5 7z"/><path d="M12 14c3-1 5-3 5-7-4 0-5 3-5 7z"/><path d="M12 8c-2-1-3-3-3-5 3 0 3 2 3 5z"/></symbol>
+    <symbol id="i-milk" viewBox="0 0 24 24"><path d="M8 3h8l-1 4h-6L8 3z"/><path d="M9 7h6l1 13a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1L9 7z"/></symbol>
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="notch"></div>
+
+<!-- ═══ HOME ═══ -->
+<div class="scr on" id="s-home">
+  <div class="h-top">
+    <div class="h-greet" id="home-greet">Good morning</div>
+    <div class="h-title">Shop greener<br>today.</div>
+  </div>
+  <div class="sv hp">
+    <div class="sr2">
+      <div class="sc" onclick="openStreakModal()" style="cursor:pointer">
+        <div class="sc-lbl">Day streak</div>
+        <div class="sc-v" id="stat-streak">0</div>
+        <div class="sc-meta">Tap for history</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Eco tokens</div>
+        <div class="sc-v" id="stat-tokens">0</div>
+        <div class="sc-meta">Earned by scanning</div>
+      </div>
+    </div>
+    <div class="ist" onclick="showTab('impact')" style="cursor:pointer">
+      <div class="ist-t">This week's impact</div>
+      <div class="ics">
+        <div class="ic"><div class="icn" id="impact-water">0</div><div class="icu">gal water saved</div></div>
+        <div class="ic"><div class="icn" id="impact-co2">0</div><div class="icu">lbs CO₂ avoided</div></div>
+        <div class="ic"><div class="icn" id="impact-swaps">0</div><div class="icu">eco swaps</div></div>
+      </div>
+    </div>
+    <div class="sh"><span class="sh-t">Recent scans</span><span class="sh-l">See all</span></div>
+    <div class="rc" id="recent-card-home">
+      <div class="rc-empty">No scans yet. Tap Scan to begin.</div>
+    </div>
+  </div>
+  <nav class="bnav">
+    <button class="nb on" id="nb-home" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
+    <button class="nb" id="nb-impact" onclick="showTab('impact')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb nb-scan-fab" id="nb-scan" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
+    <button class="nb" id="nb-recipes" onclick="showTab('recipes')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
+    <button class="nb" id="nb-rewards" onclick="showTab('rewards')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
+  </nav>
+</div>
+
+<!-- ═══ SCAN ═══ -->
+<div class="scr" id="s-scan">
+  <div class="s-top">
+    <button class="bk" onclick="showScr('home')">‹</button>
+    <div class="s-ttl">Scan Product</div>
+  </div>
+  <div class="cam">
+    <video id="cam-video" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1"></video>
+    <div id="cam-error" style="position:absolute;inset:0;background:rgba(8,15,8,.97);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:30;padding:30px;gap:14px;text-align:center">
+      <div class="itile lg on-dark"><svg><use href="#i-warn"/></svg></div>
+      <div id="cam-error-title" style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--on-accent);letter-spacing:-.01em"></div>
+      <div id="cam-error-text" style="font-size:13px;color:rgba(255,255,255,.55);line-height:1.6;max-width:260px"></div>
+      <button onclick="manualBarcodeEntry()" style="margin-top:8px;padding:11px 22px;background:var(--accent-2);color:var(--ink);border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Enter barcode manually</button>
+    </div>
+    <div class="co">
+      <div class="sf">
+        <div class="sc2 tl"></div><div class="sc2 tr"></div>
+        <div class="sc2 bl"></div><div class="sc2 br"></div>
+        <div class="sbeam"></div>
+      </div>
+      <div class="sh2" id="scan-hint">Point at a product barcode</div>
+      <div class="ss2">Powered by Open Food Facts</div>
+    </div>
+    <div id="anlz">
+      <div class="spw"><div class="sp-r"></div></div>
+      <div class="at">Analyzing</div>
+      <div class="as">
+        <div class="as-s" id="as1"><div class="as-d"></div>Fetching product data</div>
+        <div class="as-s" id="as2"><div class="as-d"></div>Calculating sustainability score</div>
+        <div class="as-s" id="as3"><div class="as-d"></div>Checking environmental metrics</div>
+        <div class="as-s" id="as4"><div class="as-d"></div>Generating AI insights</div>
+      </div>
+    </div>
+    <div class="cstrip">
+      <div class="cl">Tap to demo · or scan a real barcode</div>
+      <div class="cr">
+        <div class="pc" onclick="manualBarcodeEntry()"><div class="itile sm on-dark"><svg><use href="#i-keyboard"/></svg></div><div class="pcn">Enter barcode</div><div class="pcb">Manual entry</div></div>
+        <div class="pc" onclick="doScan('beef')"><div class="itile sm on-dark"><svg><use href="#i-meat"/></svg></div><div class="pcn">Ground Beef</div><div class="pcb">Conventional</div></div>
+        <div class="pc" onclick="doScan('lentils')"><div class="itile sm on-dark"><svg><use href="#i-grain"/></svg></div><div class="pcn">Green Lentils</div><div class="pcb">Bob's Red Mill</div></div>
+        <div class="pc" onclick="doScan('water')"><div class="itile sm on-dark"><svg><use href="#i-bottle"/></svg></div><div class="pcn">Bottled Water</div><div class="pcb">Dasani</div></div>
+        <div class="pc" onclick="doScan('oatmilk')"><div class="itile sm on-dark"><svg><use href="#i-grain"/></svg></div><div class="pcn">Oat Milk</div><div class="pcb">Oatly</div></div>
+        <div class="pc" onclick="doScan('chips')"><div class="itile sm on-dark"><svg><use href="#i-bag"/></svg></div><div class="pcn">Palm Oil Chips</div><div class="pcb">Lay's</div></div>
+        <div class="pc" onclick="doScan('organic_milk')"><div class="itile sm on-dark"><svg><use href="#i-milk"/></svg></div><div class="pcn">Organic Milk</div><div class="pcb">Organic Valley</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RESULT ═══ -->
+<div class="scr" id="s-result">
+  <div class="r-top">
+    <button class="bk" style="background:rgba(0,0,0,.07);color:var(--char)" onclick="showScr('scan')">‹</button>
+    <div class="r-ttl">Product Report</div>
+  </div>
+  <div id="prod-bar" class="pb"></div>
+  <div class="sv rb" id="rbody"></div>
+  <div class="result-footer">
+    <button class="result-home-btn" onclick="showTab('home')">Back to Home</button>
+  </div>
+</div>
+
+<!-- ═══ IMPACT ═══ -->
+<div class="scr" id="s-impact">
+  <div class="page-h"><div class="page-h-t">Your impact</div><div class="page-h-s">This month, in real units.</div></div>
+  <div class="sv" style="padding:0 20px calc(88px + var(--safe-bot))">
+    <div class="ig">
+      <div class="is ft"><div class="il">Water saved</div><div class="iv"><span id="impact-water2">0</span> <span class="iu">gal</span></div></div>
+      <div class="is ft"><div class="il">CO₂ avoided</div><div class="iv"><span id="impact-co22">0</span> <span class="iu">lbs</span></div></div>
+      <div class="is"><div class="il">Eco-friendly items</div><div class="iv" id="impact-total-scans">0</div></div>
+      <div class="is"><div class="il">Eco swaps made</div><div class="iv" id="impact-swaps2">0</div></div>
+    </div>
+    <div class="eqc">
+      <div class="eql">Real-world equivalent</div>
+      <div class="eqt">Your choices equal <strong>3 trees planted</strong> and <strong>not driving 51 miles</strong> this month.</div>
+    </div>
+    <div class="sh"><span class="sh-t">Recent history</span></div>
+    <div class="rc" id="recent-card-impact">
+      <div class="rc-empty">No scans yet. Tap Scan to begin.</div>
+    </div>
+  </div>
+  <nav class="bnav">
+    <button class="nb" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
+    <button class="nb on"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
+    <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
+    <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
+  </nav>
+</div>
+
+<!-- ═══ RECIPES ═══ -->
+<div class="scr" id="s-recipes">
+  <div class="rp-header">
+    <div class="rp-title">Green kitchen</div>
+    <div class="rp-sub">Eco-friendly recipes for every meal.</div>
+  </div>
+  <div class="cat-row">
+    <div class="ctp on" onclick="filterCat('all',this)">All</div>
+    <div class="ctp" onclick="filterCat('breakfast',this)">Breakfast</div>
+    <div class="ctp" onclick="filterCat('lunch',this)">Lunch</div>
+    <div class="ctp" onclick="filterCat('dinner',this)">Dinner</div>
+    <div class="ctp" onclick="filterCat('snack',this)">Snacks</div>
+    <div class="ctp" onclick="filterCat('dessert',this)">Dessert</div>
+    <div class="ctp" onclick="filterCat('drink',this)">Drinks</div>
+  </div>
+  <div class="ai-gen" onclick="generateAIRecipe()">
+    <div class="ag-row">
+      <div class="itile lg on-dark"><svg><use href="#i-spark"/></svg></div>
+      <div><div class="ag-lbl">AI · Claude</div><div class="ag-ttl">Generate a custom eco recipe</div></div>
+      <div class="itile sm on-dark" style="margin-left:auto"><svg><use href="#i-arrow-r"/></svg></div>
+    </div>
+  </div>
+  <div class="rp-scroll">
+    <div class="feat-wrap">
+      <div class="feat-lbl">Featured today</div>
+      <div class="feat-card" onclick="openRecipe('skillet_lasagna')">
+        <div class="feat-img">
+          <img class="feat-img-photo" src="https://www.floridamilk.com/file/26/summer-skillet-lasagna.jpg" alt="Summer Skillet Lasagna" loading="lazy" onerror="this.style.display='none'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1">
+          <div class="feat-img-bg" style="background:linear-gradient(135deg,#3a1a10,#8a3520)"></div>
+          <div class="feat-img-em" style="z-index:3"><svg width="48" height="48" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color:#fff;opacity:.7"><use href="#i-utensils"/></svg></div>
+        </div>
+        <div class="feat-body">
+          <div class="feat-meta"><span class="feat-cat">Dinner</span><div class="feat-dot"></div><span class="feat-eco">Eco Score 8.6/10</span></div>
+          <div class="feat-name">Summer Skillet Lasagna</div>
+          <div class="feat-desc">A fresh one-pan lasagna with seasonal zucchini, summer squash, and bright tomato sauce. No oven needed — done entirely in one cast iron skillet.</div>
+          <div class="feat-tags"><span class="ftg g">Seasonal veggies</span><span class="ftg g">One skillet</span><span class="ftg">45 min</span><span class="ftg">4 servings</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="rg" id="recipe-grid"></div>
+  </div>
+  <div id="rgen-ov">
+    <div class="rg-w"><div class="rg-r"></div><svg class="rg-i" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-spark"/></svg></div>
+    <div class="rg-t">Crafting your recipe…</div>
+    <div class="rg-s">Claude is creating a custom eco-friendly recipe using seasonal, low-impact ingredients</div>
+  </div>
+  <nav class="bnav">
+    <button class="nb" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
+    <button class="nb" onclick="showTab('impact')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
+    <button class="nb on"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
+    <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
+  </nav>
+</div>
+
+<!-- ═══ RECIPE DETAIL ═══ -->
+<div class="scr" id="s-rdet">
+  <div class="rd-hero" id="rd-hero">
+    <div class="rd-hbg" id="rd-hbg"></div>
+    <div class="rd-hem" id="rd-hem"></div>
+    <button class="rd-bk" onclick="showScr('recipes')">‹</button>
+  </div>
+  <div class="rd-body" id="rd-body"></div>
+</div>
+
+<!-- ═══ REWARDS ═══ -->
+<div class="scr" id="s-rewards">
+  <div class="page-h"><div class="page-h-t">Rewards</div><div class="page-h-s">Trade your eco tokens for real-world impact.</div></div>
+  <div class="sv" style="padding:0 20px calc(88px + var(--safe-bot))">
+    <div class="thc">
+      <div class="th-tp">
+        <div>
+          <div class="th-l">Your balance</div>
+          <div class="th-a" id="rewards-tokens">0</div>
+          <div class="th-s">eco tokens</div>
+        </div>
+      </div>
+      <div class="th-cs">
+        <div class="th-c"><div class="th-cl">Earned</div><div class="th-cv">480</div></div>
+        <div class="th-c"><div class="th-cl">Redeemed</div><div class="th-cv">140</div></div>
+      </div>
+    </div>
+    <div class="sh" style="margin-bottom:10px"><span class="sh-t">Badges</span></div>
+    <div class="bg">
+      <div class="bc ul"><div class="itile sm good"><svg><use href="#i-leaf"/></svg></div><div class="bw"><div class="bn">First scan</div><div class="bs">Unlocked</div></div></div>
+      <div class="bc ul"><div class="itile sm good"><svg><use href="#i-flame"/></svg></div><div class="bw"><div class="bn">7-day streak</div><div class="bs">Unlocked</div></div></div>
+      <div class="bc ul"><div class="itile sm good"><svg><use href="#i-recycle"/></svg></div><div class="bw"><div class="bn">Swap star</div><div class="bs">Unlocked</div></div></div>
+      <div class="bc"><div class="itile sm"><svg><use href="#i-droplet"/></svg></div><div class="bw"><div class="bn">Water saver</div><div class="bs">153 gal left</div></div></div>
+      <div class="bc"><div class="itile sm"><svg><use href="#i-cloud"/></svg></div><div class="bw"><div class="bn">Carbon hero</div><div class="bs">7.6 lbs left</div></div></div>
+      <div class="bc"><div class="itile sm"><svg><use href="#i-trophy"/></svg></div><div class="bw"><div class="bn">Eco champ</div><div class="bs">30-day streak</div></div></div>
+    </div>
+    <div class="sh" style="margin-bottom:10px"><span class="sh-t">Redeem tokens</span></div>
+    <div class="stl">
+      <div class="str"><div class="itile"><svg><use href="#i-bag"/></svg></div><div class="sti"><div class="stn">$5 off at Whole Foods</div><div class="stc">200 tokens</div></div><button class="rdb" onclick="rdm('Whole Foods')">Redeem</button></div>
+      <div class="stdv"></div>
+      <div class="str"><div class="itile"><svg><use href="#i-tree"/></svg></div><div class="sti"><div class="stn">Plant a real tree</div><div class="stc">300 tokens</div></div><button class="rdb" onclick="rdm('Tree')">Redeem</button></div>
+      <div class="stdv"></div>
+      <div class="str"><div class="itile"><svg><use href="#i-gift"/></svg></div><div class="sti"><div class="stn">Reusable bag bundle</div><div class="stc">150 tokens</div></div><button class="rdb" onclick="rdm('Bags')">Redeem</button></div>
+    </div>
+  </div>
+  <nav class="bnav">
+    <button class="nb" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
+    <button class="nb" onclick="showTab('impact')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
+    <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
+    <button class="nb on"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
+  </nav>
+</div>
+
+<!-- ═══ ALT DETAIL MODAL ═══ -->
+<div id="alt-modal">
+  <div class="am-card" id="am-card"></div>
+</div>
+
+<!-- STREAK MODAL -->
+<div id="streak-modal" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:300;display:none;align-items:flex-end;padding:12px" onclick="if(event.target===this)closeStreakModal()">
+  <div style="background:var(--cream);border-radius:28px;width:100%;padding:26px 24px 32px;position:relative">
+    <button onclick="closeStreakModal()" style="position:absolute;top:14px;right:14px;width:32px;height:32px;background:var(--parch);border-radius:50%;border:none;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ash)">✕</button>
+    <div class="itile lg" style="margin-bottom:14px"><svg><use href="#i-flame"/></svg></div>
+    <div style="font-family:'Fraunces',serif;font-size:28px;color:var(--forest);line-height:1;margin-bottom:4px" id="impact-streak-title">0-day streak</div>
+    <div style="font-size:13px;color:var(--ash);margin-bottom:22px" id="impact-streak-best">Best: 0</div>
+    <div class="sd">
+      <div class="dc2"><div class="dr2 dd">Mon</div></div>
+      <div class="dc2"><div class="dr2 dd">Tue</div></div>
+      <div class="dc2"><div class="dr2 dd">Wed</div></div>
+      <div class="dc2"><div class="dr2 dd">Thu</div></div>
+      <div class="dc2"><div class="dr2 dd">Fri</div></div>
+      <div class="dc2"><div class="dr2 dd">Sat</div></div>
+      <div class="dc2"><div class="dr2 dt">Sun</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+</div><!-- shell -->
+
+<script src="../javascript/home.js"></script>
+<script>
+// ════════════════════ PRODUCTS ════════════════════
+const P = {
+  beef:{
+    name:'Ground Beef 80/20',brand:'Conventional Farming',code:'0-22000-02025-4',em:'🥩',score:2,
+    co2:27.0,water:15400,pack:'Non-recyclable plastic',cert:'None',
+    details:{'CO₂ / kg':'27 kg CO₂','Water / kg':'15,400 L','Land use':'164 m²/kg','Packaging':'Non-recyclable plastic','Origin':'USA (CAFO)','Certifications':'None','Animal welfare':'Conventional CAFO','Biodiversity':'Very high impact'},
+    alts:['beyond_burger','green_lentils_alt','jackfruit']
+  },
+  water:{
+    name:'Purified Water 16.9 oz',brand:'Dasani / Coca-Cola',code:'0-12000-82066-1',em:'🧴',score:3,
+    co2:0.55,water:3,pack:'Single-use PET plastic',cert:'None',
+    details:{'CO₂ / bottle':'0.55 kg CO₂','Plastic waste':'18.9g PET','Recyclability':'~30% recycled','Packaging':'Single-use PET','Ocean impact':'High','Source':'Municipal tap'},
+    alts:['hydroflask','boxed_water','britta']
+  },
+  chips:{
+    name:'Classic Potato Chips',brand:"Lay's",code:'0-28400-08406-5',em:'🍟',score:4,
+    co2:3.8,water:790,pack:'Mylar (non-recyclable)',cert:'None (non-RSPO)',
+    details:{'CO₂ / kg':'3.8 kg CO₂','Palm oil':'Non-RSPO certified','Deforestation risk':'High','Packaging':'Mylar — 0% recyclable','Origin':'USA + SE Asia','Processing':'Ultra-processed NOVA 4'},
+    alts:['siete_chips','angie_popcorn','boulder_chips']
+  },
+  lentils:{
+    name:'Green Lentils 1 lb',brand:"Bob's Red Mill",code:'0-39978-01531-4',em:'🫘',score:9,
+    co2:0.9,water:1250,pack:'Recyclable paper bag',cert:'Non-GMO Project',
+    details:{'CO₂ / kg':'0.9 kg CO₂','Water / kg':'1,250 L','Land use':'3.4 m²/kg','Packaging':'Recyclable paper','Origin':'USA / Canada','Certifications':'Non-GMO Project','Soil impact':'Nitrogen-fixing ✓'},
+    alts:['organic_chickpeas','blackbeans_eden','sprouted_lentils']
+  },
+  oatmilk:{
+    name:'Oat Milk Original',brand:'Oatly',code:'8-10022-03014-0',em:'🌾',score:8,
+    co2:0.9,water:48,pack:'Tetra Pak (recyclable)',cert:'Non-GMO, Vegan',
+    details:{'CO₂ / litre':'0.9 kg CO₂','Water / litre':'48 L (vs 628L dairy)','Land use':'0.76 m²','Packaging':'Tetra Pak recyclable','Origin':'Sweden / USA','vs Dairy CO₂':'73% less'},
+    alts:['planet_oat','elmhurst_oat','homemade_oat']
+  },
+  organic_milk:{
+    name:'Organic Whole Milk',brand:'Organic Valley',code:'0-93966-00414-9',em:'🥛',score:7,
+    co2:1.9,water:628,pack:'HDPE jug (recyclable)',cert:'USDA Organic, Non-GMO',
+    details:{'CO₂ / litre':'1.9 kg CO₂','Water / litre':'628 L','Land use':'9 m²/litre','Packaging':'HDPE recyclable','Origin':'USA family farms','Certifications':'USDA Organic, Non-GMO'},
+    alts:['oatly_barista','califia_oat','silk_oatmilk']
+  },
+};
+
+// ════════════════════ ECO ALTERNATIVES DB ════════════════════
+// Real products with real images from Open Food Facts / Unsplash
+const ALTS = {
+  // Beef alternatives
+  beyond_burger:{
+    name:'Beyond Burger',brand:'Beyond Meat',score:8.4,em:'🌿',cert:'Non-GMO, Vegan',
+    img:'https://images.openfoodfacts.org/images/products/850/018/944/2993/front_en.5.400.jpg',
+    reason:'Plant-based patty with identical protein to beef — uses 99% less water and 93% less land.',
+    desc:'Beyond Burger is made from pea protein, rice protein, and mung beans. It generates 90% fewer GHG emissions than a conventional beef burger while providing the same 20g of protein per serving.',
+    co2:'3.5 kg CO₂/kg',water:'~105 L/kg',land:'2.2 m²/kg',
+    pills:['Plant-based','Vegan','Non-GMO','High protein'],
+    where:'Whole Foods · Target · Kroger',whereIcon:'🛒',
+    price:'~$6.99 / 2 patties'
+  },
+  green_lentils_alt:{
+    name:'Green Lentils Organic',brand:"365 by Whole Foods",score:9.5,em:'🫘',cert:'USDA Organic',
+    img:'https://images.openfoodfacts.org/images/products/003/900/005/6549/front_en.5.400.jpg',
+    reason:'Highest-rated protein source on earth for sustainability. Organic certification eliminates synthetic pesticides.',
+    desc:'Organic green lentils are nitrogen-fixing legumes that improve soil health as they grow. At 0.9 kg CO₂ per kg and only 1,250L of water — they outperform almost every other protein source by a wide margin.',
+    co2:'0.9 kg CO₂/kg',water:'1,250 L/kg',land:'3.4 m²/kg',
+    pills:['USDA Organic','Nitrogen-fixing','Compostable bag','Local farms'],
+    where:'Whole Foods (365 brand)',whereIcon:'🏪',
+    price:'~$2.49 / 1 lb'
+  },
+  jackfruit:{
+    name:'Young Green Jackfruit',brand:'Upton\'s Naturals',score:8.1,em:'🌿',cert:'Vegan, Non-GMO',
+    img:'https://images.openfoodfacts.org/images/products/008/517/910/2819/front_en.4.400.jpg',
+    reason:'Jackfruit grows abundantly in tropical regions with zero synthetic inputs and provides a meaty texture.',
+    desc:'Upton\'s jackfruit is grown in Southeast Asia where the tree thrives without irrigation or fertilizers. One jackfruit tree can produce up to 200 fruits per year — making it one of the highest-yielding food plants.',
+    co2:'0.5 kg CO₂/kg',water:'350 L/kg',land:'1.2 m²/kg',
+    pills:['Whole food','Zero additives','Sustainable farming','Versatile'],
+    where:'Whole Foods · Sprouts · Amazon',whereIcon:'🛒',
+    price:'~$3.99 / 10.6 oz'
+  },
+  // Water alternatives
+  hydroflask:{
+    name:'Wide Mouth Water Bottle',brand:'Hydro Flask',score:10,em:'💧',cert:'BPA-Free, Lifetime warranty',
+    img:'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&q=80',
+    reason:'One Hydro Flask replaces ~1,460 plastic bottles per year. Lifetime warranty means it never ends up in a landfill.',
+    desc:"Hydro Flask's 18/8 stainless steel bottles are built to last a lifetime. After just 2 months of use, the carbon payback vs single-use plastic bottles is complete — and it keeps drinks cold for 24 hours, hot for 12.",
+    co2:'4.5 kg CO₂ total lifetime',water:'Zero ongoing',land:'Zero',
+    pills:['Reusable','Zero waste','18/8 steel','Lifetime warranty'],
+    where:'REI · Target · Dick\'s Sporting Goods',whereIcon:'🏪',
+    price:'~$44.95 (once)'
+  },
+  boxed_water:{
+    name:'Boxed Water',brand:'Boxed Water is Better',score:7.2,em:'📦',cert:'1% for the Planet',
+    img:'https://images.openfoodfacts.org/images/products/085/239/430/0016/front_en.3.400.jpg',
+    reason:'92% plant-based materials, 100% recyclable carton. Carbon footprint is 67% lower than plastic bottles.',
+    desc:'Boxed Water is Better uses paperboard cartons (92% plant-based) instead of petroleum-based plastic. Their boxes are accepted by most curbside recycling programs, and the company plants 2 trees for every case sold.',
+    co2:'0.09 kg CO₂ per carton',water:'60% less than PET',land:'Renewable forest',
+    pills:['67% lower carbon','92% plant-based','Recyclable','Tree planting'],
+    where:'Target · Whole Foods · CVS',whereIcon:'🛒',
+    price:'~$1.49 / 16.9 oz'
+  },
+  britta:{
+    name:'Pitcher Water Filter',brand:'Brita',score:9.8,em:'🚰',cert:'NSF certified',
+    img:'https://images.unsplash.com/photo-1548781264-3c8a2b8b6d1f?w=600&q=80',
+    reason:'One Brita filter replaces 300 plastic water bottles. Tap water filtered at home has a 300x lower carbon footprint.',
+    desc:"Brita's pitcher filters tap water to remove chlorine, sediment, and zinc. At $0.25 per gallon vs $1.50+ for bottled water, you save money while eliminating hundreds of single-use bottles every year.",
+    co2:'0.001 kg CO₂ per litre',water:'Zero added',land:'Zero',
+    pills:['300 bottles eliminated','NSF certified','Cost-saving','Long-lasting filter'],
+    where:'Target · Amazon · Walmart',whereIcon:'🛒',
+    price:'~$29.99 (pitcher + filter)'
+  },
+  // Chips alternatives
+  siete_chips:{
+    name:'Sea Salt Serrano Grain-Free Chips',brand:'Siete Family Foods',score:7.4,em:'🌽',cert:'Grain-free, Paleo',
+    img:'https://images.openfoodfacts.org/images/products/008/517/200/9993/front_en.5.400.jpg',
+    reason:'Made with cassava flour and avocado oil instead of palm oil. Recyclable bag and cleaner ingredient sourcing.',
+    desc:'Siete chips use cassava, a drought-resistant root crop that requires minimal inputs, and avocado oil which comes from a more sustainable supply chain than conventional palm oil. The brand partners with certified sustainable farms.',
+    co2:'2.1 kg CO₂/kg',water:'420 L/kg',land:'4.1 m²/kg',
+    pills:['No palm oil','Avocado oil','Recyclable bag','Family-owned'],
+    where:'Whole Foods · Costco · Target',whereIcon:'🛒',
+    price:'~$4.99 / 5 oz'
+  },
+  angie_popcorn:{
+    name:'Organic Microwave Popcorn',brand:"Angie's BOOMCHICKAPOP",score:8.9,em:'🍿',cert:'USDA Organic, Non-GMO',
+    img:'https://images.openfoodfacts.org/images/products/081/772/400/0063/front_en.4.400.jpg',
+    reason:'Air-popped whole grain corn with zero palm oil. Organic certification and fully recyclable packaging.',
+    desc:"BOOMCHICKAPOP uses certified organic corn grown without synthetic pesticides or GMOs. Whole grain popcorn is one of the most sustainable snacks you can eat — corn grows efficiently with minimal inputs and the whole grain requires almost no processing.",
+    co2:'1.1 kg CO₂/kg',water:'280 L/kg',land:'2.8 m²/kg',
+    pills:['USDA Organic','Non-GMO','Whole grain','No palm oil'],
+    where:'Whole Foods · Target · Costco',whereIcon:'🛒',
+    price:'~$3.49 / 4.4 oz'
+  },
+  boulder_chips:{
+    name:'Kettle Style Potato Chips',brand:'Boulder Canyon',score:7.1,em:'🥔',cert:'Non-GMO Project',
+    img:'https://images.openfoodfacts.org/images/products/008/517/980/0053/front_en.3.400.jpg',
+    reason:'Cooked in avocado oil, not palm oil. Non-GMO Project verified and made with simpler ingredients.',
+    desc:"Boulder Canyon's chips are made with three main ingredients: potatoes, avocado oil, and salt. Their supply chain avoids palm oil entirely, and their packaging uses less plastic by weight than standard Mylar chip bags.",
+    co2:'2.4 kg CO₂/kg',water:'510 L/kg',land:'4.8 m²/kg',
+    pills:['No palm oil','Non-GMO','Avocado oil','Simple ingredients'],
+    where:'Whole Foods · King Soopers · Amazon',whereIcon:'🛒',
+    price:'~$3.99 / 5.25 oz'
+  },
+  // Lentils good alternatives
+  organic_chickpeas:{
+    name:'Organic Chickpeas',brand:'Eden Organic',score:9.3,em:'🫘',cert:'USDA Organic, BPA-Free can',
+    img:'https://images.openfoodfacts.org/images/products/002/478/400/2101/front_en.5.400.jpg',
+    reason:'Eden Organic uses BPA-free cans and sources from certified organic farms. Chickpeas fix nitrogen and have identical sustainability to lentils.',
+    desc:"Eden's chickpeas are grown on certified organic farms and packed in BPA-free cans lined with oleoresin — a plant-based coating. Like lentils, chickpeas are nitrogen-fixing legumes that improve soil health as a crop rotation strategy.",
+    co2:'0.8 kg CO₂/kg',water:'1,100 L/kg',land:'2.9 m²/kg',
+    pills:['USDA Organic','BPA-free can','Nitrogen-fixing','No salt added'],
+    where:'Whole Foods · Natural Grocers · Amazon',whereIcon:'🛒',
+    price:'~$2.19 / 15 oz'
+  },
+  blackbeans_eden:{
+    name:'Organic Black Beans',brand:'Eden Organic',score:9.1,em:'🫘',cert:'USDA Organic, BPA-Free',
+    img:'https://images.openfoodfacts.org/images/products/002/478/400/2026/front_en.5.400.jpg',
+    reason:'Black beans in BPA-free cans with USDA Organic certification. Similar eco-profile to lentils with outstanding protein content.',
+    desc:'Black beans are among the most nutrient-dense and sustainable protein sources available. Eden Organic sources from family farms and uses a kombu seaweed strip in the can to reduce digestive issues — no additives needed.',
+    co2:'0.8 kg CO₂/kg',water:'1,000 L/kg',land:'2.8 m²/kg',
+    pills:['USDA Organic','BPA-free','Family farms','No additives'],
+    where:'Whole Foods · Sprouts · Thrive Market',whereIcon:'🛒',
+    price:'~$2.29 / 15 oz'
+  },
+  sprouted_lentils:{
+    name:'Sprouted Lentil Blend',brand:'TruRoots',score:9.4,em:'🌱',cert:'USDA Organic, Non-GMO',
+    img:'https://images.openfoodfacts.org/images/products/008/515/200/0036/front_en.4.400.jpg',
+    reason:'Sprouted lentils have 20% more bioavailable nutrients, cook in under 10 minutes, and use significantly less energy to prepare.',
+    desc:"TruRoots' sprouted lentil blend is pre-sprouted before packaging, which breaks down phytic acid naturally and increases protein bioavailability. Sprouting also dramatically reduces cooking time — saving energy and preserving water-soluble nutrients.",
+    co2:'0.75 kg CO₂/kg',water:'950 L/kg',land:'3.0 m²/kg',
+    pills:['USDA Organic','Non-GMO','Fast-cook','Higher bioavailability'],
+    where:'Whole Foods · Amazon · Thrive Market',whereIcon:'🛒',
+    price:'~$4.99 / 10 oz'
+  },
+  // Oat milk alternatives
+  planet_oat:{
+    name:'Extra Creamy Oat Milk',brand:'Planet Oat',score:8.2,em:'🌾',cert:'Non-GMO, Vegan',
+    img:'https://images.openfoodfacts.org/images/products/007/569/000/5066/front_en.4.400.jpg',
+    reason:'Planet Oat uses North American oats and Tetra Pak cartons. Comparable eco-score to Oatly with wider retail availability.',
+    desc:"Planet Oat's Extra Creamy is made from whole grain oats grown in North America, reducing transport emissions compared to imported oats. Their Tetra Pak cartons are 74% renewable materials and accepted by most curbside recycling programs.",
+    co2:'0.95 kg CO₂/L',water:'50 L/L',land:'0.8 m²/L',
+    pills:['Non-GMO','Vegan','Tetra Pak','North American oats'],
+    where:'Target · Walmart · Kroger',whereIcon:'🛒',
+    price:'~$4.49 / half gallon'
+  },
+  elmhurst_oat:{
+    name:'Milked Oats',brand:'Elmhurst 1925',score:8.6,em:'🌾',cert:'Non-GMO, Vegan',
+    img:'https://images.openfoodfacts.org/images/products/008/517/400/0105/front_en.3.400.jpg',
+    reason:'Elmhurst uses a cold-milling process that requires no added gums, oils, or emulsifiers — the most minimal oat milk available.',
+    desc:"Elmhurst's HydroRelease process extracts maximum nutrition from whole oats using only water and cold pressure — no heat, no gums, no additives. The result is a cleaner product with a smaller processing footprint than most oat milks.",
+    co2:'0.85 kg CO₂/L',water:'45 L/L',land:'0.72 m²/L',
+    pills:['No gums added','Minimal processing','Non-GMO','4 ingredients only'],
+    where:'Whole Foods · Sprouts · Amazon',whereIcon:'🛒',
+    price:'~$5.99 / quart'
+  },
+  homemade_oat:{
+    name:'Homemade Oat Milk',brand:'DIY — zero packaging',score:10,em:'🥣',cert:'Your choice',
+    img:'https://images.unsplash.com/photo-1600718374662-0483d2b9da44?w=600&q=80',
+    reason:'Making oat milk at home eliminates all packaging, transportation, and processing emissions. 10/10 eco-score.',
+    desc:"Homemade oat milk: blend 1 cup rolled oats + 4 cups water, strain through a nut milk bag, and add a pinch of salt and a date for sweetness. Ready in 5 minutes. Costs ~$0.30 per litre vs $4+ for store-bought, with zero packaging waste.",
+    co2:'~0.3 kg CO₂/L',water:'40 L/L',land:'0.6 m²/L',
+    pills:['Zero packaging','5 minutes','$0.30 per litre','Customizable'],
+    where:'Make at home with rolled oats',whereIcon:'🏠',
+    price:'~$0.30 per litre'
+  },
+  // Organic milk alternatives
+  oatly_barista:{
+    name:'Barista Edition Oat Milk',brand:'Oatly',score:8.5,em:'☕',cert:'Non-GMO, Vegan',
+    img:'https://images.openfoodfacts.org/images/products/700/769/903/0006/front_en.6.400.jpg',
+    reason:'73% less CO₂ than dairy milk. Oatly Barista froths like dairy and is purpose-built as a dairy replacement.',
+    desc:"Oatly Barista is formulated to replicate the texture and frothing behavior of whole milk — making it the ideal dairy swap in coffee, cereals, and cooking. It generates 73% fewer greenhouse gas emissions and uses 60% less energy to produce than cow's milk.",
+    co2:'0.9 kg CO₂/L',water:'48 L/L',land:'0.76 m²/L',
+    pills:['73% less CO₂','Vegan','Barista-grade','Tetra Pak'],
+    where:'Whole Foods · Starbucks · Target',whereIcon:'🛒',
+    price:'~$5.49 / 32 oz'
+  },
+  califia_oat:{
+    name:'Oat Barista Blend',brand:'Califia Farms',score:8.1,em:'🌾',cert:'Non-GMO, Vegan',
+    img:'https://images.openfoodfacts.org/images/products/008/517/020/0020/front_en.4.400.jpg',
+    reason:'Califia uses a proprietary oat extraction process with no carrageenan and sources from certified sustainable oat farms.',
+    desc:"Califia's Oat Barista Blend is made with whole grain oats and a clean ingredient list free from carrageenan and artificial thickeners. Their bottle is made from a HDPE #2 plastic that's accepted by 95% of US recycling programs.",
+    co2:'0.92 kg CO₂/L',water:'50 L/L',land:'0.8 m²/L',
+    pills:['No carrageenan','HDPE recyclable','Non-GMO','Barista-grade'],
+    where:'Whole Foods · Target · Costco',whereIcon:'🛒',
+    price:'~$5.29 / 48 oz'
+  },
+  silk_oatmilk:{
+    name:'Oat Yeah Plain Oatmilk',brand:'Silk',score:7.8,em:'🌾',cert:'Non-GMO, Vegan',
+    img:'https://images.openfoodfacts.org/images/products/007/519/100/0068/front_en.5.400.jpg',
+    reason:'Widely available, budget-friendly oat milk with non-GMO certification and Tetra Pak recyclable packaging.',
+    desc:"Silk's oat milk is one of the most accessible eco-friendly dairy alternatives — available at virtually every major grocery chain. Made with whole grain oats, it uses 79% less water and produces significantly fewer emissions than conventional cow's milk.",
+    co2:'1.0 kg CO₂/L',water:'52 L/L',land:'0.85 m²/L',
+    pills:['Non-GMO','Widely available','Budget-friendly','Tetra Pak'],
+    where:'Walmart · Kroger · Target · Safeway',whereIcon:'🛒',
+    price:'~$3.99 / half gallon'
+  },
+};
+
+// ════════════════════ RECIPES ════════════════════
+const RECIPES = {
+  frittata:{
+    id:'frittata',cat:'breakfast',em:'🍳',
+    img:'https://www.floridamilk.com/file/26/Frittata-web.png',
+    name:'Vegetable & Sausage Frittata',
+    desc:'A hearty one-skillet breakfast using leftover veggies, eggs, and milk. Perfect for reducing food waste with whatever is in your fridge.',
+    time:25,servings:4,ecoScore:8.2,
+    gradient:'linear-gradient(135deg,#4a2a10,#8a5520)',
+    ecoNote:'Using up leftover vegetables and eggs prevents food waste — over 1/3 of US food ends up in landfills.',
+    tags:['One skillet','Zero waste','High protein'],
+    ingredients:[
+      {em:'🥚',name:'Eggs',qty:'6 large',eco:'Local farm eggs'},
+      {em:'🥛',name:'Florida Milk (2%)',qty:'1 cup',eco:'Local dairy'},
+      {em:'🍄',name:'Diced veggies (mushrooms, peppers, tomatoes, zucchini)',qty:'1–1½ cups',eco:'Use whatever is in your fridge'},
+      {em:'🌭',name:'Breakfast sausage (leftover)',qty:'½ cup',eco:'Repurpose leftovers'},
+      {em:'🧂',name:'Salt, pepper & seasonings',qty:'To taste',eco:'Minimal packaging'}
+    ],
+    steps:[
+      {title:'Preheat oven',text:'Preheat oven to 400°F. Clean and dice all vegetables.'},
+      {title:'Sauté veggies',text:'Warm an oven-safe cast iron skillet over medium heat. Sauté vegetables and sausage until soft, about 5 minutes.'},
+      {title:'Mix eggs',text:'In a small bowl, whisk together 6 eggs and 1 cup milk until combined.'},
+      {title:'Combine & bake',text:'Pour the egg/milk mixture gently into the skillet over the vegetables. Bake for 15–18 minutes until eggs are fully cooked and top is slightly golden.'},
+      {title:'Serve',text:'Serve with fresh fruit and a glass of Florida Milk.'}
+    ],
+    ecoTips:['Use whatever leftover vegetables are in the fridge to reduce food waste','Cast iron retains heat — turn off burner a minute early to save energy','Compost any vegetable trimmings']
+  },
+  overnight_oats:{
+    id:'overnight_oats',cat:'breakfast',em:'🌾',
+    img:'https://www.floridamilk.com/file/26/Raspberries-and-Pistachio-Overnight-Oats-web.png',
+    name:'Raspberries & Pistachio Overnight Oats',
+    desc:'Elegant, no-cook overnight oats layered with homemade raspberry jam and crushed pistachios. Ready in the morning with zero energy needed.',
+    time:10,servings:2,ecoScore:9.1,
+    gradient:'linear-gradient(135deg,#2d1a4a,#5a2780)',
+    ecoNote:'Oats produce 70% less CO₂ than beef per gram of protein and require minimal water to grow.',
+    tags:['Zero-cook','Meal prep','No waste'],
+    ingredients:[
+      {em:'🌾',name:'Rolled oats',qty:'2 cups',eco:'Lowest-carbon grain'},
+      {em:'🥛',name:'Florida Milk',qty:'2.5 cups',eco:'Local dairy'},
+      {em:'🍯',name:'Honey',qty:'2 tbsp',eco:'Supports local bees'},
+      {em:'🍓',name:'Sugar',qty:'½ cup',eco:'For jam'},
+      {em:'🫐',name:'Raspberries (for jam)',qty:'2 cups',eco:'Use slightly overripe berries'},
+      {em:'🟢',name:'Crushed pistachios',qty:'2 cups',eco:'Low water nut'},
+      {em:'🍓',name:'Fresh raspberries (topping)',qty:'To taste',eco:'Local seasonal'}
+    ],
+    steps:[
+      {title:'Soak oats overnight',text:'Combine rolled oats, milk, and honey in a medium bowl. Cover and refrigerate overnight.'},
+      {title:'Make raspberry jam',text:'Place raspberries and sugar in a saucepan over medium heat. Cook, stirring, for 5 minutes until sugar dissolves. Blend smooth. Cool completely — can be made night before too.'},
+      {title:'Layer & serve',text:'In jars or glasses, layer raspberry jam, crushed pistachios, and the oat mixture. Top with fresh raspberries and more pistachios.'}
+    ],
+    ecoTips:['Make 5 jars on Sunday for the whole week — zero morning effort','Use overripe berries for jam to prevent food waste','Store in reusable glass jars instead of plastic containers']
+  },
+  berry_parfait:{
+    id:'berry_parfait',cat:'breakfast',em:'🫐',
+    img:'https://www.floridamilk.com/file/26/three-seed-berry-parfait-web.png',
+    name:'Three Seed Berry Parfait',
+    desc:'Creamy yogurt layered with fresh mixed berries and a powerhouse trio of flax, chia, and hemp seeds. Ready in minutes.',
+    time:5,servings:2,ecoScore:8.8,
+    gradient:'linear-gradient(135deg,#1a0a3a,#4a1a7a)',
+    ecoNote:'Seeds like flax and chia are among the most nutrient-dense and sustainable crops — tiny footprint, maximum nutrition.',
+    tags:['5 minutes','High fiber','No cook'],
+    ingredients:[
+      {em:'🥛',name:'Yogurt',qty:'2 cups',eco:'Local dairy'},
+      {em:'🍯',name:'Honey',qty:'2 tbsp',eco:'Local honey'},
+      {em:'🍋',name:'Lemon juice',qty:'2 tsp freshly squeezed',eco:'Use the whole fruit'},
+      {em:'🍓',name:'Raspberries',qty:'1 cup',eco:'Seasonal local berries'},
+      {em:'🫐',name:'Blueberries',qty:'1 cup',eco:'Antioxidant-rich'},
+      {em:'🍓',name:'Strawberries',qty:'1 cup',eco:'Seasonal local'},
+      {em:'🌱',name:'Ground flax seeds',qty:'1 tbsp',eco:'Omega-3 powerhouse'},
+      {em:'🫀',name:'Chia seeds',qty:'1 tbsp',eco:'Sustainable superfood'},
+      {em:'🌿',name:'Hemp seeds',qty:'1 tbsp',eco:'Complete protein crop'}
+    ],
+    steps:[
+      {title:'Mix yogurt base',text:'Stir together yogurt, honey, and lemon juice in a bowl until well combined.'},
+      {title:'Layer & serve',text:'Layer yogurt mixture, berries, and seeds in parfait glasses or bowls. End with a sprinkling of all three seeds on top. Serve immediately.'}
+    ],
+    ecoTips:['Buy berries in season — they taste better and cost less','Use whatever berries need to be used up first to avoid waste','Flax, chia, and hemp seeds store for months in the fridge']
+  },
+  veggie_soup:{
+    id:'veggie_soup',cat:'lunch',em:'🥣',
+    img:'https://www.floridamilk.com/file/26/creamy-vegetable-soup.png',
+    name:'Creamy Root Vegetable Soup',
+    desc:'A velvety, silky soup built from humble root vegetables — parsnips, carrots, and potatoes — finished with truffle oil. A chef recipe from Cress Restaurant.',
+    time:45,servings:6,ecoScore:9.0,
+    gradient:'linear-gradient(135deg,#1a3a10,#3a7020)',
+    ecoNote:'Root vegetables are among the most sustainable crops — low water, long shelf life, and can be grown locally in most climates.',
+    tags:['Plant-forward','Batch cook','Zero waste'],
+    ingredients:[
+      {em:'🌿',name:'Parsnips, peeled & diced',qty:'1 cup',eco:'Root crop, low water'},
+      {em:'🥕',name:'Carrots, peeled & diced',qty:'1 cup',eco:'Highly sustainable crop'},
+      {em:'🥔',name:'Yukon Gold potatoes, diced',qty:'1 cup',eco:'Local staple'},
+      {em:'🌱',name:'Turnips, small diced',qty:'½ cup',eco:'Often overlooked, very sustainable'},
+      {em:'🧄',name:'Garlic cloves, sliced',qty:'3 whole',eco:'Minimal land use'},
+      {em:'🧈',name:'Unsalted butter',qty:'½ cup (1 stick)',eco:'Local dairy'},
+      {em:'🥛',name:'Heavy cream',qty:'2½ cups',eco:'Local dairy'},
+      {em:'🫙',name:'Vegetable or chicken stock',qty:'2½ cups',eco:'Use homemade from scraps'},
+      {em:'🌿',name:'Fresh thyme, rosemary, bay leaves',qty:'4 sprigs thyme, 1 rosemary, 3 bay',eco:'Grow your own herbs'},
+      {em:'🌿',name:'Fresh chives & tarragon',qty:'1 tbsp each, for serving',eco:'Fast-growing herbs'},
+      {em:'🍄',name:'White truffle oil',qty:'Drizzle, for serving',eco:'A little goes a long way'}
+    ],
+    steps:[
+      {title:'Combine & simmer',text:'Add vegetables, garlic, butter, cream, stock, thyme, rosemary, and bay leaves to a heavy-bottomed pot. Bring to a boil over medium-high, then lower and simmer 30 minutes until vegetables are very soft.'},
+      {title:'Season & blend',text:'Season with salt and pepper. Remove bay leaves and herb sprigs. Blend smooth with an immersion blender or food processor, adding more liquid if needed.'},
+      {title:'Serve',text:'Ladle into bowls. Garnish with fresh chives, tarragon, and a generous drizzle of white truffle oil.'}
+    ],
+    ecoTips:['Save vegetable trimmings in a freezer bag to make your own stock','Root vegetables last weeks in the fridge — no food waste','This soup freezes beautifully for up to 3 months']
+  },
+  skillet_lasagna:{
+    id:'skillet_lasagna',cat:'dinner',em:'🍝',
+    img:'https://www.floridamilk.com/file/26/summer-skillet-lasagna.jpg',
+    name:'Summer Skillet Lasagna',
+    desc:'A fresh, one-pan lasagna with seasonal zucchini, summer squash, and a bright tomato sauce. No oven needed — done in one cast iron skillet.',
+    time:45,servings:4,ecoScore:8.6,
+    gradient:'linear-gradient(135deg,#3a1a10,#8a3520)',
+    ecoNote:'Using seasonal summer vegetables at peak harvest reduces food miles and supports local farmers.',
+    tags:['One skillet','Seasonal','No oven'],
+    ingredients:[
+      {em:'🧈',name:'Unsalted butter, divided',qty:'5 tbsp',eco:'Local dairy'},
+      {em:'🥒',name:'Zucchini, thinly sliced',qty:'1 medium',eco:'Summer seasonal'},
+      {em:'🌻',name:'Summer squash, thinly sliced',qty:'1 medium',eco:'Peak season'},
+      {em:'🥕',name:'Carrot, peeled & diced',qty:'1 medium',eco:'Local root vegetable'},
+      {em:'🥬',name:'Baby spinach, chopped',qty:'4 cups loosely packed',eco:'Fast-growing green'},
+      {em:'🧄',name:'Garlic cloves, minced',qty:'4',eco:'Minimal footprint'},
+      {em:'🍅',name:'Fresh ripe tomatoes, diced',qty:'1½ lbs',eco:'Peak season local'},
+      {em:'🌿',name:'Fresh basil & parsley, divided',qty:'¼ cup each',eco:'Grow your own'},
+      {em:'🧀',name:'Ricotta cheese',qty:'1½ cups',eco:'Local dairy'},
+      {em:'🥚',name:'Large egg',qty:'1',eco:'Local farm'},
+      {em:'🧀',name:'Parmesan, grated',qty:'¼ cup',eco:'A little goes a long way'},
+      {em:'🧀',name:'Mozzarella, shredded',qty:'1½ cups',eco:'Local dairy'},
+      {em:'🍝',name:'No-bake lasagna noodles',qty:'9–12',eco:'Shelf-stable pantry staple'}
+    ],
+    steps:[
+      {title:'Cook vegetables',text:'Melt 2 tbsp butter in a 10-inch cast iron skillet over medium-high. Add zucchini, squash, and carrots. Cook 5 minutes until soft. Add spinach in handfuls, stirring until wilted. Season with 1 tsp salt and ½ tsp pepper. Transfer to a bowl.'},
+      {title:'Make tomato sauce',text:'Add remaining 3 tbsp butter to skillet. Cook garlic 30 seconds. Add tomatoes and cook 5 minutes. Season with salt, pepper, half the basil and parsley. Simmer 2 minutes. Blend smooth in a blender.'},
+      {title:'Mix ricotta',text:'In a bowl, stir together ricotta, egg, parmesan, and remaining herbs. Season with salt and pepper.'},
+      {title:'Assemble',text:'Spread 1 cup sauce on the bottom of the skillet. Layer noodles (breaking to fit), half the vegetables, half the ricotta, and a sprinkle of mozzarella. Repeat layers. Finish with sauce and remaining mozzarella.'},
+      {title:'Cook & rest',text:'Cover and simmer over medium-low for 20 minutes until noodles are tender and cheese melted. Optional: broil 1–2 minutes to brown the top. Let rest 10 minutes before serving.'}
+    ],
+    ecoTips:['Buy tomatoes at peak summer season when flavor and eco-impact are best','Use a cast iron skillet — it retains heat better than stainless, saving energy','Leftover lasagna tastes even better the next day — zero waste']
+  },
+  strawberry_smoothie:{
+    id:'strawberry_smoothie',cat:'drink',em:'🥤',
+    img:'https://www.floridamilk.com/file/26/Strawberry-Green-Smoothie-web.png',
+    name:'Strawberry Green Smoothie',
+    desc:'A vibrant, refreshing smoothie blending spinach, celery, and strawberries with creamy Florida milk. Energizing and nutritious in under 5 minutes.',
+    time:5,servings:1,ecoScore:8.9,
+    gradient:'linear-gradient(135deg,#0e2a15,#1a5a25)',
+    ecoNote:'Leafy greens like spinach are among the most efficient crops — maximum nutrition per acre with minimal water use.',
+    tags:['Under 5 min','No waste','Superfood'],
+    ingredients:[
+      {em:'🥬',name:'Celery stalks (greens removed)',qty:'2 stalks',eco:'Highly sustainable vegetable'},
+      {em:'🍓',name:'Strawberries (greens removed)',qty:'5',eco:'Use slightly soft ones to avoid waste'},
+      {em:'🥬',name:'Fresh spinach',qty:'1 cup',eco:'Fast-growing minimal water'},
+      {em:'🧊',name:'Ice cubes',qty:'6',eco:''},
+      {em:'🥛',name:'Florida Milk',qty:'1 cup',eco:'Local dairy'},
+      {em:'🍂',name:'Ground cinnamon',qty:'Sprinkle for topping',eco:'Long shelf life spice'}
+    ],
+    steps:[
+      {title:'Blend',text:'Place celery, strawberries, spinach, ice, and milk into a high-powered blender. Blend until completely smooth.'},
+      {title:'Serve',text:'Pour into a glass. Sprinkle cinnamon on top before serving. Enjoy immediately for best nutrition.'}
+    ],
+    ecoTips:['Use slightly soft or overripe strawberries that might otherwise be discarded','Grow spinach in a pot at home — it regrows after cutting','Use a reusable glass or travel cup on the go']
+  },
+  berry_smoothie_pops:{
+    id:'berry_smoothie_pops',cat:'dessert',em:'🍡',
+    img:'https://www.floridamilk.com/file/26/PM-IMG_8750-smoothie-pops_preview-min.jpeg',
+    name:'Berry Smoothie Pops',
+    desc:'Vibrant layered popsicles in strawberry, coconut, and blueberry — made with Greek yogurt and Florida milk. Fun to make, refreshing to eat.',
+    time:20,servings:6,ecoScore:8.5,
+    gradient:'linear-gradient(135deg,#3a0a1a,#8a2050)',
+    ecoNote:'Homemade popsicles eliminate single-use plastic packaging from store-bought frozen treats.',
+    tags:['No bake','Zero packaging','Kid-friendly'],
+    ingredients:[
+      {em:'🍓',name:'Strawberries (cleaned & sliced)',qty:'4 oz',eco:'Seasonal local berries'},
+      {em:'🥛',name:'Florida Milk',qty:'¾ cup total (¼ per layer)',eco:'Local dairy'},
+      {em:'🥛',name:'Vanilla Greek yogurt',qty:'1 cup total (⅓ per layer)',eco:'High protein dairy'},
+      {em:'🥥',name:'Unsweetened shredded coconut',qty:'½ cup',eco:'Sustainably sourced'},
+      {em:'🫐',name:'Blueberries (fresh or frozen)',qty:'½ cup',eco:'Use frozen to reduce waste'},
+      {em:'🍦',name:'Vanilla extract',qty:'1½ tsp total',eco:'Pure vanilla'}
+    ],
+    steps:[
+      {title:'Strawberry layer',text:'Blend ¼ cup milk, ⅓ cup yogurt, strawberries, and ½ tsp vanilla until smooth. Pour into bottom ⅓ of popsicle molds. Freeze 30 minutes, insert stick, freeze 1.5 hours more until solid.'},
+      {title:'Coconut layer',text:'Blend ¼ cup milk, ⅓ cup yogurt, ½ cup crushed ice, coconut, and ½ tsp vanilla. Pour into next ⅓ of molds. Freeze 2 hours until solid.'},
+      {title:'Blueberry layer',text:'Blend ¼ cup milk, ⅓ cup yogurt, blueberries, and ½ tsp vanilla until smooth. Pour into final ⅓ of molds. Freeze 2 hours until solid.'},
+      {title:'Unmold & serve',text:'Run warm water briefly over mold exteriors to release. Serve immediately or store in freezer wrapped in parchment.'}
+    ],
+    ecoTips:['Use frozen berries — same nutrition as fresh, less food waste','Reusable silicone popsicle molds eliminate plastic waste every time','Make a big batch — they keep in the freezer for weeks']
+  },
+  yogurt_bark:{
+    id:'yogurt_bark',cat:'snack',em:'🍓',
+    img:'https://www.floridamilk.com/file/26/Frozen-Strawberry-Yogurt-Bark-web.png',
+    name:'Frozen Strawberry Yogurt Bark',
+    desc:'A simple, beautiful frozen snack — creamy yogurt spread thin and topped with fresh strawberries, then frozen into snappable pieces.',
+    time:10,servings:4,ecoScore:8.7,
+    gradient:'linear-gradient(135deg,#2a0a1a,#6a1a3a)',
+    ecoNote:'Homemade yogurt bark uses whole food ingredients and creates zero packaging waste compared to store-bought frozen snacks.',
+    tags:['No bake','Zero waste','Quick prep'],
+    ingredients:[
+      {em:'🥛',name:'Greek yogurt',qty:'2 cups',eco:'High-protein local dairy'},
+      {em:'🍓',name:'Fresh strawberries, sliced',qty:'1 cup',eco:'Seasonal local berries'},
+      {em:'🍯',name:'Honey',qty:'2 tbsp',eco:'Supports local pollinators'},
+      {em:'🍦',name:'Vanilla extract',qty:'1 tsp',eco:'Pure vanilla'}
+    ],
+    steps:[
+      {title:'Mix yogurt',text:'Stir together Greek yogurt, honey, and vanilla extract until smooth.'},
+      {title:'Spread & top',text:'Line a baking sheet with parchment. Spread yogurt mixture into an even ¼-inch layer. Arrange sliced strawberries on top, pressing gently.'},
+      {title:'Freeze',text:'Freeze for at least 3 hours or overnight until completely solid.'},
+      {title:'Break & serve',text:'Remove from freezer and break into irregular pieces. Serve immediately or store pieces in a freezer bag.'}
+    ],
+    ecoTips:['Use strawberries that are slightly soft or overripe — perfect for this recipe','Parchment paper is compostable — skip plastic wrap','Store pieces in a reusable container in the freezer for up to 2 weeks']
+  },
+};
+
+const CAT_META = {
+  breakfast:{bg:'linear-gradient(135deg,#2d1a4a,#5a2780)',label:'Breakfast',color:'#c4a3e8'},
+  lunch:{bg:'linear-gradient(135deg,#1a3a10,#3a7020)',label:'Lunch',color:'#7ac87a'},
+  dinner:{bg:'linear-gradient(135deg,#1a1a3a,#2a3070)',label:'Dinner',color:'#8fa8e8'},
+  snack:{bg:'linear-gradient(135deg,#2a1a08,#6a4218)',label:'Snack',color:'#d4a06a'},
+  dessert:{bg:'linear-gradient(135deg,#3a0a1a,#8a2050)',label:'Dessert',color:'#f0a0c0'},
+  drink:{bg:'linear-gradient(135deg,#0e2a15,#1a5a25)',label:'Drink',color:'#7acf7a'},
+};
+let curCat='all';
+
+// ════════════════════ NAV ════════════════════
+function showScr(id){
+  if(id!=='scan'&&typeof stopCamera==='function')stopCamera();
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+}
+function showTab(id){
+  showScr(id);
+  ['home','scan','impact','recipes','rewards'].forEach(t=>{
+    const b=document.getElementById('nb-'+t);
+    if(b) b.classList.toggle('on',t===id);
+  });
+}
+function goScan(){showScr('scan');if(typeof startCamera==='function')startCamera();}
+
+// ════════════════════ SCAN ════════════════════
+async function doScan(key){
+  const p=P[key];if(!p)return;
+  showScr('scan');
+  const ov=document.getElementById('anlz');
+  ov.classList.add('on');
+  const steps=['as1','as2','as3','as4'];
+  const delays=[0,700,1400,2150];
+  steps.forEach((id,i)=>{
+    setTimeout(()=>{
+      steps.forEach(s=>document.getElementById(s).classList.remove('on'));
+      if(i>0)document.getElementById(steps[i-1]).classList.add('dn');
+      document.getElementById(id).classList.add('on');
+    },delays[i]);
+  });
+  const aiP=fetchAI(p);
+  await sleep(2900);
+  document.getElementById(steps[steps.length-1]).classList.add('dn');
+  const ai=await aiP;
+  await sleep(350);
+  ov.classList.remove('on');
+  steps.forEach(s=>{const el=document.getElementById(s);el.classList.remove('on','dn');});
+  renderResult(p,ai);
+  showScr('result');
+  toast('+10 tokens earned');
+  if(typeof recordScan==='function')recordScan(p,key);
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+async function fetchAI(p){
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,
+        messages:[{role:'user',content:`You are a sustainability analyst. Use ONLY the verified data below. NO invented facts.
+
+Product: ${p.name} by ${p.brand}
+Origin: ${p.origin||(p.details&&p.details.Origin)||'Unknown'}
+CO2 footprint: ${p.co2} kg per kg
+Water use: ${p.water} L per kg
+Packaging: ${p.pack}
+Certifications: ${p.cert}
+Sustainability score: ${p.score}/10
+
+Respond ONLY in JSON (no markdown). Keep each field tight.
+{
+  "headline":"max 12 words verdict",
+  "origin_story":"1 sentence (max 28 words): where the product comes from and how it gets to shelves, citing the origin field",
+  "ecosystem_impact":"2 sentences (max 55 words): how producing this affects ecosystems — land use, biodiversity, emissions, water, packaging waste — citing the actual numbers",
+  "why_rating":"1 sentence (max 30 words): plainly explain why it earned ${p.score}/10",
+  "top_concern":"max 7 words",
+  "positive":"max 7 words or 'None significant'"
+}`}]})
+    });
+    const d=await r.json();
+    return JSON.parse((d.content?.[0]?.text||'').replace(/```json|```/g,'').trim());
+  }catch(e){return localAI(p)}
+}
+function localAI(p){
+  const origin=p.origin||(p.details&&p.details.Origin)||'Unknown origin';
+  const wnum=+p.water||0;
+  const wfmt=wnum.toLocaleString();
+  const headline=p.score>=8?'One of the most sustainable choices in its category.'
+                :p.score>=6?'A reasonable choice with some trade-offs.'
+                :p.score>=4?'Significant environmental concerns to weigh.'
+                :'One of the least sustainable picks in its category.';
+  const origin_story=`Sourced from ${origin}, then packaged in ${(p.pack||'unknown packaging').toLowerCase()} and shipped to retailers.`;
+  const ecosystem_impact=p.score>=7
+    ? `Production releases roughly ${p.co2} kg CO₂ and uses ${wfmt} L of water per kg — well below category averages. ${p.cert&&p.cert!=='None'?`${p.cert} certification supports lower-impact land use and biodiversity.`:'Lighter packaging and a shorter supply chain reduce ecosystem stress.'}`
+    : `Production releases about ${p.co2} kg CO₂ and consumes ${wfmt} L of water per kg — high for this category. ${(p.pack||'').match(/Non|Mylar|PET/i)?'The non-recyclable packaging compounds long-term waste and microplastic pressure on ecosystems.':'Land-use intensity and limited certifications increase pressure on local biodiversity.'}`;
+  const why_rating=p.score>=8?`Low emissions, low water footprint, and ${p.cert&&p.cert!=='None'?'recognized certification':'minimal-impact production'} push it to ${p.score}/10.`
+                  :p.score>=6?`Decent footprint and packaging, but ${!p.cert||p.cert==='None'?'no certifications':'limited verification'} keep it at ${p.score}/10.`
+                  :p.score>=4?`Moderate-to-high emissions and ${(p.pack||'').match(/Non/i)?'non-recyclable packaging':'limited certifications'} hold it at ${p.score}/10.`
+                  :`High emissions (${p.co2} kg CO₂/kg) and significant ecosystem pressure earn it just ${p.score}/10.`;
+  const top_concern=p.co2>10?'Very high GHG emissions':(p.pack||'').match(/Non|Mylar/i)?'Non-recyclable packaging':wnum>5000?'Excessive freshwater use':!p.cert||p.cert==='None'?'No sustainability certification':'Moderate ecosystem impact';
+  const positive=p.score<4?'None significant':p.cert&&p.cert!=='None'?p.cert+' certified':p.co2<2?'Low carbon footprint':'Lower than category average';
+  return{headline,origin_story,ecosystem_impact,why_rating,top_concern,positive,explanation:ecosystem_impact};
+}
+
+// ════════════════════ RENDER RESULT ════════════════════
+function letterGrade(s){
+  if(s>=9)return{l:'A+',label:'Outstanding'};
+  if(s>=8)return{l:'A',label:'Excellent'};
+  if(s>=7)return{l:'B',label:'Good'};
+  if(s>=5)return{l:'C',label:'Fair'};
+  if(s>=3)return{l:'D',label:'Poor'};
+  return{l:'F',label:'Very poor'};
+}
+function renderResult(p,ai){
+  const good=p.score>=7,mid=p.score>=4&&p.score<7;
+  const cc=good?'eco-c':mid?'mid-c':'bad-c';
+  const iconBg=good?'#eaf3de':mid?'#fef3e2':'#fdeaea';
+  const verdict=good?'✓ Sustainable choice':mid?'⚠ Use with caution':'✗ High-impact choice';
+  const w=p.water>=1000?(p.water/1000).toFixed(1)+'K':p.water;
+  const grade=letterGrade(p.score);
+  const origin=p.origin||(p.details&&(p.details['Origin']||p.details['origin']))||'Unknown origin';
+
+  document.getElementById('prod-bar').innerHTML=`
+    <div class="pi" style="background:${iconBg}">${p.em}</div>
+    <div><div class="pn">${p.name}</div><div class="pbr">${p.brand}</div><div class="pbc">${p.code}</div></div>`;
+
+  const drows=Object.entries(p.details).map(([k,v])=>`<div class="dr"><span class="dk">${k}</span><span class="dv">${v}</span></div>`).join('');
+
+  const altIds=p.alts||[];
+  const altsHTML=altIds.length?`
+    <div class="alts-section fi">
+      <div class="alts-hdr">Eco-friendly alternatives</div>
+      <div class="alts-grid">${altIds.map(id=>buildAltCard(id)).join('')}</div>
+    </div>`:''
+
+  const originStory=ai.origin_story||`Sourced from ${origin}.`;
+  const ecosystemImpact=ai.ecosystem_impact||ai.explanation||'';
+  const whyRating=ai.why_rating||`Earned ${p.score}/10 based on emissions, water use, packaging, and certifications.`;
+  const packShort=(p.pack||'Unknown').replace(/\(.*\)/,'').trim();
+  const certShort=p.cert||'None';
+
+  document.getElementById('rbody').innerHTML=`
+    <div class="score-c ${cc} fi">
+      <div class="sc-tp">
+        <div>
+          <div class="sc-v">${verdict}</div>
+          <div class="sc-s">${ai.headline||''}</div>
+        </div>
+        <div class="sc-grade-wrap">
+          <div class="sc-grade">${grade.l}</div>
+          <div class="sc-grade-num">${p.score}/10</div>
+          <div class="sc-grade-lbl">${grade.label}</div>
+        </div>
+      </div>
+      <div class="sc-bar"><div class="sc-fill" style="width:${p.score*10}%"></div></div>
+      <div class="sc-ms">
+        <div class="sc-m"><div class="sc-ml">CO₂ per kg</div><div class="sc-mv">${p.co2} kg</div></div>
+        <div class="sc-m"><div class="sc-ml">Water per kg</div><div class="sc-mv">${w} L</div></div>
+        <div class="sc-m"><div class="sc-ml">Packaging</div><div class="sc-mv" style="font-size:11px;line-height:1.3">${packShort}</div></div>
+        <div class="sc-m"><div class="sc-ml">Certification</div><div class="sc-mv" style="font-size:11px;line-height:1.3">${certShort}</div></div>
+      </div>
+    </div>
+
+    <div class="rationale-card fi">
+      <div class="rat-row">
+        <div class="itile sm"><svg><use href="#i-pin"/></svg></div>
+        <div class="rat-body">
+          <div class="rat-h">Where it comes from</div>
+          <div class="rat-tx">${originStory}</div>
+        </div>
+      </div>
+      <div class="rat-row">
+        <div class="itile sm"><svg><use href="#i-globe"/></svg></div>
+        <div class="rat-body">
+          <div class="rat-h">Impact on the ecosystem</div>
+          <div class="rat-tx">${ecosystemImpact}</div>
+        </div>
+      </div>
+      <div class="rat-row">
+        <div class="itile sm"><svg><use href="#i-leaf"/></svg></div>
+        <div class="rat-body">
+          <div class="rat-h">Why this rating</div>
+          <div class="rat-tx">${whyRating}</div>
+        </div>
+      </div>
+      <div class="rat-pills">
+        <span class="rat-pill rat-pill-bad">${ai.top_concern||'Top concern'}</span>
+        <span class="rat-pill rat-pill-good">${ai.positive||'Positive'}</span>
+      </div>
+    </div>
+
+    <div class="aic fi">
+      <div class="ai-h"><span class="ai-b">AI · Claude</span></div>
+      <div class="ai-tx">${ai.headline||''} ${ai.why_rating||''}</div>
+    </div>
+    ${altsHTML}
+    <div class="dc fi"><div class="dc-t">Full environmental data</div>${drows}</div>`;
+
+  document.getElementById('rbody').scrollTop=0;
+}
+
+// Build an alt card with real image
+function buildAltCard(id){
+  const a=ALTS[id];
+  if(!a) return '';
+  const pillsHTML=a.pills.map((p,i)=>`<span class="alt-pill ${i>1?'neutral':''}">${p}</span>`).join('');
+  return `
+  <div class="alt-card" onclick="openAltModal('${id}')">
+    <div class="alt-img-wrap">
+      <img class="alt-img" src="${a.img}" alt="${a.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="alt-img-placeholder" style="display:none">${a.em}</div>
+      <div class="alt-eco-badge"><svg width="11" height="11" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-leaf"/></svg>${a.score}/10</div>
+      <div class="alt-cert-badge"><svg width="11" height="11" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg>${a.cert.split(',')[0]}</div>
+    </div>
+    <div class="alt-body">
+      <div class="alt-brand-row">
+        <span class="alt-brand">${a.brand}</span>
+        <div class="alt-score-row"><span class="alt-score-num">${a.score}</span><span class="alt-score-denom">/10</span></div>
+      </div>
+      <div class="alt-name">${a.name}</div>
+      <div class="alt-reason">${a.reason}</div>
+      <div class="alt-pills">${pillsHTML}</div>
+      <div class="alt-where"><span class="alt-where-icon">${a.whereIcon}</span><span>Available at <strong>${a.where.split('·')[0].trim()}</strong> + more</span></div>
+    </div>
+  </div>`;
+}
+
+// ── ALT DETAIL MODAL ──
+function openAltModal(id){
+  const a=ALTS[id];
+  if(!a) return;
+  const pillsHTML=a.pills.map(p=>`<span class="am-pill">${p}</span>`).join('');
+  const rows=[
+    ['CO₂ footprint',a.co2],['Water use',a.water],['Land use',a.land],
+    ['Price',a.price],['Certification',a.cert],
+  ].map(([k,v])=>`<div class="am-row"><span class="am-rk">${k}</span><span class="am-rv">${v}</span></div>`).join('');
+
+  document.getElementById('am-card').innerHTML=`
+    <div class="am-img-wrap">
+      <img class="am-img" src="${a.img}" alt="${a.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="am-img-ph" style="display:none">${a.em}</div>
+      <button class="am-close" onclick="closeAltModal()">✕</button>
+      <div class="am-eco"><svg width="11" height="11" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-leaf"/></svg> Eco Score ${a.score}/10</div>
+    </div>
+    <div class="am-body">
+      <div class="am-brand">${a.brand}</div>
+      <div class="am-name">${a.name}</div>
+      <div class="am-score-row">
+        <span class="am-score">${a.score}</span><span class="am-score-denom">/10</span>
+        <span class="am-score-label">✓ Eco-friendly</span>
+      </div>
+      <div class="am-desc">${a.desc}</div>
+      <div class="am-pills">${pillsHTML}</div>
+      <div class="am-rows">${rows}</div>
+      <div class="am-where">
+        <span class="am-where-icon">${a.whereIcon}</span>
+        <span>Find it at <strong>${a.where}</strong></span>
+      </div>
+    </div>`;
+
+  document.getElementById('alt-modal').classList.add('on');
+}
+function closeAltModal(){
+  document.getElementById('alt-modal').classList.remove('on');
+}
+document.getElementById('alt-modal').addEventListener('click',function(e){
+  if(e.target===this) closeAltModal();
+});
+
+// ════════════════════ RECIPES ════════════════════
+function renderRecipeGrid(cat){
+  const g=document.getElementById('recipe-grid');if(!g)return;
+  const list=Object.values(RECIPES).filter(r=>cat==='all'||r.cat===cat);
+  g.innerHTML=list.map(r=>{
+    const cc=CAT_META[r.cat]||CAT_META.dinner;
+    const thumbInner=r.img
+      ?`<img class="rthumb-img" src="${r.img}" alt="${r.name}" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.rthumb-bg').style.display='';this.parentNode.querySelector('.rthumb-em').style.display=''"><div class="rthumb-bg" style="background:${r.gradient};display:none"></div><div class="rthumb-em" style="display:none">${r.em}</div>`
+      :`<div class="rthumb-bg" style="background:${r.gradient}"></div><div class="rthumb-em">${r.em}</div>`;
+    return `<div class="rcard" onclick="openRecipe('${r.id}')">
+      <div class="rthumb">${thumbInner}</div>
+      <div class="rinfo">
+        <div class="rcat" style="color:${cc.color}">${cc.label}</div>
+        <div class="rname">${r.name}</div>
+        <div class="rfooter"><span class="rtime">⏱ ${r.time}m</span><span class="reco">${r.ecoScore}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function filterCat(cat,el){
+  curCat=cat;
+  document.querySelectorAll('.ctp').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderRecipeGrid(cat);
+}
+function openRecipe(id){
+  const r=RECIPES[id];if(!r)return;
+  const cc=CAT_META[r.cat]||CAT_META.dinner;
+  const hero=document.getElementById('rd-hero');
+  // Remove any existing real-photo img
+  const existing=hero.querySelector('.rd-hphoto');
+  if(existing) existing.remove();
+  if(r.img){
+    const hbg=document.getElementById('rd-hbg');
+    hbg.style.background=r.gradient;
+    const hphoto=document.createElement('img');
+    hphoto.className='rd-hphoto';
+    hphoto.src=r.img;
+    hphoto.alt=r.name;
+    hphoto.onerror=function(){this.remove()};
+    hero.insertBefore(hphoto,hbg.nextSibling);
+    document.getElementById('rd-hem').textContent='';
+  } else {
+    document.getElementById('rd-hbg').style.background=r.gradient;
+    document.getElementById('rd-hem').textContent=r.em;
+  }
+  const ings=r.ingredients.map(i=>`<div class="ing-r"><span class="ing-em">${i.em}</span><div class="ing-in"><div class="ing-n">${i.name}</div><div class="ing-q">${i.qty}</div><div class="ing-e">${i.eco}</div></div></div>`).join('');
+  const steps=r.steps.map((s,i)=>`<div class="stp-r"><div class="stp-n">${i+1}</div><div class="stp-c"><div class="stp-t">${s.title}</div><div class="stp-x">${s.text}</div></div></div>`).join('');
+  const tips=r.ecoTips.map(t=>`<div class="etip">${t}</div>`).join('');
+  const tags=r.tags.map(t=>`<span class="ftg g">${t}</span>`).join('');
+  document.getElementById('rd-body').innerHTML=`
+    <div class="rd-top">
+      <div class="rd-cat" style="color:${cc.color}">${cc.label.toUpperCase()}</div>
+      <div class="rd-name">${r.name}</div>
+      <div class="rd-desc">${r.desc}</div>
+      <div class="rd-stats">
+        <div class="rd-st"><svg class="rd-sti" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-clock"/></svg>${r.time} min</div>
+        <div class="rd-st"><svg class="rd-sti" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bowl"/></svg>${r.servings} servings</div>
+        <div class="rd-st"><svg class="rd-sti" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-leaf"/></svg>Eco ${r.ecoScore}/10</div>
+      </div>
+      <div class="feat-tags" style="margin-top:8px">${tags}</div>
+    </div>
+    <div class="rd-eco"><div><div class="rd-el">ECO SCORE</div><div class="rd-en">${r.ecoScore}</div></div><div class="rd-et">${r.ecoNote}</div></div>
+    <div class="rd-sec"><div class="rd-sec-t">Ingredients</div>${ings}</div>
+    <div class="rd-sec"><div class="rd-sec-t">Instructions</div>${steps}</div>
+    <div class="etips"><div class="etips-t">Sustainability tips</div>${tips}</div>`;
+  document.getElementById('rd-body').scrollTop=0;
+  showScr('rdet');
+}
+
+async function generateAIRecipe(){
+  const ov=document.getElementById('rgen-ov');ov.classList.add('on');
+  const cats=['breakfast','lunch','dinner','snack','dessert','drink'];
+  const ings=['oats','lentils','chickpeas','seasonal vegetables','mushrooms','beans','quinoa','tempeh'];
+  const rc=cats[Math.floor(Math.random()*cats.length)];
+  const ri=ings[Math.floor(Math.random()*ings.length)];
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,
+        messages:[{role:'user',content:`Create an eco-friendly ${rc} recipe featuring ${ri}. Plant-based, sustainable ingredients only.
+Respond ONLY in this JSON (no markdown):
+{"name":"Creative name","desc":"2 sentence desc highlighting sustainability","time":25,"servings":2,"ecoScore":9.1,"ecoNote":"One specific sustainability fact","tags":["tag1","tag2","tag3"],"ingredients":[{"em":"🥬","name":"Ingredient","qty":"Amount","eco":"Why sustainable"}],"steps":[{"title":"Step title","text":"Detailed instruction"}],"ecoTips":["Tip 1","Tip 2","Tip 3"]}`}]})
+    });
+    const data=await res.json();
+    const recipe=JSON.parse((data.content?.[0]?.text||'').replace(/```json|```/g,'').trim());
+    const id='ai_'+Date.now();
+    recipe.id=id;recipe.cat=rc;
+    recipe.em={breakfast:'🌅',lunch:'🥗',dinner:'🍽️',snack:'🫙',dessert:'🍓',drink:'🥤'}[rc]||'🌿';
+    recipe.gradient=CAT_META[rc].bg;
+    RECIPES[id]=recipe;
+    ov.classList.remove('on');
+    renderRecipeGrid(curCat);
+    openRecipe(id);
+    toast('Custom recipe created');
+  }catch(e){
+    ov.classList.remove('on');
+    const keys=Object.keys(RECIPES).filter(k=>!k.startsWith('ai_'));
+    openRecipe(keys[Math.floor(Math.random()*keys.length)]);
+    toast('Try this featured recipe');
+  }
+}
+
+// ════════════════════ UTILS ════════════════════
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2700);
+}
+function rdm(item){toast(`Redeeming ${item} reward…`)}
+function openStreakModal(){document.getElementById('streak-modal').style.display='flex';}
+function closeStreakModal(){document.getElementById('streak-modal').style.display='none';}
+
+window.addEventListener('DOMContentLoaded',()=>{renderRecipeGrid('all')});
+</script>
+</body>
+</html>

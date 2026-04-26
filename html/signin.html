@@ -33,15 +33,15 @@ html{height:100%}
   --safe-bot:env(safe-area-inset-bottom,0px);
 }
 
+html,body{height:100%;width:100%;overflow:hidden;overscroll-behavior:none}
 body{
   font-family:'DM Sans',sans-serif;
   background:#0e1a0f;
-  min-height:100%;
   display:flex;align-items:center;justify-content:center;
-  overflow:hidden;
+  position:fixed;inset:0;
 }
 .app-shell{
-  width:100%;height:100dvh;background:var(--cream);
+  width:100%;height:100%;background:var(--cream);
   overflow:hidden;position:relative;
   display:flex;flex-direction:column;
 }
@@ -52,7 +52,7 @@ body{
       radial-gradient(ellipse at 80% 20%,rgba(26,58,31,.2) 0%,transparent 50%);
   }
   .app-shell{
-    width:390px;height:844px;border-radius:52px;
+    width:390px;height:min(844px,100%);border-radius:52px;
     box-shadow:0 0 0 .5px rgba(255,255,255,.18),0 0 0 1px rgba(0,0,0,.7),0 32px 80px rgba(0,0,0,.55),inset 0 0 0 .5px rgba(255,255,255,.06);
   }
 }

@@ -33,11 +33,15 @@ html{height:100%}
   --safe-top:env(safe-area-inset-top,0px);
   --safe-bot:env(safe-area-inset-bottom,0px);
 }
-body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.shell{width:100%;height:100dvh;background:var(--cream);overflow:hidden;position:relative;display:flex;flex-direction:column}
+/* Pin body to the actual visible viewport on every device.
+   Avoids 100vh / 100dvh oddities on Android Chrome where the URL-bar
+   layout pass can push the bottom nav off-screen on first paint. */
+html,body{height:100%;width:100%;overflow:hidden;overscroll-behavior:none}
+body{font-family:'DM Sans',sans-serif;background:#0a140b;display:flex;align-items:center;justify-content:center;position:fixed;inset:0}
+.shell{width:100%;height:100%;background:var(--cream);overflow:hidden;position:relative;display:flex;flex-direction:column}
 @media(min-width:600px){
   body{background:#0a140b;background-image:radial-gradient(ellipse at 20% 50%,rgba(42,80,35,.4) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(26,58,31,.25) 0%,transparent 50%)}
-  .shell{width:390px;height:844px;border-radius:52px;box-shadow:0 0 0 .5px rgba(255,255,255,.18),0 0 0 1px rgba(0,0,0,.7),0 32px 80px rgba(0,0,0,.6),inset 0 0 0 .5px rgba(255,255,255,.06)}
+  .shell{width:390px;height:min(844px,100%);border-radius:52px;box-shadow:0 0 0 .5px rgba(255,255,255,.18),0 0 0 1px rgba(0,0,0,.7),0 32px 80px rgba(0,0,0,.6),inset 0 0 0 .5px rgba(255,255,255,.06)}
   .notch{display:block!important}
 }
 .notch{display:none;position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:32px;background:#111;border-radius:0 0 22px 22px;z-index:999;pointer-events:none}

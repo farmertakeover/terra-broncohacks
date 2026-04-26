@@ -173,6 +173,21 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .dr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:.5px solid rgba(0,0,0,.06);font-size:13px}
 .dr:last-child{border-bottom:none;padding-bottom:0}
 .dk{color:var(--ash)}.dv{font-weight:500;color:var(--char);text-align:right;max-width:58%;font-size:12px}
+.sc-grade-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.sc-grade{font-family:'Fraunces',serif;font-size:46px;font-weight:600;color:#fff;line-height:1;letter-spacing:-.02em;background:rgba(255,255,255,.1);width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,.18)}
+.sc-grade-num{font-size:11px;color:rgba(255,255,255,.7);font-weight:500;margin-top:4px}
+.sc-grade-lbl{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em}
+.rationale-card{background:#fff;border-radius:var(--r-lg);padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.rat-row{display:flex;gap:12px;padding:10px 4px;border-bottom:.5px solid rgba(0,0,0,.06)}
+.rat-row:last-of-type{border-bottom:none}
+.rat-ic{width:34px;height:34px;border-radius:11px;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.rat-body{flex:1;min-width:0}
+.rat-h{font-size:11px;font-weight:600;color:var(--forest);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.rat-tx{font-size:13px;color:var(--char);line-height:1.5}
+.rat-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:.5px solid rgba(0,0,0,.06)}
+.rat-pill{font-size:11px;font-weight:500;padding:5px 10px;border-radius:10px}
+.rat-pill-bad{background:var(--dlight);color:var(--danger)}
+.rat-pill-good{background:var(--glight);color:var(--good)}
 .aic{background:var(--forest);border-radius:var(--r-lg);padding:15px;margin-bottom:10px}
 .ai-h{display:flex;align-items:center;gap:7px;margin-bottom:9px}
 .ai-b{font-size:9px;padding:3px 7px;border-radius:20px;background:rgba(111,172,94,.25);color:var(--sage);border:.5px solid rgba(111,172,94,.3);letter-spacing:.06em;font-weight:500}
@@ -1159,33 +1174,69 @@ async function fetchAI(p){
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,
-        messages:[{role:'user',content:`Sustainability analyst. ONLY use this verified data. No invented facts.
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,
+        messages:[{role:'user',content:`You are a sustainability analyst. Use ONLY the verified data below. NO invented facts.
+
 Product: ${p.name} by ${p.brand}
-CO2: ${p.co2} kg/kg | Water: ${p.water} L/kg | Score: ${p.score}/10
-Packaging: ${p.pack} | Certifications: ${p.cert}
-Respond ONLY in JSON (no markdown):
-{"headline":"max 12 words verdict","explanation":"2-3 sentences max 55 words citing actual numbers","top_concern":"max 7 words","positive":"max 7 words or 'None significant'"}`}]})
+Origin: ${p.origin||(p.details&&p.details.Origin)||'Unknown'}
+CO2 footprint: ${p.co2} kg per kg
+Water use: ${p.water} L per kg
+Packaging: ${p.pack}
+Certifications: ${p.cert}
+Sustainability score: ${p.score}/10
+
+Respond ONLY in JSON (no markdown). Keep each field tight.
+{
+  "headline":"max 12 words verdict",
+  "origin_story":"1 sentence (max 28 words): where the product comes from and how it gets to shelves, citing the origin field",
+  "ecosystem_impact":"2 sentences (max 55 words): how producing this affects ecosystems — land use, biodiversity, emissions, water, packaging waste — citing the actual numbers",
+  "why_rating":"1 sentence (max 30 words): plainly explain why it earned ${p.score}/10",
+  "top_concern":"max 7 words",
+  "positive":"max 7 words or 'None significant'"
+}`}]})
     });
     const d=await r.json();
     return JSON.parse((d.content?.[0]?.text||'').replace(/```json|```/g,'').trim());
   }catch(e){return localAI(p)}
 }
 function localAI(p){
-  const h=p.score>=8?'One of the most sustainable choices available.':p.score>=6?'Good choice with manageable trade-offs.':p.score>=4?'Significant environmental concerns present.':'Among the least sustainable in its category.';
-  const ex=p.score>=7?`This product has a verified footprint of ${p.co2} kg CO₂ and ${p.water.toLocaleString()}L water per kg — well below category averages. ${p.cert!=='None'?`${p.cert} certification confirms responsible production.`:'Its packaging and origin further reduce environmental burden.'}`:`This product generates ${p.co2} kg CO₂ and requires ${p.water.toLocaleString()}L water per kg — among the highest in its category. ${p.pack.includes('Non')||p.pack.includes('Mylar')?'Its non-recyclable packaging compounds the environmental cost.':'Better alternatives exist with significantly lower footprints.'}`;
-  const c=p.co2>10?'Very high GHG emissions':p.pack.includes('Non')||p.pack.includes('Mylar')?'Non-recyclable packaging':p.water>5000?'Excessive freshwater use':'No sustainability certifications';
-  const pos=p.score<4?'None significant':p.cert!=='None'?p.cert+' certified':p.co2<2?'Low carbon footprint':'Lower than conventional options';
-  return{headline:h,explanation:ex,top_concern:c,positive:pos};
+  const origin=p.origin||(p.details&&p.details.Origin)||'Unknown origin';
+  const wnum=+p.water||0;
+  const wfmt=wnum.toLocaleString();
+  const headline=p.score>=8?'One of the most sustainable choices in its category.'
+                :p.score>=6?'A reasonable choice with some trade-offs.'
+                :p.score>=4?'Significant environmental concerns to weigh.'
+                :'One of the least sustainable picks in its category.';
+  const origin_story=`Sourced from ${origin}, then packaged in ${(p.pack||'unknown packaging').toLowerCase()} and shipped to retailers.`;
+  const ecosystem_impact=p.score>=7
+    ? `Production releases roughly ${p.co2} kg CO₂ and uses ${wfmt} L of water per kg — well below category averages. ${p.cert&&p.cert!=='None'?`${p.cert} certification supports lower-impact land use and biodiversity.`:'Lighter packaging and a shorter supply chain reduce ecosystem stress.'}`
+    : `Production releases about ${p.co2} kg CO₂ and consumes ${wfmt} L of water per kg — high for this category. ${(p.pack||'').match(/Non|Mylar|PET/i)?'The non-recyclable packaging compounds long-term waste and microplastic pressure on ecosystems.':'Land-use intensity and limited certifications increase pressure on local biodiversity.'}`;
+  const why_rating=p.score>=8?`Low emissions, low water footprint, and ${p.cert&&p.cert!=='None'?'recognized certification':'minimal-impact production'} push it to ${p.score}/10.`
+                  :p.score>=6?`Decent footprint and packaging, but ${!p.cert||p.cert==='None'?'no certifications':'limited verification'} keep it at ${p.score}/10.`
+                  :p.score>=4?`Moderate-to-high emissions and ${(p.pack||'').match(/Non/i)?'non-recyclable packaging':'limited certifications'} hold it at ${p.score}/10.`
+                  :`High emissions (${p.co2} kg CO₂/kg) and significant ecosystem pressure earn it just ${p.score}/10.`;
+  const top_concern=p.co2>10?'Very high GHG emissions':(p.pack||'').match(/Non|Mylar/i)?'Non-recyclable packaging':wnum>5000?'Excessive freshwater use':!p.cert||p.cert==='None'?'No sustainability certification':'Moderate ecosystem impact';
+  const positive=p.score<4?'None significant':p.cert&&p.cert!=='None'?p.cert+' certified':p.co2<2?'Low carbon footprint':'Lower than category average';
+  return{headline,origin_story,ecosystem_impact,why_rating,top_concern,positive,explanation:ecosystem_impact};
 }
 
 // ════════════════════ RENDER RESULT ════════════════════
+function letterGrade(s){
+  if(s>=9)return{l:'A+',label:'Outstanding'};
+  if(s>=8)return{l:'A',label:'Excellent'};
+  if(s>=7)return{l:'B',label:'Good'};
+  if(s>=5)return{l:'C',label:'Fair'};
+  if(s>=3)return{l:'D',label:'Poor'};
+  return{l:'F',label:'Very poor'};
+}
 function renderResult(p,ai){
   const good=p.score>=7,mid=p.score>=4&&p.score<7;
   const cc=good?'eco-c':mid?'mid-c':'bad-c';
   const iconBg=good?'#eaf3de':mid?'#fef3e2':'#fdeaea';
-  const verdict=good?'✓ Eco-friendly':mid?'⚠ Use with caution':'✗ Not eco-friendly';
+  const verdict=good?'✓ Sustainable choice':mid?'⚠ Use with caution':'✗ High-impact choice';
   const w=p.water>=1000?(p.water/1000).toFixed(1)+'K':p.water;
+  const grade=letterGrade(p.score);
+  const origin=p.origin||(p.details&&(p.details['Origin']||p.details['origin']))||'Unknown origin';
 
   document.getElementById('prod-bar').innerHTML=`
     <div class="pi" style="background:${iconBg}">${p.em}</div>
@@ -1193,7 +1244,6 @@ function renderResult(p,ai){
 
   const drows=Object.entries(p.details).map(([k,v])=>`<div class="dr"><span class="dk">${k}</span><span class="dv">${v}</span></div>`).join('');
 
-  // NEW: Alternatives section — rich product cards, no re-scan
   const altIds=p.alts||[];
   const altsHTML=altIds.length?`
     <div class="alts-section fi">
@@ -1201,23 +1251,65 @@ function renderResult(p,ai){
       <div class="alts-grid">${altIds.map(id=>buildAltCard(id)).join('')}</div>
     </div>`:''
 
+  const originStory=ai.origin_story||`Sourced from ${origin}.`;
+  const ecosystemImpact=ai.ecosystem_impact||ai.explanation||'';
+  const whyRating=ai.why_rating||`Earned ${p.score}/10 based on emissions, water use, packaging, and certifications.`;
+  const packShort=(p.pack||'Unknown').replace(/\(.*\)/,'').trim();
+  const certShort=p.cert||'None';
+
   document.getElementById('rbody').innerHTML=`
     <div class="score-c ${cc} fi">
       <div class="sc-tp">
-        <div><div class="sc-v">${verdict}</div><div class="sc-s">${ai.headline}</div></div>
-        <div><span class="sc-n">${p.score}</span><span class="sc-d">/10</span></div>
+        <div>
+          <div class="sc-v">${verdict}</div>
+          <div class="sc-s">${ai.headline||''}</div>
+        </div>
+        <div class="sc-grade-wrap">
+          <div class="sc-grade">${grade.l}</div>
+          <div class="sc-grade-num">${p.score}/10</div>
+          <div class="sc-grade-lbl">${grade.label}</div>
+        </div>
       </div>
       <div class="sc-bar"><div class="sc-fill" style="width:${p.score*10}%"></div></div>
       <div class="sc-ms">
         <div class="sc-m"><span class="sc-mi">💨</span><div><div class="sc-mv">${p.co2} kg</div><div class="sc-ml">CO₂ per kg</div></div></div>
         <div class="sc-m"><span class="sc-mi">💧</span><div><div class="sc-mv">${w} L</div><div class="sc-ml">water per kg</div></div></div>
-        <div class="sc-m"><span class="sc-mi">⚠️</span><div><div class="sc-mv" style="font-size:10px;line-height:1.3">${ai.top_concern}</div><div class="sc-ml">top concern</div></div></div>
-        <div class="sc-m"><span class="sc-mi">✅</span><div><div class="sc-mv" style="font-size:10px;line-height:1.3">${ai.positive}</div><div class="sc-ml">positive</div></div></div>
+        <div class="sc-m"><span class="sc-mi">📦</span><div><div class="sc-mv" style="font-size:10px;line-height:1.3">${packShort}</div><div class="sc-ml">packaging</div></div></div>
+        <div class="sc-m"><span class="sc-mi">🏷️</span><div><div class="sc-mv" style="font-size:10px;line-height:1.3">${certShort}</div><div class="sc-ml">certification</div></div></div>
       </div>
     </div>
+
+    <div class="rationale-card fi">
+      <div class="rat-row">
+        <div class="rat-ic">📍</div>
+        <div class="rat-body">
+          <div class="rat-h">Where it comes from</div>
+          <div class="rat-tx">${originStory}</div>
+        </div>
+      </div>
+      <div class="rat-row">
+        <div class="rat-ic">🌍</div>
+        <div class="rat-body">
+          <div class="rat-h">Impact on the ecosystem</div>
+          <div class="rat-tx">${ecosystemImpact}</div>
+        </div>
+      </div>
+      <div class="rat-row">
+        <div class="rat-ic">${good?'⭐':mid?'⚖️':'⚠️'}</div>
+        <div class="rat-body">
+          <div class="rat-h">Why this rating</div>
+          <div class="rat-tx">${whyRating}</div>
+        </div>
+      </div>
+      <div class="rat-pills">
+        <span class="rat-pill rat-pill-bad">⚠ ${ai.top_concern||'Top concern'}</span>
+        <span class="rat-pill rat-pill-good">✓ ${ai.positive||'Positive'}</span>
+      </div>
+    </div>
+
     <div class="aic fi">
       <div class="ai-h"><span class="ai-b">AI ANALYSIS</span><span class="ai-tt">Claude's assessment</span></div>
-      <div class="ai-tx">${ai.explanation}</div>
+      <div class="ai-tx">${ai.headline||''} ${ai.why_rating||''}</div>
     </div>
     ${altsHTML}
     <div class="dc fi"><div class="dc-t">📊 Full environmental data</div>${drows}</div>`;

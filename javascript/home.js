@@ -259,11 +259,31 @@ async function lookupAndScan(code) {
     const pack  = (prod.packaging_tags || []).join(', ') || prod.packaging || 'Unknown';
     const cert  = (prod.labels_tags || []).filter(l => /organic|fair.trade|rainforest|non.gmo/i.test(l)).join(', ') || 'None';
 
+    // Derive score from OFF data: ecoscore_grade → ecoscore numeric → nova+nutriscore
+    const ecoGrade = (prod.ecoscore_grade || '').toLowerCase();
+    const ecoGradeMap = { a: 9, b: 7, c: 5, d: 3, e: 2 };
+    let score = 5;
+    if (ecoGradeMap[ecoGrade] !== undefined) {
+      score = ecoGradeMap[ecoGrade];
+    } else if (prod.ecoscore_data && typeof prod.ecoscore_data.score === 'number') {
+      score = Math.max(1, Math.min(10, Math.round(prod.ecoscore_data.score / 10)));
+    } else {
+      const nova   = parseInt(prod.nova_group) || 0;
+      const nutri  = (prod.nutriscore_grade || '').toLowerCase();
+      const novaMap  = { 1: 8, 2: 7, 3: 5, 4: 3 };
+      const nutriMap = { a: 8, b: 7, c: 5, d: 4, e: 2 };
+      const ns = nutriMap[nutri], nv = novaMap[nova];
+      if (ns && nv) score = Math.round((ns + nv) / 2);
+      else if (ns)  score = ns;
+      else if (nv)  score = nv;
+    }
+    const em = score >= 8 ? '🌿' : score >= 6 ? '🥗' : score >= 4 ? '📦' : '⚠️';
+
     const p = {
       name, brand,
       code: prod.code || code,
-      em: '📦',
-      score: 5,
+      em,
+      score,
       co2: +co2.toFixed(2),
       water: +water.toFixed(0),
       pack, cert,
@@ -274,7 +294,7 @@ async function lookupAndScan(code) {
         'CO₂ estimate': co2 + ' kg',
         'Packaging': pack,
         'Certifications': cert,
-        'Eco grade': prod.ecoscore_grade || 'N/A',
+        'Eco grade': ecoGrade ? ecoGrade.toUpperCase() : 'N/A',
         'Nova group': prod.nova_group || 'N/A',
       },
       alts: [],
@@ -282,10 +302,6 @@ async function lookupAndScan(code) {
     };
 
     const ai = await fetchAI(p);
-    if (ai && ai.score >= 1 && ai.score <= 10) {
-      p.score = ai.score;
-      p.em = p.score >= 8 ? '🌿' : p.score >= 6 ? '🥗' : p.score >= 4 ? '📦' : '⚠️';
-    }
 
     // Fetch alternatives in parallel with the animation delay (score < 7 = bad for environment)
     const altsFetch = p.score < 7 ? fetchAlternatives(p) : Promise.resolve([]);

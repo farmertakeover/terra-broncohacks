@@ -457,10 +457,15 @@ function localAI(p) {
 // ── ECO ALTERNATIVES ──
 async function fetchAlternatives(p) {
   try {
-    const catTags = (p._offRaw?.categories_tags || []);
-    const category = catTags.find(t => !t.startsWith('en:'))
-                  || (p._offRaw?.categories || '').split(',')[0].trim()
-                  || 'general grocery';
+    const raw = p._offRaw || {};
+    // OFF categories_tags are always 'en:category-name' — strip prefix and dashes for readability
+    const catTags = (raw.categories_tags || [])
+      .map(t => t.replace(/^[a-z]{2}:/, '').replace(/-/g, ' '))
+      .slice(0, 5);
+    const catStr = catTags.length
+      ? catTags.join(', ')
+      : (raw.categories || '').split(',').slice(0, 3).map(s => s.trim()).join(', ') || 'grocery product';
+
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -471,22 +476,26 @@ async function fetchAlternatives(p) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 500,
+        max_tokens: 900,
         messages: [{
           role: 'user',
-          content: `Product scanned: "${p.name}" by ${p.brand}. Environmental score: ${p.score}/10 (poor — needs eco swap).
+          content: `Product scanned: "${p.name}" by ${p.brand}
+Categories: ${catStr}
+Environmental score: ${p.score}/10
+CO2: ${p.co2} kg/kg | Packaging: ${p.pack} | Certifications: ${p.cert}
 
-Suggest exactly 2 specific, real eco-friendly alternatives that serve the same purpose. Focus on environmental impact, not nutrition.
+Suggest exactly 4 specific, real, purchasable eco-friendly alternatives to "${p.name}". They MUST serve the same purpose and belong to the same category (${catStr.split(',')[0].trim()}). Do NOT suggest unrelated products. Focus on lower CO2, better packaging, or organic/certified options.
 
-Respond ONLY as a JSON array — no markdown, no explanation:
-[{"name":"exact product name","brand":"brand name","eco_score":8,"em":"🌿","reason":"why it's better for the environment in 15 words max","image_query":"2-3 descriptive words for a stock photo search (e.g. coconut water drink, reusable metal bottle)","tags":["tag1","tag2","tag3"]}]`
+Respond ONLY as a JSON array — no markdown:
+[{"name":"exact real product name","brand":"real brand name","eco_score":8,"em":"🌿","reason":"one specific environmental benefit in 12 words max","tags":["Low CO2","Recyclable","Organic"]}]`
         }]
       })
     });
     const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
     const text = (d.content?.[0]?.text || '[]').replace(/```json|```/g, '').trim();
     const arr = JSON.parse(text);
-    return Array.isArray(arr) ? arr.slice(0, 2) : [];
+    return Array.isArray(arr) ? arr.slice(0, 4) : [];
   } catch(e) {
     return [];
   }

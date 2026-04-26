@@ -1702,12 +1702,17 @@ function renderResult(p,ai){
   const drows=Object.entries(p.details).map(([k,v])=>`<div class="dr"><span class="dk">${k}</span><span class="dv">${v}</span></div>`).join('');
 
   const altIds=p.alts||[];
-  const resolvedAltIds=altIds.length ? altIds : getAltsForOFFProduct(p);
-  const altsHTML=resolvedAltIds.length?`
-    <div class="alts-section fi">
-      <div class="alts-hdr">Eco-friendly alternatives</div>
-      <div class="alts-grid">${resolvedAltIds.map(id=>buildAltCard(id)).join('')}</div>
-    </div>`:''
+  let altsHTML='';
+  if(altIds.length){
+    // Preset demo product — use curated ALTS database
+    altsHTML=`<div class="alts-section fi"><div class="alts-hdr">Eco-friendly alternatives</div><div class="alts-grid">${altIds.map(id=>buildAltCard(id)).join('')}</div></div>`;
+  } else if(p.aiAlts&&p.aiAlts.length){
+    // OFF-scanned product — use AI-generated product-specific alternatives
+    altsHTML=`<div class="alts-section fi"><div class="alts-hdr">Eco-friendly alternatives</div><div class="alts-grid">${p.aiAlts.map(a=>buildAiAltCard(a)).join('')}</div></div>`;
+  } else {
+    const fallbackIds=getAltsForOFFProduct(p);
+    if(fallbackIds.length) altsHTML=`<div class="alts-section fi"><div class="alts-hdr">Eco-friendly alternatives</div><div class="alts-grid">${fallbackIds.map(id=>buildAltCard(id)).join('')}</div></div>`;
+  }
 
   const originStory=ai.origin_story||`Sourced from ${origin}.`;
   const ecosystemImpact=ai.ecosystem_impact||ai.explanation||'';
@@ -1798,6 +1803,25 @@ function buildAltCard(id){
       <div class="alt-reason">${a.reason}</div>
       <div class="alt-pills">${pillsHTML}</div>
       <div class="alt-where"><span class="alt-where-icon">${a.whereIcon}</span><span>Available at <strong>${a.where.split('·')[0].trim()}</strong> + more</span></div>
+    </div>
+  </div>`;
+}
+
+// ── AI ALT CARD (for OFF-scanned products) ──
+function buildAiAltCard(a){
+  if(!a) return '';
+  const pills=(a.tags||[]).map(t=>`<span class="alt-pill">${t}</span>`).join('');
+  const score=a.eco_score||'—';
+  const scoreClass=score>=7?'var(--good)':score>=4?'var(--warn)':'var(--danger)';
+  return `<div class="alt-card">
+    <div class="alt-body" style="padding:16px 14px">
+      <div class="alt-brand-row">
+        <span class="alt-brand">${a.brand||''}</span>
+        <div class="alt-score-row"><span class="alt-score-num" style="color:${scoreClass}">${score}</span><span class="alt-score-denom">/10</span></div>
+      </div>
+      <div class="alt-name">${a.em||'🌿'} ${a.name}</div>
+      <div class="alt-reason">${a.reason||''}</div>
+      <div class="alt-pills" style="margin-top:8px">${pills}</div>
     </div>
   </div>`;
 }

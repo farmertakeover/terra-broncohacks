@@ -432,11 +432,11 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   </div>
   <div class="sv hp">
     <div class="sr2">
-      <div class="sc"><div class="sc-ic">🔥</div><div class="sc-v" id="stat-streak">0</div><div class="sc-l">day streak</div></div>
+      <div class="sc" onclick="openStreakModal()" style="cursor:pointer"><div class="sc-ic">🔥</div><div class="sc-v" id="stat-streak">0</div><div class="sc-l">day streak ›</div></div>
       <div class="sc"><div class="sc-ic">🌿</div><div class="sc-v" id="stat-tokens">0</div><div class="sc-l">eco tokens</div></div>
     </div>
-    <div class="ist">
-      <div class="ist-t">This week's impact</div>
+    <div class="ist" onclick="showTab('impact')" style="cursor:pointer">
+      <div class="ist-t" style="display:flex;justify-content:space-between;align-items:center">This week's impact <span style="color:var(--sage);font-size:13px;opacity:.7">›</span></div>
       <div class="ics">
         <div class="ic"><div class="icn" id="impact-water">0</div><div class="icu">gal water<br>saved</div></div>
         <div class="ic"><div class="icn" id="impact-co2">0</div><div class="icu">lbs CO₂<br>avoided</div></div>
@@ -450,7 +450,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   </div>
   <nav class="bnav">
     <button class="nb on" id="nb-home" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb" id="nb-impact" onclick="showTab('impact')"><div class="nb-pip"><span class="nb-em">📊</span></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb" id="nb-impact" onclick="showTab('impact')"><div class="nb-pip"></div><span class="nb-lbl">Impact</span></button>
     <button class="nb nb-scan-fab" id="nb-scan" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" id="nb-recipes" onclick="showTab('recipes')"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb" id="nb-rewards" onclick="showTab('rewards')"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
@@ -525,18 +525,6 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   <div class="sbar"><span class="sbar-t">9:41</span></div>
   <div style="padding:2px 20px 8px;flex-shrink:0"><span style="font-family:'Fraunces',serif;font-size:24px;color:var(--char)">Your Impact</span></div>
   <div class="sv" style="padding:0 20px calc(88px + var(--safe-bot))">
-    <div class="wc">
-      <div class="sh" style="margin-bottom:0"><span class="sh-t" id="impact-streak-title">🔥 0-day streak</span><span class="sh-l" id="impact-streak-best">Best: 0</span></div>
-      <div class="sd">
-        <div class="dc2"><div class="dr2 dd">✓</div><div class="dl">Mon</div></div>
-        <div class="dc2"><div class="dr2 dd">✓</div><div class="dl">Tue</div></div>
-        <div class="dc2"><div class="dr2 dd">✓</div><div class="dl">Wed</div></div>
-        <div class="dc2"><div class="dr2 dd">✓</div><div class="dl">Thu</div></div>
-        <div class="dc2"><div class="dr2 dd">✓</div><div class="dl">Fri</div></div>
-        <div class="dc2"><div class="dr2 dd">✓</div><div class="dl">Sat</div></div>
-        <div class="dc2"><div class="dr2 dt">→</div><div class="dl">Sun</div></div>
-      </div>
-    </div>
     <div class="ig">
       <div class="is ft"><div class="ii">💧</div><div class="iv"><span id="impact-water2">0</span> <span class="iu">gal</span></div><div class="il">water saved this month</div></div>
       <div class="is ft"><div class="ii">🌿</div><div class="iv"><span id="impact-co22">0</span> <span class="iu">lbs</span></div><div class="il">CO₂ avoided this month</div></div>
@@ -551,7 +539,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   </div>
   <nav class="bnav">
     <button class="nb" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb on"><div class="nb-pip"><span class="nb-em">📊</span></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb on"><div class="nb-pip"></div><span class="nb-lbl">Impact</span></button>
     <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
@@ -607,7 +595,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   </div>
   <nav class="bnav">
     <button class="nb" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb" onclick="showTab('impact')"><div class="nb-pip"><span class="nb-em">📊</span></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb" onclick="showTab('impact')"><div class="nb-pip"></div><span class="nb-lbl">Impact</span></button>
     <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
     <button class="nb on"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
@@ -653,7 +641,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   </div>
   <nav class="bnav">
     <button class="nb" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb" onclick="showTab('impact')"><div class="nb-pip"><span class="nb-em">📊</span></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb" onclick="showTab('impact')"><div class="nb-pip"></div><span class="nb-lbl">Impact</span></button>
     <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb on"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
@@ -663,6 +651,25 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 <!-- ═══ ALT DETAIL MODAL ═══ -->
 <div id="alt-modal">
   <div class="am-card" id="am-card"></div>
+</div>
+
+<!-- STREAK MODAL -->
+<div id="streak-modal" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:300;display:none;align-items:flex-end;padding:12px" onclick="if(event.target===this)closeStreakModal()">
+  <div style="background:var(--cream);border-radius:28px;width:100%;padding:26px 24px 32px;position:relative">
+    <button onclick="closeStreakModal()" style="position:absolute;top:14px;right:14px;width:32px;height:32px;background:var(--parch);border-radius:50%;border:none;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ash)">✕</button>
+    <div style="font-size:38px;margin-bottom:6px">🔥</div>
+    <div style="font-family:'Fraunces',serif;font-size:28px;color:var(--forest);line-height:1;margin-bottom:4px" id="impact-streak-title">0-day streak</div>
+    <div style="font-size:13px;color:var(--ash);margin-bottom:22px" id="impact-streak-best">Best: 0</div>
+    <div class="sd">
+      <div class="dc2"><div class="dr2 dd">Mon</div></div>
+      <div class="dc2"><div class="dr2 dd">Tue</div></div>
+      <div class="dc2"><div class="dr2 dd">Wed</div></div>
+      <div class="dc2"><div class="dr2 dd">Thu</div></div>
+      <div class="dc2"><div class="dr2 dd">Fri</div></div>
+      <div class="dc2"><div class="dr2 dd">Sat</div></div>
+      <div class="dc2"><div class="dr2 dt">Sun</div></div>
+    </div>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -1493,6 +1500,8 @@ function toast(msg){
   setTimeout(()=>t.classList.remove('on'),2700);
 }
 function rdm(item){toast(`Redeeming ${item} reward…`)}
+function openStreakModal(){document.getElementById('streak-modal').style.display='flex';}
+function closeStreakModal(){document.getElementById('streak-modal').style.display='none';}
 
 function updateClock(){
   const n=new Date();

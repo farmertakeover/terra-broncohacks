@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#1a3a1f">
+<meta name="theme-color" content="#3e5746">
 <title>terra.ai</title>
 <link rel="manifest" href="../manifest.json">
 <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
@@ -26,9 +26,29 @@ if ('serviceWorker' in navigator) {
 html{height:100%}
 
 :root{
-  --forest:#1a3a1f;--moss:#2d5a27;--leaf:#3d7a32;--sage:#6fac5e;--mist:#c4e3bb;
-  --cream:#f5f0e8;--parch:#ede7d9;--white:#fff;--char:#1c1c1e;--smoke:#3a3a3c;
-  --ash:#636366;--fog:#aeaeb2;--sand:#d4c5a9;
+  /* ─── BRAND PALETTE ─── 5 brand colours + derived. Mirror with home.html. */
+  --c1: #563635;
+  --c2: #5B6057;
+  --c3: #6E9075;
+  --c4: #78C091;
+  --c5: #81F0E5;
+
+  --bg:        #dee5df;
+  --surface:   #ecf0eb;
+  --surface-2: #d2dcd4;
+  --ink:       var(--c1);
+  --ink-soft:  var(--c2);
+  --ink-mute:  #8b958b;
+  --line:      rgba(86,54,53,.12);
+  --accent:    var(--c3);
+  --accent-2:  var(--c4);
+  --accent-3:  var(--c5);
+  --on-accent: #f7fdf9;
+
+  --forest:#3e5746;--moss:var(--accent);--leaf:#5b8068;--sage:var(--accent-2);
+  --mist:#c8e5cf;--cream:var(--bg);--parch:var(--surface-2);
+  --char:var(--ink);--smoke:#3a4039;--ash:var(--ink-soft);--fog:var(--ink-mute);
+  --sand:#cfd9d2;
   --safe-top:env(safe-area-inset-top,0px);
   --safe-bot:env(safe-area-inset-bottom,0px);
 }
@@ -36,7 +56,7 @@ html{height:100%}
 html,body{height:100%;width:100%;overflow:hidden;overscroll-behavior:none}
 body{
   font-family:'DM Sans',sans-serif;
-  background:#0e1a0f;
+  background:#1d201d;
   display:flex;align-items:center;justify-content:center;
   position:fixed;inset:0;
 }
@@ -48,8 +68,8 @@ body{
 @media(min-width:600px){
   body{
     background-image:
-      radial-gradient(ellipse at 20% 50%,rgba(42,80,35,.35) 0%,transparent 55%),
-      radial-gradient(ellipse at 80% 20%,rgba(26,58,31,.2) 0%,transparent 50%);
+      radial-gradient(ellipse at 20% 50%,rgba(110,144,117,.30) 0%,transparent 55%),
+      radial-gradient(ellipse at 80% 20%,rgba(120,192,145,.18) 0%,transparent 50%);
   }
   .app-shell{
     width:390px;height:min(844px,100%);border-radius:52px;
@@ -102,7 +122,7 @@ body{
 .intro-stage.show{opacity:1;pointer-events:auto}
 
 /* ──────── SPLASH ──────── */
-#splash{background:linear-gradient(160deg,#1a3a1f 0%,#0e1a0f 100%);color:#fff}
+#splash{background:linear-gradient(160deg,#3e5746 0%,#1d201d 100%);color:var(--on-accent)}
 #splash::before{
   content:'';position:absolute;top:-30%;right:-30%;
   width:120%;height:120%;
@@ -114,7 +134,7 @@ body{
 .splash-title{
   font-family:'Fraunces',serif;
   font-size:84px;font-weight:700;
-  background:linear-gradient(135deg,#c4e3bb 0%,#6fac5e 40%,#fff 70%,#c4e3bb 100%);
+  background:linear-gradient(135deg,#78C091 0%,#81F0E5 40%,#c8e5cf 70%,#78C091 100%);
   background-size:200% 200%;
   -webkit-background-clip:text;background-clip:text;
   -webkit-text-fill-color:transparent;color:transparent;
@@ -189,7 +209,7 @@ body{
 .cp-survey-sub{font-size:13px;color:var(--ash);margin-bottom:24px;letter-spacing:.01em}
 .cp-opts{display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px}
 .cp-opt{
-  background:#fff;
+  background:var(--surface);
   border:.5px solid rgba(26,58,31,.12);
   border-radius:14px;
   padding:15px 18px;
@@ -207,11 +227,11 @@ body{
   transition:all .18s;
 }
 .cp-opt:active{transform:scale(.985)}
-.cp-opt.sel{border-color:var(--forest);background:#fff}
+.cp-opt.sel{border-color:var(--forest);background:var(--surface)}
 .cp-opt.sel::after{
   background:var(--forest);
   border-color:var(--forest);
-  box-shadow:inset 0 0 0 4px #fff;
+  box-shadow:inset 0 0 0 4px var(--surface);
 }
 
 /* Footer: just dots, no buttons. Continue button only on the last page. */
@@ -232,7 +252,7 @@ body{
 .cdot.on{background:var(--forest);width:22px;border-radius:4px}
 .carousel-continue{
   display:none;
-  background:var(--forest);color:#fff;
+  background:var(--forest);color:var(--on-accent);
   border:none;border-radius:14px;
   padding:13px 36px;font-size:15px;font-weight:600;
   cursor:pointer;font-family:inherit;
@@ -269,7 +289,7 @@ body{
 .auth-mascot{margin-bottom:14px;position:relative;z-index:2}
 .auth-app-name{
   font-family:'Fraunces',serif;font-size:34px;font-weight:600;
-  color:#fff;line-height:1.1;margin-bottom:6px;letter-spacing:-.02em;
+  color:var(--on-accent);line-height:1.1;margin-bottom:6px;letter-spacing:-.02em;
   position:relative;z-index:2;
 }
 .auth-tagline{
@@ -286,7 +306,7 @@ body{
   position:relative;z-index:3;
 }
 .auth-card{
-  background:#fff;border-radius:22px;
+  background:var(--surface);border-radius:22px;
   padding:22px;
   box-shadow:0 8px 24px rgba(26,58,31,.12);
   width:100%;
@@ -323,8 +343,8 @@ body{
 
 /* ──────── ALL SET ──────── */
 #allset{
-  background:linear-gradient(160deg,#1a3a1f 0%,#0e1a0f 100%);
-  color:#fff;
+  background:linear-gradient(160deg,#3e5746 0%,#1d201d 100%);
+  color:var(--on-accent);
 }
 #allset::before{
   content:'';position:absolute;inset:0;
@@ -335,7 +355,7 @@ body{
 @keyframes allset-glow{0%,100%{opacity:.7}50%{opacity:1}}
 .allset-title{
   font-family:'Fraunces',serif;font-size:34px;font-weight:600;
-  color:#fff;line-height:1.18;text-align:center;
+  color:var(--on-accent);line-height:1.18;text-align:center;
   margin-top:32px;letter-spacing:-.01em;
   animation:allset-rise 1s cubic-bezier(.34,1.56,.64,1) both;
 }

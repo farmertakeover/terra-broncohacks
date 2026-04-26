@@ -2,7 +2,7 @@
 // Paths are relative to the SW's URL so this works on GitHub Pages
 // (where the site lives under /terra-broncohacks/) and on a custom domain.
 
-const CACHE = 'terra-ai-v3';
+const CACHE = 'terra-ai-v1';
 const PRECACHE = [
   './',
   './index.html',

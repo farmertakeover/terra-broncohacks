@@ -13,6 +13,7 @@
 <link rel="apple-touch-icon" href="../icons/icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -80,6 +81,15 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;display:flex;align-item
 .nb.on .nb-pip{background:var(--eco-mossbrown);color:#fff}
 .nb-em{font-size:19px;line-height:1}
 .nb-pip svg.nb-svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke .18s}
+
+/* Lucide icon sizing helpers */
+.ic-12{width:12px;height:12px;display:inline-block;vertical-align:-2px;stroke-width:2}
+.ic-13{width:13px;height:13px;display:inline-block;vertical-align:-2px;stroke-width:2}
+.ic-14{width:14px;height:14px;display:inline-block;vertical-align:-2px;stroke-width:2}
+.ic-16{width:16px;height:16px;display:inline-block;vertical-align:-3px;stroke-width:1.8}
+.ic-18{width:18px;height:18px;display:inline-block;vertical-align:-3px;stroke-width:1.8}
+.ic-20{width:20px;height:20px;display:inline-block;vertical-align:-4px;stroke-width:1.8}
+.ic-22{width:22px;height:22px;display:inline-block;vertical-align:-4px;stroke-width:1.8}
 .nb-lbl{font-size:10px;color:var(--eco-brown);font-family:'DM Sans',sans-serif}
 .nb.on .nb-lbl{color:var(--eco-mossbrown);font-weight:500}
 .nb-scan-fab{margin-top:-22px;gap:6px}
@@ -597,18 +607,19 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;display:flex;align-item
     <div class="rp-sub">Eco-friendly recipes for every meal.</div>
   </div>
   <div class="cat-row">
-    <div class="ctp on" onclick="filterCat('all',this)">All</div>
-    <div class="ctp" onclick="filterCat('breakfast',this)">Breakfast</div>
-    <div class="ctp" onclick="filterCat('lunch',this)">Lunch</div>
-    <div class="ctp" onclick="filterCat('dinner',this)">Dinner</div>
-    <div class="ctp" onclick="filterCat('snack',this)">Snacks</div>
-    <div class="ctp" onclick="filterCat('dessert',this)">Dessert</div>
-    <div class="ctp" onclick="filterCat('drink',this)">Drinks</div>
+    <div class="ctp on" onclick="filterCat('all',this)"><i data-lucide="leaf" class="ic-14"></i> All</div>
+    <div class="ctp" onclick="filterCat('breakfast',this)"><i data-lucide="sun" class="ic-14"></i> Breakfast</div>
+    <div class="ctp" onclick="filterCat('lunch',this)"><i data-lucide="trending-up" class="ic-14"></i> Lunch</div>
+    <div class="ctp" onclick="filterCat('dinner',this)"><i data-lucide="globe" class="ic-14"></i> Dinner</div>
+    <div class="ctp" onclick="filterCat('snack',this)"><i data-lucide="zap" class="ic-14"></i> Snacks</div>
+    <div class="ctp" onclick="filterCat('dessert',this)"><i data-lucide="star" class="ic-14"></i> Dessert</div>
+    <div class="ctp" onclick="filterCat('drink',this)"><i data-lucide="coffee" class="ic-14"></i> Drinks</div>
   </div>
   <div class="ai-gen" onclick="generateAIRecipe()">
     <div class="ag-row">
+      <div class="ag-ic"><i data-lucide="sparkles" class="ic-20"></i></div>
       <div><div class="ag-lbl">AI · Claude</div><div class="ag-ttl">Generate a custom eco recipe</div></div>
-      <span style="color:rgba(255,255,255,.4);font-size:20px;margin-left:auto">›</span>
+      <i data-lucide="chevron-right" class="ic-20" style="color:rgba(255,255,255,.4);margin-left:auto"></i>
     </div>
   </div>
   <div class="rp-scroll">
@@ -624,14 +635,14 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;display:flex;align-item
           <div class="feat-meta"><span class="feat-cat">Dinner</span><div class="feat-dot"></div><span class="feat-eco">Eco Score 8.6/10</span></div>
           <div class="feat-name">Summer Skillet Lasagna</div>
           <div class="feat-desc">A fresh one-pan lasagna with seasonal zucchini, summer squash, and bright tomato sauce. No oven needed — done entirely in one cast iron skillet.</div>
-          <div class="feat-tags"><span class="ftg g">🌿 Seasonal veggies</span><span class="ftg g">🍳 One skillet</span><span class="ftg">⏱ 45 min</span><span class="ftg">🍽 4 servings</span></div>
+          <div class="feat-tags"><span class="ftg g"><i data-lucide="leaf" class="ic-12"></i> Seasonal veggies</span><span class="ftg g"><i data-lucide="utensils" class="ic-12"></i> One skillet</span><span class="ftg"><i data-lucide="clock" class="ic-12"></i> 45 min</span><span class="ftg"><i data-lucide="users" class="ic-12"></i> 4 servings</span></div>
         </div>
       </div>
     </div>
     <div class="rg" id="recipe-grid"></div>
   </div>
   <div id="rgen-ov">
-    <div class="rg-w"><div class="rg-r"></div><div class="rg-i">👨‍🍳</div></div>
+    <div class="rg-w"><div class="rg-r"></div><i data-lucide="chef-hat" class="rg-i" style="width:26px;height:26px"></i></div>
     <div class="rg-t">Crafting your recipe…</div>
     <div class="rg-s">Claude is creating a custom eco-friendly recipe using seasonal, low-impact ingredients</div>
   </div>
@@ -707,7 +718,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;display:flex;align-item
 <div id="streak-modal" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:300;display:none;align-items:flex-end;padding:12px" onclick="if(event.target===this)closeStreakModal()">
   <div style="background:var(--cream);border-radius:28px;width:100%;padding:26px 24px 32px;position:relative">
     <button onclick="closeStreakModal()" style="position:absolute;top:14px;right:14px;width:32px;height:32px;background:var(--parch);border-radius:50%;border:none;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ash)">✕</button>
-    <div style="font-size:38px;margin-bottom:6px">🔥</div>
+    <i data-lucide="flame" style="width:38px;height:38px;color:var(--good);margin-bottom:6px;display:block"></i>
     <div style="font-family:'Fraunces',serif;font-size:28px;color:var(--good);line-height:1;margin-bottom:4px" id="impact-streak-title">0-day streak</div>
     <div style="font-size:13px;color:var(--ash);margin-bottom:22px" id="impact-streak-best">Best: 0</div>
     <div class="sd">
@@ -1382,6 +1393,7 @@ function renderResult(p,ai){
     <div class="dc fi"><div class="dc-t">Full environmental data</div>${drows}</div>`;
 
   document.getElementById('rbody').scrollTop=0;
+  refreshIcons();
 }
 
 // Build an alt card with real image
@@ -1444,6 +1456,7 @@ function openAltModal(id){
     </div>`;
 
   document.getElementById('alt-modal').classList.add('on');
+  refreshIcons();
 }
 function closeAltModal(){
   document.getElementById('alt-modal').classList.remove('on');
@@ -1466,10 +1479,11 @@ function renderRecipeGrid(cat){
       <div class="rinfo">
         <div class="rcat" style="color:${cc.color}">${cc.label}</div>
         <div class="rname">${r.name}</div>
-        <div class="rfooter"><span class="rtime">⏱ ${r.time}m</span><span class="reco">${r.ecoScore}</span></div>
+        <div class="rfooter"><span class="rtime"><i data-lucide="clock" class="ic-12"></i> ${r.time}m</span><span class="reco">${r.ecoScore}</span></div>
       </div>
     </div>`;
   }).join('');
+  refreshIcons();
 }
 function filterCat(cat,el){
   curCat=cat;
@@ -1508,18 +1522,19 @@ function openRecipe(id){
       <div class="rd-name">${r.name}</div>
       <div class="rd-desc">${r.desc}</div>
       <div class="rd-stats">
-        <div class="rd-st"><span class="rd-sti">⏱</span>${r.time} min</div>
-        <div class="rd-st"><span class="rd-sti">🍽</span>${r.servings} servings</div>
-        <div class="rd-st"><span class="rd-sti">🌿</span>Eco ${r.ecoScore}/10</div>
+        <div class="rd-st"><i data-lucide="clock" class="rd-sti ic-13"></i>${r.time} min</div>
+        <div class="rd-st"><i data-lucide="users" class="rd-sti ic-13"></i>${r.servings} servings</div>
+        <div class="rd-st"><i data-lucide="leaf" class="rd-sti ic-13"></i>Eco ${r.ecoScore}/10</div>
       </div>
       <div class="feat-tags" style="margin-top:8px">${tags}</div>
     </div>
     <div class="rd-eco"><div><div class="rd-el">ECO SCORE</div><div class="rd-en">${r.ecoScore}</div></div><div class="rd-et">${r.ecoNote}</div></div>
-    <div class="rd-sec"><div class="rd-sec-t">🥬 Ingredients</div>${ings}</div>
-    <div class="rd-sec"><div class="rd-sec-t">👨‍🍳 Instructions</div>${steps}</div>
+    <div class="rd-sec"><div class="rd-sec-t"><i data-lucide="leaf" class="ic-14"></i> Ingredients</div>${ings}</div>
+    <div class="rd-sec"><div class="rd-sec-t"><i data-lucide="chef-hat" class="ic-14"></i> Instructions</div>${steps}</div>
     <div class="etips"><div class="etips-t">Sustainability tips</div>${tips}</div>`;
   document.getElementById('rd-body').scrollTop=0;
   showScr('rdet');
+  refreshIcons();
 }
 
 async function generateAIRecipe(){
@@ -1565,7 +1580,15 @@ function rdm(item){toast(`Redeeming ${item} reward…`)}
 function openStreakModal(){document.getElementById('streak-modal').style.display='flex';}
 function closeStreakModal(){document.getElementById('streak-modal').style.display='none';}
 
-window.addEventListener('DOMContentLoaded',()=>{renderRecipeGrid('all')});
+function refreshIcons(){
+  if (window.lucide && typeof window.lucide.createIcons==='function') {
+    window.lucide.createIcons();
+  }
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  renderRecipeGrid('all');
+  refreshIcons();
+});
 </script>
 </body>
 </html>

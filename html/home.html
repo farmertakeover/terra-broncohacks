@@ -1380,12 +1380,102 @@ function buildAltCard(id){
   </div>`;
 }
 
+// ── CURATED ALT IMAGE MAP ──
+// Direct Unsplash CDN photo IDs — no auth required, stable URLs
+const _ALT_PHOTOS = {
+  // Water & reusable bottles
+  'reusable bottle':    '1556228578-8c89e6adf883',
+  'water bottle':       '1556228578-8c89e6adf883',
+  'metal bottle':       '1556228578-8c89e6adf883',
+  'stainless bottle':   '1556228578-8c89e6adf883',
+  'filter pitcher':     '1548781264-3c8a2b8b6d1f',
+  'water filter':       '1548781264-3c8a2b8b6d1f',
+  'brita':              '1548781264-3c8a2b8b6d1f',
+  'sparkling water':    '1545205597-3d9d02c29597',
+  'mineral water':      '1545205597-3d9d02c29597',
+  'coconut water':      '1474540412665-1cdae210ae6b',
+  'kombucha':           '1587049633312-d628ae50-a122',
+  'boxed water':        '1598133894020-9e2e74b7a928',
+  // Plant-based proteins
+  'plant burger':       '1550547660-d9450f859349',
+  'veggie burger':      '1550547660-d9450f859349',
+  'beyond burger':      '1550547660-d9450f859349',
+  'plant based burger': '1550547660-d9450f859349',
+  'lentils':            '1515543904379-3d757afe72e4',
+  'chickpeas':          '1515543904379-3d757afe72e4',
+  'black beans':        '1515543904379-3d757afe72e4',
+  'beans':              '1515543904379-3d757afe72e4',
+  'legumes':            '1515543904379-3d757afe72e4',
+  'tempeh':             '1515543904379-3d757afe72e4',
+  'tofu':               '1617093727343-374698b1b08d',
+  'jackfruit':          '1540420773420-3366772f4999',
+  // Dairy alternatives
+  'oat milk':           '1550583724-b2692b85b150',
+  'almond milk':        '1550583724-b2692b85b150',
+  'plant milk':         '1550583724-b2692b85b150',
+  'soy milk':           '1550583724-b2692b85b150',
+  // Drinks & beverages
+  'coffee':             '1495474472287-4d71bcdd2085',
+  'espresso':           '1495474472287-4d71bcdd2085',
+  'tea':                '1544787219-7f47ccb76574',
+  'green tea':          '1544787219-7f47ccb76574',
+  'herbal tea':         '1544787219-7f47ccb76574',
+  'juice':              '1600271886742-f049cd451bba',
+  'smoothie':           '1502741383435-37d93abf2bea',
+  'smoothie bowl':      '1502741383435-37d93abf2bea',
+  // Snacks
+  'popcorn':            '1585647347483-22b66260dfff',
+  'nuts':               '1543353071-10c8ba85a904',
+  'trail mix':          '1543353071-10c8ba85a904',
+  'granola':            '1517673400267-0251440c45dc',
+  'oats':               '1517673400267-0251440c45dc',
+  'crackers':           '1509440159596-0249088772ff',
+  'dried fruit':        '1464965911861-746a04b4bca6',
+  'berries':            '1464965911861-746a04b4bca6',
+  // Produce
+  'salad':              '1512621776951-a57141f2eefd',
+  'vegetables':         '1540420773420-3366772f4999',
+  'avocado':            '1543362906-acfc16c67564',
+  'fruit':              '1464965911861-746a04b4bca6',
+  // Grains & staples
+  'bread':              '1509440159596-0249088772ff',
+  'sourdough':          '1509440159596-0249088772ff',
+  'pasta':              '1563379926898-05f4575a45d8',
+  'rice':               '1516684732162-798a0062be99',
+  // Eco packaging & reusables
+  'bamboo':             '1545432498-1e0eed06a573',
+  'reusable bag':       '1584736819564-a5a7a33e41f3',
+  'tote bag':           '1584736819564-a5a7a33e41f3',
+  'glass jar':          '1558618666-fcd25c85cd64',
+  'glass bottle':       '1558618666-fcd25c85cd64',
+  // Organic & eco defaults
+  'organic':            '1488459716781-31db52582fe9',
+  'farmers market':     '1488459716781-31db52582fe9',
+  'sustainable':        '1542601906897-ecd82f3cda2a',
+  'eco':                '1441974231531-c6227db76b6e',
+  'natural':            '1441974231531-c6227db76b6e',
+  'green':              '1441974231531-c6227db76b6e',
+  '_default':           '1441974231531-c6227db76b6e',
+};
+
+function _altImgUrl(query, w, h) {
+  const q = (query || '').toLowerCase();
+  // Score each key by how many of its words appear in the query
+  let bestId = null, bestScore = 0;
+  for (const [key, id] of Object.entries(_ALT_PHOTOS)) {
+    if (key === '_default') continue;
+    const hits = key.split(' ').filter(word => q.includes(word)).length;
+    if (hits > bestScore) { bestScore = hits; bestId = id; }
+  }
+  const id = bestId || _ALT_PHOTOS._default;
+  return `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&q=80`;
+}
+
 // ── AI-GENERATED ALT CARDS ──
 let _aiAltsCache=[];
 function buildAIAltCard(a,idx){
   const pills=(a.tags||[]).map((t,i)=>`<span class="alt-pill ${i>1?'neutral':''}">${t}</span>`).join('');
-  const q=encodeURIComponent(a.image_query||a.name);
-  const imgSrc=`https://source.unsplash.com/featured/400x200/?${q}`;
+  const imgSrc=_altImgUrl(a.image_query||a.name,400,200);
   const bg=a.eco_score>=8?'#e8f5e0':a.eco_score>=6?'#fef3e2':'#fdeaea';
   return `
   <div class="alt-card" onclick="openAIAltModal(${idx})">
@@ -1409,8 +1499,7 @@ function buildAIAltCard(a,idx){
 function openAIAltModal(idx){
   const a=_aiAltsCache[idx];if(!a)return;
   const pills=(a.tags||[]).map(t=>`<span class="am-pill">${t}</span>`).join('');
-  const q=encodeURIComponent(a.image_query||a.name);
-  const imgSrc=`https://source.unsplash.com/featured/600x300/?${q}`;
+  const imgSrc=_altImgUrl(a.image_query||a.name,600,300);
   const bg=a.eco_score>=8?'#e8f5e0':a.eco_score>=6?'#fef3e2':'#fdeaea';
   document.getElementById('am-card').innerHTML=`
     <div class="am-img-wrap">

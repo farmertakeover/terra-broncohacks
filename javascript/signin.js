@@ -38,12 +38,17 @@ const MASCOT_SVG = `
   <ellipse cx="34" cy="56" rx="3" ry="1.6" fill="#ff9a9a" opacity=".55"/>
   <ellipse cx="62" cy="56" rx="3" ry="1.6" fill="#ff9a9a" opacity=".55"/>
 </svg>`;
-function mountMascot(id) {
-  const host = document.getElementById(id);
+function mountMascot(host) {
   if (host) host.innerHTML = MASCOT_SVG;
 }
-['splash-mascot-host','carousel-mascot-host','auth-mascot-host','allset-mascot-host']
-  .forEach(mountMascot);
+['splash-mascot-host', 'auth-mascot-host', 'allset-mascot-host']
+  .forEach(id => mountMascot(document.getElementById(id)));
+// Each carousel page has its own mascot host; mount + apply per-page animation
+document.querySelectorAll('.cp-mascot-host').forEach(host => {
+  mountMascot(host);
+  const anim = host.dataset.anim;
+  if (anim) host.classList.add(anim);
+});
 
 // ── Stage helpers ──
 function showStage(id) {
@@ -107,30 +112,11 @@ function canAdvanceTo(target) {
 function updateCarouselUI() {
   document.querySelectorAll('#carousel-dots .cdot').forEach((d, i) =>
     d.classList.toggle('on', i === carouselIdx));
-  const prev = document.getElementById('carousel-prev');
-  const next = document.getElementById('carousel-next');
-  if (prev) prev.disabled = carouselIdx === 0;
-  if (next) {
-    const isSurvey = carouselIdx >= 3;
-    const isLast = carouselIdx === CAROUSEL_PAGES - 1;
-    let needAnswer = false;
-    if (isSurvey) {
-      const key = ['habit', 'goal', 'diet'][carouselIdx - 3];
-      needAnswer = !surveyAnswers[key];
-    }
-    next.disabled = needAnswer;
-    next.textContent = isLast ? 'Continue' : (isSurvey ? 'Next' : 'Next');
-  }
-  // Mascot animation per page
-  const mascot = document.getElementById('carousel-mascot-host');
-  if (mascot) {
-    mascot.classList.remove('dance', 'spin', 'cheer');
-    if (carouselIdx === 0) mascot.classList.add('dance');
-    else if (carouselIdx === 1) mascot.classList.add('spin');
-    else if (carouselIdx === 2) mascot.classList.add('cheer');
-    else if (carouselIdx === 3) mascot.classList.add('dance');
-    else if (carouselIdx === 4) mascot.classList.add('spin');
-    else if (carouselIdx === 5) mascot.classList.add('cheer');
+  const cont = document.getElementById('carousel-continue');
+  if (cont) {
+    const onLast = carouselIdx === CAROUSEL_PAGES - 1;
+    const allAnswered = surveyAnswers.habit && surveyAnswers.goal && surveyAnswers.diet;
+    cont.classList.toggle('show', onLast && allAnswered);
   }
 }
 
@@ -141,18 +127,7 @@ function goCarouselPage(i) {
   track.scrollTo({ left: track.clientWidth * carouselIdx, behavior: 'smooth' });
   updateCarouselUI();
 }
-function carouselNext() {
-  if (carouselIdx < CAROUSEL_PAGES - 1) {
-    goCarouselPage(carouselIdx + 1);
-  } else {
-    finishCarousel();
-  }
-}
-function carouselPrev() {
-  if (carouselIdx > 0) goCarouselPage(carouselIdx - 1);
-}
-window.carouselNext = carouselNext;
-window.carouselPrev = carouselPrev;
+window.finishCarousel = finishCarousel;
 
 function bindSurveyOptions() {
   document.querySelectorAll('#carousel .cp-opts').forEach(opts => {

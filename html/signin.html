@@ -136,22 +136,6 @@ body{
   position:absolute;inset:0;
   display:flex;flex-direction:column;
 }
-.carousel-mascot-area{
-  position:relative;flex-shrink:0;
-  height:46%;min-height:240px;
-  background:linear-gradient(160deg,#1a3a1f 0%,#2d5a27 100%);
-  display:flex;align-items:center;justify-content:center;
-  border-radius:0 0 36px 36px;
-  padding-top:calc(var(--safe-top) + 24px);
-  overflow:hidden;
-}
-.carousel-mascot-area::before{
-  content:'';position:absolute;top:-40%;right:-30%;width:160%;height:140%;
-  background:radial-gradient(ellipse,rgba(111,172,94,.35) 0%,transparent 60%);
-  pointer-events:none;
-  animation:carousel-glow 8s ease-in-out infinite;
-}
-@keyframes carousel-glow{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 .carousel-track{
   flex:1;
   display:flex;
@@ -166,26 +150,29 @@ body{
 .carousel-page{
   flex:0 0 100%;
   scroll-snap-align:start;
-  display:flex;flex-direction:column;
-  padding:32px 28px 24px;
+  display:flex;flex-direction:column;align-items:center;
+  padding:calc(var(--safe-top) + 32px) 28px 24px;
   overflow-y:auto;
+  text-align:center;
 }
-.cp-emoji{font-size:46px;margin-bottom:6px}
+.cp-mascot-host{margin-bottom:18px}
+.cp-emoji{font-size:36px;margin-bottom:6px}
 .cp-h{
   font-family:'Fraunces',serif;
-  font-size:28px;color:var(--forest);line-height:1.18;
-  margin-bottom:10px;
+  font-size:26px;color:var(--forest);line-height:1.18;
+  margin-bottom:12px;
 }
 .cp-tx{
   font-size:15px;color:var(--smoke);line-height:1.55;
-  margin-bottom:16px;
+  margin-bottom:18px;max-width:320px;
 }
-.cp-feature-list{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.cp-feature-list{display:flex;flex-direction:column;gap:10px;margin-top:6px;width:100%;max-width:320px}
 .cp-feature-row{
   display:flex;align-items:center;gap:12px;
   background:#fff;border-radius:14px;padding:12px 14px;
   box-shadow:0 1px 4px rgba(0,0,0,.05);
   font-size:13px;color:var(--char);
+  text-align:left;
 }
 .cp-feature-ic{
   width:32px;height:32px;background:var(--cream);
@@ -194,9 +181,9 @@ body{
 }
 
 /* Survey on a page */
-.cp-survey-q{font-family:'Fraunces',serif;font-size:22px;color:var(--forest);margin-bottom:4px;line-height:1.25}
+.cp-survey-q{font-family:'Fraunces',serif;font-size:22px;color:var(--forest);margin-bottom:4px;line-height:1.25;max-width:320px}
 .cp-survey-sub{font-size:13px;color:var(--ash);margin-bottom:14px}
-.cp-opts{display:flex;flex-direction:column;gap:8px}
+.cp-opts{display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px}
 .cp-opt{
   background:#fff;border:1.5px solid transparent;
   border-radius:14px;padding:12px 14px;
@@ -209,13 +196,14 @@ body{
 .cp-opt.sel{border-color:var(--leaf);background:#e6f4e6}
 .cp-opt-em{font-size:18px;flex-shrink:0}
 
-/* Footer with dots + button */
+/* Footer: just dots, no buttons. Continue button only on the last page. */
 .carousel-footer{
   flex-shrink:0;
-  padding:14px 28px calc(var(--safe-bot) + 18px);
-  background:linear-gradient(180deg,rgba(245,240,232,0) 0%,rgba(245,240,232,1) 30%);
+  padding:14px 28px calc(var(--safe-bot) + 22px);
   display:flex;flex-direction:column;align-items:center;gap:14px;
+  pointer-events:none;
 }
+.carousel-footer > *{pointer-events:auto}
 .carousel-dots{display:flex;gap:8px;align-items:center}
 .cdot{
   width:7px;height:7px;border-radius:50%;
@@ -224,23 +212,19 @@ body{
   cursor:pointer;
 }
 .cdot.on{background:var(--forest);width:22px;border-radius:4px}
-.carousel-actions{display:flex;gap:10px;align-items:center;width:100%}
-.carousel-prev{
-  background:none;border:none;color:var(--ash);
-  font-family:inherit;font-size:14px;font-weight:500;
-  padding:12px 16px;cursor:pointer;
-}
-.carousel-prev[disabled]{opacity:.3;cursor:not-allowed}
-.carousel-next{
-  flex:1;
+.carousel-continue{
+  display:none;
   background:var(--forest);color:#fff;
   border:none;border-radius:14px;
-  padding:14px;font-size:15px;font-weight:600;
+  padding:13px 36px;font-size:15px;font-weight:600;
   cursor:pointer;font-family:inherit;
-  transition:opacity .2s,background .15s;
+  box-shadow:0 6px 16px rgba(26,58,31,.25);
+  transition:opacity .2s,background .15s,transform .2s;
+  animation:cont-rise .35s cubic-bezier(.34,1.56,.64,1);
 }
-.carousel-next:not(:disabled):active{background:var(--moss)}
-.carousel-next:disabled{opacity:.4;cursor:not-allowed}
+.carousel-continue.show{display:inline-flex}
+.carousel-continue:active{background:var(--moss);transform:scale(.97)}
+@keyframes cont-rise{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
 
 /* ──────── AUTH STAGE ──────── */
 #auth-stage{padding:0}
@@ -377,12 +361,10 @@ body{
   <!-- 2. Carousel: tutorial pages (idx 0..2) + survey pages (idx 3..5) -->
   <div class="intro-stage" id="carousel">
     <div class="carousel-shell">
-      <div class="carousel-mascot-area">
-        <div class="mascot-wrap" id="carousel-mascot-host"></div>
-      </div>
       <div class="carousel-track" id="carousel-track">
         <!-- Tutorial 1 -->
         <div class="carousel-page" data-idx="0">
+          <div class="mascot-wrap cp-mascot-host" data-anim="dance"></div>
           <div class="cp-emoji">📷</div>
           <div class="cp-h">Scan any product, instantly know its impact</div>
           <div class="cp-tx">Point your camera at a barcode and Terra reads it. We pull verified sustainability data straight from Open Food Facts — no guesswork.</div>
@@ -393,6 +375,7 @@ body{
         </div>
         <!-- Tutorial 2 -->
         <div class="carousel-page" data-idx="1">
+          <div class="mascot-wrap cp-mascot-host" data-anim="spin"></div>
           <div class="cp-emoji">🌍</div>
           <div class="cp-h">See how your shopping shapes the planet</div>
           <div class="cp-tx">Every scan adds to your weekly impact: water saved, CO₂ avoided, eco swaps made. Build a streak and watch it grow.</div>
@@ -403,8 +386,9 @@ body{
         </div>
         <!-- Tutorial 3 -->
         <div class="carousel-page" data-idx="2">
+          <div class="mascot-wrap cp-mascot-host" data-anim="cheer"></div>
           <div class="cp-emoji">♻️</div>
-          <div class="cp-h">Greener swaps & recipes, picked for you</div>
+          <div class="cp-h">Greener swaps &amp; recipes, picked for you</div>
           <div class="cp-tx">Whenever a product scores low, Terra suggests pre-vetted alternatives and seasonal recipes that match your goals.</div>
           <div class="cp-feature-list">
             <div class="cp-feature-row"><div class="cp-feature-ic">🥗</div><div>Curated eco-friendly alternatives</div></div>
@@ -413,7 +397,7 @@ body{
         </div>
         <!-- Survey Q1 -->
         <div class="carousel-page" data-idx="3">
-          <div class="cp-emoji">🌱</div>
+          <div class="mascot-wrap cp-mascot-host" data-anim="dance"></div>
           <div class="cp-survey-q">How often do you check a product's environmental impact?</div>
           <div class="cp-survey-sub">Be honest — there's no wrong answer.</div>
           <div class="cp-opts" data-key="habit">
@@ -425,7 +409,7 @@ body{
         </div>
         <!-- Survey Q2 -->
         <div class="carousel-page" data-idx="4">
-          <div class="cp-emoji">🎯</div>
+          <div class="mascot-wrap cp-mascot-host" data-anim="spin"></div>
           <div class="cp-survey-q">Which sustainability goal matters most to you?</div>
           <div class="cp-survey-sub">We'll tailor your insights around it.</div>
           <div class="cp-opts" data-key="goal">
@@ -437,7 +421,7 @@ body{
         </div>
         <!-- Survey Q3 -->
         <div class="carousel-page" data-idx="5">
-          <div class="cp-emoji">🍴</div>
+          <div class="mascot-wrap cp-mascot-host" data-anim="cheer"></div>
           <div class="cp-survey-q">What's your diet like?</div>
           <div class="cp-survey-sub">Helps us suggest meaningful swaps.</div>
           <div class="cp-opts" data-key="diet">
@@ -449,11 +433,8 @@ body{
         </div>
       </div>
       <div class="carousel-footer">
+        <button class="carousel-continue" id="carousel-continue" onclick="finishCarousel()">Continue</button>
         <div class="carousel-dots" id="carousel-dots"></div>
-        <div class="carousel-actions">
-          <button class="carousel-prev" id="carousel-prev" onclick="carouselPrev()">Back</button>
-          <button class="carousel-next" id="carousel-next" onclick="carouselNext()">Next</button>
-        </div>
       </div>
     </div>
   </div>

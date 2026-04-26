@@ -93,6 +93,8 @@ function recordScan(prod, key) {
 let _camStream   = null;
 let _zxingReader = null;
 let _scanning    = false;
+let _lastCode    = null;
+let _lastCodeAt  = 0;
 
 function showCamError(show, title, text) {
   const el = document.getElementById('cam-error');
@@ -102,74 +104,123 @@ function showCamError(show, title, text) {
   if (show && text)  document.getElementById('cam-error-text').textContent  = text;
 }
 
+function loadZXing() {
+  return new Promise(resolve => {
+    if (window.ZXing) return resolve();
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.0/umd/index.min.js';
+    s.onload = resolve;
+    s.onerror = resolve;
+    document.head.appendChild(s);
+  });
+}
+setTimeout(loadZXing, 800);
+
 async function startCamera() {
+  if (_scanning) return;
   showCamError(false);
-  const video = document.getElementById('cam-video');
-  if (!video) return;
-  try {
-    _camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-    video.srcObject = _camStream;
-    await video.play();
-    _scanning = true;
-    tryBarcodeDetector(video);
-  } catch(e) {
-    showCamError(true, 'Camera access blocked', 'Allow camera access in your browser settings, or use the chips below to demo the scanner.');
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showCamError(true, 'Camera not supported', 'Try Safari or Chrome on https://');
+    return;
   }
+  if (!window.isSecureContext) {
+    showCamError(true, 'HTTPS required', 'Camera access requires https:// or localhost.');
+    return;
+  }
+
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false
+    });
+  } catch(e) {
+    if (e.name === 'NotAllowedError' || e.name === 'SecurityError') {
+      showCamError(true, 'Camera permission denied', 'Allow camera in your browser settings, then reload.');
+    } else if (e.name === 'NotFoundError') {
+      showCamError(true, 'No camera found', "This device doesn't seem to have a camera.");
+    } else {
+      showCamError(true, 'Camera error', e.message || 'Could not start the camera.');
+    }
+    return;
+  }
+
+  _camStream = stream;
+  _scanning  = true;
+
+  // Native BarcodeDetector — Android Chrome only
+  if ('BarcodeDetector' in window) {
+    const video = document.getElementById('cam-video');
+    video.srcObject = stream;
+    await video.play();
+    const bd = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code'] });
+    const tick = async () => {
+      if (!_scanning) return;
+      try {
+        const codes = await bd.detect(video);
+        if (codes.length) { onCodeDetected(codes[0].rawValue); return; }
+      } catch(e) {}
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    return;
+  }
+
+  // ZXing UMD fallback — PC + iOS Safari
+  await loadZXing();
+  if (!window.ZXing) {
+    showCamError(true, 'Scanner failed to load', 'Please refresh and try again.');
+    return;
+  }
+  const video = document.getElementById('cam-video');
+  const hints = new Map();
+  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+    ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+    ZXing.BarcodeFormat.UPC_A,  ZXing.BarcodeFormat.UPC_E,
+    ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
+    ZXing.BarcodeFormat.ITF,    ZXing.BarcodeFormat.QR_CODE
+  ]);
+  _zxingReader = new ZXing.BrowserMultiFormatReader(hints, 300);
+  // decodeFromStream sets srcObject internally — required on iOS Safari
+  _zxingReader.decodeFromStream(stream, video, (result) => {
+    if (result && _scanning) onCodeDetected(result.getText());
+  }).catch(e => {
+    if (_scanning) showCamError(true, 'Scanner error', e.message || 'Could not read camera frames.');
+  });
+}
+
+function onCodeDetected(rawCode) {
+  if (!_scanning || !rawCode) return;
+  const code = String(rawCode).trim();
+  const now  = Date.now();
+  if (code === _lastCode && (now - _lastCodeAt) < 2500) return;
+  _lastCode   = code;
+  _lastCodeAt = now;
+  if (navigator.vibrate) navigator.vibrate(60);
+  const hint = document.getElementById('scan-hint');
+  if (hint) hint.textContent = 'Detected: ' + code;
+  doScanByCode(code);
 }
 
 function stopCamera() {
   _scanning = false;
-  if (_camStream) { _camStream.getTracks().forEach(t => t.stop()); _camStream = null; }
   if (_zxingReader) { try { _zxingReader.reset(); } catch(e) {} _zxingReader = null; }
-}
-
-async function tryBarcodeDetector(video) {
-  if ('BarcodeDetector' in window) {
-    const bd = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code'] });
-    const scan = async () => {
-      if (!_scanning) return;
-      try {
-        const codes = await bd.detect(video);
-        if (codes.length) { _scanning = false; await doScanByCode(codes[0].rawValue); return; }
-      } catch(e) {}
-      requestAnimationFrame(scan);
-    };
-    requestAnimationFrame(scan);
-  } else {
-    try {
-      const { BrowserMultiFormatReader } = await import('https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.4/esm/index.js');
-      _zxingReader = new BrowserMultiFormatReader();
-      _zxingReader.decodeFromVideoElement(video, (result, err) => {
-        if (result && _scanning) { _scanning = false; doScanByCode(result.getText()); }
-      });
-    } catch(e) {
-      showCamError(true, 'Scanner unavailable', 'Use the chips below to demo, or enter a barcode manually.');
-    }
-  }
+  if (_camStream)   { _camStream.getTracks().forEach(t => t.stop()); _camStream = null; }
+  const video = document.getElementById('cam-video');
+  if (video) { try { video.pause(); } catch(e) {} video.srcObject = null; }
+  _lastCode   = null;
+  _lastCodeAt = 0;
 }
 
 // ── MANUAL BARCODE ENTRY ──
 function manualBarcodeEntry() {
-  const modal = document.getElementById('barcode-modal');
-  if (modal) { modal.classList.add('show'); document.getElementById('barcode-input').focus(); }
-}
-function closeManualEntry() {
-  const modal = document.getElementById('barcode-modal');
-  if (modal) modal.classList.remove('show');
-}
-function submitManualBarcode() {
-  const input = document.getElementById('barcode-input');
-  if (!input) return;
-  const code = input.value.replace(/[^0-9]/g, '');
-  if (code.length < 6) { input.classList.add('error'); setTimeout(() => input.classList.remove('error'), 400); return; }
-  input.value = '';
-  closeManualEntry();
+  const input = window.prompt('Enter a product barcode (8–13 digits):', '');
+  if (input == null) return;
+  const code = String(input).replace(/[^0-9]/g, '');
+  if (code.length < 6) { if (typeof toast === 'function') toast("That doesn't look like a barcode"); return; }
   doScanByCode(code);
 }
-(function () {
-  const input = document.getElementById('barcode-input');
-  if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') submitManualBarcode(); });
-})();
 
 async function doScanByCode(code) {
   const clean = code.replace(/[^0-9]/g, '');

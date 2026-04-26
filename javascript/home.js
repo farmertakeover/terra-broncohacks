@@ -43,7 +43,7 @@ function renderHomeStats(d) {
   set('impact-co22',         d.co2Avoided);
   set('impact-swaps2',       d.ecoSwaps);
   set('impact-total-scans',  d.totalScans);
-  set('impact-streak-title', '🔥 ' + d.streak + '-day streak');
+  set('impact-streak-title', d.streak + '-day streak');
   set('impact-streak-best',  'Best: ' + d.bestStreak);
   set('rewards-tokens',      d.tokens);
 

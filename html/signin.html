@@ -26,9 +26,22 @@ if ('serviceWorker' in navigator) {
 html{height:100%}
 
 :root{
-  --forest:#1a3a1f;--moss:#2d5a27;--leaf:#3d7a32;--sage:#6fac5e;--mist:#c4e3bb;
-  --cream:#f5f0e8;--parch:#ede7d9;--white:#fff;--char:#1c1c1e;--smoke:#3a3a3c;
-  --ash:#636366;--fog:#aeaeb2;--sand:#d4c5a9;
+  /* ─── BRAND PALETTE ─── 8 tokens, swap to change the entire app */
+  --bg:        #f3ede0;
+  --surface:   #fbf6ec;
+  --surface-2: #ede4d3;
+  --ink:       #1b2a1a;
+  --ink-soft:  #5a6657;
+  --ink-mute:  #8a8e83;
+  --line:      rgba(27,42,26,.10);
+  --accent:    #2d5a27;
+  --accent-2:  #6fac5e;
+  --on-accent: #f4ead6;
+  /* derived */
+  --forest:#1a3a1f;--moss:var(--accent);--leaf:#3d7a32;--sage:var(--accent-2);
+  --mist:#c4e3bb;--cream:var(--bg);--parch:var(--surface-2);
+  --char:var(--ink);--smoke:#2c3a2a;--ash:var(--ink-soft);--fog:var(--ink-mute);
+  --sand:#d4c5a9;
   --safe-top:env(safe-area-inset-top,0px);
   --safe-bot:env(safe-area-inset-bottom,0px);
 }
@@ -102,7 +115,7 @@ body{
 .intro-stage.show{opacity:1;pointer-events:auto}
 
 /* ──────── SPLASH ──────── */
-#splash{background:linear-gradient(160deg,#1a3a1f 0%,#0e1a0f 100%);color:#fff}
+#splash{background:linear-gradient(160deg,#1a3a1f 0%,#0e1a0f 100%);color:var(--on-accent)}
 #splash::before{
   content:'';position:absolute;top:-30%;right:-30%;
   width:120%;height:120%;
@@ -189,7 +202,7 @@ body{
 .cp-survey-sub{font-size:13px;color:var(--ash);margin-bottom:24px;letter-spacing:.01em}
 .cp-opts{display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px}
 .cp-opt{
-  background:#fff;
+  background:var(--surface);
   border:.5px solid rgba(26,58,31,.12);
   border-radius:14px;
   padding:15px 18px;
@@ -207,11 +220,11 @@ body{
   transition:all .18s;
 }
 .cp-opt:active{transform:scale(.985)}
-.cp-opt.sel{border-color:var(--forest);background:#fff}
+.cp-opt.sel{border-color:var(--forest);background:var(--surface)}
 .cp-opt.sel::after{
   background:var(--forest);
   border-color:var(--forest);
-  box-shadow:inset 0 0 0 4px #fff;
+  box-shadow:inset 0 0 0 4px var(--surface);
 }
 
 /* Footer: just dots, no buttons. Continue button only on the last page. */
@@ -232,7 +245,7 @@ body{
 .cdot.on{background:var(--forest);width:22px;border-radius:4px}
 .carousel-continue{
   display:none;
-  background:var(--forest);color:#fff;
+  background:var(--forest);color:var(--on-accent);
   border:none;border-radius:14px;
   padding:13px 36px;font-size:15px;font-weight:600;
   cursor:pointer;font-family:inherit;
@@ -269,7 +282,7 @@ body{
 .auth-mascot{margin-bottom:14px;position:relative;z-index:2}
 .auth-app-name{
   font-family:'Fraunces',serif;font-size:34px;font-weight:600;
-  color:#fff;line-height:1.1;margin-bottom:6px;letter-spacing:-.02em;
+  color:var(--on-accent);line-height:1.1;margin-bottom:6px;letter-spacing:-.02em;
   position:relative;z-index:2;
 }
 .auth-tagline{
@@ -286,7 +299,7 @@ body{
   position:relative;z-index:3;
 }
 .auth-card{
-  background:#fff;border-radius:22px;
+  background:var(--surface);border-radius:22px;
   padding:22px;
   box-shadow:0 8px 24px rgba(26,58,31,.12);
   width:100%;
@@ -324,7 +337,7 @@ body{
 /* ──────── ALL SET ──────── */
 #allset{
   background:linear-gradient(160deg,#1a3a1f 0%,#0e1a0f 100%);
-  color:#fff;
+  color:var(--on-accent);
 }
 #allset::before{
   content:'';position:absolute;inset:0;
@@ -335,7 +348,7 @@ body{
 @keyframes allset-glow{0%,100%{opacity:.7}50%{opacity:1}}
 .allset-title{
   font-family:'Fraunces',serif;font-size:34px;font-weight:600;
-  color:#fff;line-height:1.18;text-align:center;
+  color:var(--on-accent);line-height:1.18;text-align:center;
   margin-top:32px;letter-spacing:-.01em;
   animation:allset-rise 1s cubic-bezier(.34,1.56,.64,1) both;
 }

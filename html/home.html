@@ -24,11 +24,40 @@ if ('serviceWorker' in navigator) {
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{height:100%}
 :root{
-  --forest:#1a3a1f;--moss:#2d5a27;--leaf:#3d7a32;--sage:#6fac5e;
-  --mist:#c4e3bb;--cream:#f5f0e8;--parch:#ede7d9;--white:#fff;
-  --char:#1c1c1e;--smoke:#3a3a3c;--ash:#636366;--fog:#aeaeb2;
-  --danger:#b83232;--dlight:#fdeaea;--warn:#9a5515;--wlight:#fef3e2;
-  --good:#2a5f2a;--glight:#e6f4e6;
+  /* ─── BRAND PALETTE ─── all colours flow from these 8 tokens.
+     To swap palette: change ONLY these eight values. */
+  --bg:        #f3ede0;   /* page background — warm sand cream, never pure white */
+  --surface:   #fbf6ec;   /* card surface — slightly lighter than bg */
+  --surface-2: #ede4d3;   /* alt surface for hairline depth */
+  --ink:       #1b2a1a;   /* primary text on light bg (deep forest-black) */
+  --ink-soft:  #5a6657;   /* secondary text */
+  --ink-mute:  #8a8e83;   /* muted text */
+  --line:      rgba(27,42,26,.10);  /* hairlines */
+  --accent:    #2d5a27;   /* primary brand colour (deep forest) */
+  --accent-2:  #6fac5e;   /* light/secondary accent (sage) */
+  --on-accent: #f4ead6;   /* text/icons on accent bg (warm cream, not white) */
+
+  /* ─── DERIVED — keep these in sync with the brand tokens above ─── */
+  --forest:    #1a3a1f;
+  --moss:      var(--accent);
+  --leaf:      #3d7a32;
+  --sage:      var(--accent-2);
+  --mist:      #c4e3bb;
+  --cream:     var(--bg);
+  --parch:     var(--surface-2);
+
+  --char:      var(--ink);
+  --smoke:     #2c3a2a;
+  --ash:       var(--ink-soft);
+  --fog:       var(--ink-mute);
+
+  --danger:    #b8463c;
+  --dlight:    #f6dad6;
+  --warn:      #94652d;
+  --wlight:    #f3e6cf;
+  --good:      var(--accent);
+  --glight:    #e1ecd4;
+
   --r-sm:12px;--r-md:18px;--r-lg:22px;--r-xl:28px;
   --safe-top:env(safe-area-inset-top,0px);
   --safe-bot:env(safe-area-inset-bottom,0px);
@@ -41,6 +70,24 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   .notch{display:block!important}
 }
 .notch{display:none;position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:32px;background:#111;border-radius:0 0 22px 22px;z-index:999;pointer-events:none}
+
+/* ── BORDERED ICON-TILE COMPONENT ── used everywhere an icon needs a chip */
+.itile{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:11px;
+  background:transparent;border:.5px solid var(--line);
+  color:var(--accent);flex-shrink:0;
+}
+.itile svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.itile.sm{width:28px;height:28px;border-radius:9px}
+.itile.sm svg{width:14px;height:14px}
+.itile.lg{width:48px;height:48px;border-radius:14px}
+.itile.lg svg{width:24px;height:24px}
+.itile.solid{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.itile.on-dark{border-color:rgba(255,255,255,.18);color:var(--on-accent)}
+.itile.danger{border-color:rgba(184,70,60,.4);color:var(--danger)}
+.itile.warn{border-color:rgba(148,101,45,.4);color:var(--warn)}
+.itile.good{border-color:rgba(45,90,39,.4);color:var(--good)}
 
 /* SCREENS */
 .scr{position:absolute;inset:0;overflow:hidden;display:none;flex-direction:column;background:var(--cream)}
@@ -61,7 +108,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .nb-lbl{font-size:10px;color:var(--ash);font-family:'DM Sans',sans-serif}
 .nb.on .nb-lbl{color:var(--forest);font-weight:500}
 .nb-scan-fab{margin-top:-18px;gap:5px}
-.nb-scan-fab .nb-pip{width:56px;height:56px;border-radius:50%;background:var(--forest);box-shadow:0 4px 16px rgba(26,58,31,.45);transition:transform .15s,box-shadow .15s}
+.nb-scan-fab .nb-pip{width:56px;height:56px;border-radius:50%;background:var(--accent);color:var(--on-accent);box-shadow:0 4px 16px rgba(26,58,31,.45);transition:transform .15s,box-shadow .15s}
 .nb-scan-fab:active .nb-pip{transform:scale(.92);box-shadow:0 2px 8px rgba(26,58,31,.25)}
 .nb-scan-fab .nb-lbl{color:var(--forest);font-weight:600;font-size:11px}
 .nb-scan-fab.on .nb-pip{background:var(--forest)}
@@ -79,12 +126,12 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .hero:active{transform:scale(.98)}
 .hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(111,172,94,.3) 0%,transparent 70%);border-radius:50%;pointer-events:none}
 .hero-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--sage);font-weight:500;margin-bottom:6px}
-.hero-ttl{font-family:'Fraunces',serif;font-size:22px;color:#fff;line-height:1.2;margin-bottom:18px}
+.hero-ttl{font-family:'Fraunces',serif;font-size:22px;color:var(--on-accent);line-height:1.2;margin-bottom:18px}
 .hero-btn{display:flex;align-items:center;gap:11px;background:var(--sage);color:var(--forest);border:none;border-radius:var(--r-md);padding:13px 16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;width:100%;transition:background .18s}
 .hero-btn:active{background:var(--mist)}
 .hbi{width:34px;height:34px;background:rgba(255,255,255,.24);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .sr2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.sc{background:#fff;border-radius:var(--r-lg);padding:16px 18px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;transition:border-color .18s}
+.sc{background:var(--surface);border-radius:var(--r-lg);padding:16px 18px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;transition:border-color .18s}
 .sc:active{border-color:rgba(26,58,31,.2)}
 .sc-lbl{font-size:10px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
 .sc-v{font-family:'Fraunces',serif;font-size:34px;font-weight:600;color:var(--char);line-height:1;letter-spacing:-.01em}
@@ -94,12 +141,12 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .ics{display:flex;gap:14px}
 .ic{flex:1;text-align:left}
 .ic+.ic{padding-left:14px;border-left:.5px solid rgba(255,255,255,.08)}
-.icn{font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:#fff;line-height:1;letter-spacing:-.01em}
+.icn{font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:var(--on-accent);line-height:1;letter-spacing:-.01em}
 .icu{font-size:11px;color:rgba(196,227,187,.7);margin-top:4px;line-height:1.4}
 .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;margin-top:4px}
 .sh-t{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase}
 .sh-l{font-size:12px;color:var(--leaf)}
-.rc{background:#fff;border-radius:var(--r-lg);padding:4px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
+.rc{background:var(--surface);border-radius:var(--r-lg);padding:4px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
 .rc-empty{padding:24px 18px;text-align:center;color:var(--ash);font-size:13px;line-height:1.5}
 .rr{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;cursor:pointer;transition:background .15s;-webkit-user-select:none}
 .rr:active{background:var(--parch)}
@@ -116,9 +163,9 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 #s-scan{background:#0d1a0e}
 .s-top{padding:calc(var(--safe-top) + 14px) 20px 12px;display:flex;align-items:center;gap:14px;flex-shrink:0}
 .r-top{padding:calc(var(--safe-top) + 12px) 20px 10px;display:flex;align-items:center;gap:14px;flex-shrink:0}
-.bk{width:36px;height:36px;background:rgba(255,255,255,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:none;color:#fff;flex-shrink:0;transition:background .15s}
+.bk{width:36px;height:36px;background:rgba(255,255,255,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:none;color:var(--on-accent);flex-shrink:0;transition:background .15s}
 .bk:active{background:rgba(255,255,255,.2)}
-.s-ttl{font-family:'Fraunces',serif;font-size:20px;color:#fff}
+.s-ttl{font-family:'Fraunces',serif;font-size:20px;color:var(--on-accent)}
 .cam{flex:1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#080f08}
 .cam::before{content:'';position:absolute;inset:0;opacity:.03;background-image:linear-gradient(rgba(111,172,94,1) 1px,transparent 1px),linear-gradient(90deg,rgba(111,172,94,1) 1px,transparent 1px);background-size:42px 42px;pointer-events:none}
 .co{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5}
@@ -136,30 +183,29 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .cl{font-size:10px;color:var(--fog);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
 .cr{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .cr::-webkit-scrollbar{display:none}
-.pc{flex-shrink:0;background:rgba(255,255,255,.07);border:.5px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 13px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:2px;-webkit-user-select:none}
+.pc{flex-shrink:0;background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 12px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:6px;align-items:flex-start;min-width:108px;-webkit-user-select:none}
 .pc:active{background:rgba(111,172,94,.2);border-color:rgba(111,172,94,.5)}
-.pce{font-size:22px;margin-bottom:3px}
-.pcn{font-size:11px;font-weight:500;color:#fff;white-space:nowrap}
-.pcb{font-size:10px;color:var(--fog)}
+.pcn{font-size:11px;font-weight:500;color:var(--on-accent);white-space:nowrap}
+.pcb{font-size:10px;color:rgba(255,255,255,.5)}
 #anlz{position:absolute;inset:0;background:rgba(8,15,8,.97);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:50;gap:22px}
 #anlz.on{display:flex}
 .sp-r{width:76px;height:76px;border-radius:50%;border:2px solid rgba(111,172,94,.2);border-top-color:var(--sage);animation:spin 1.1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spw{position:relative;display:flex;align-items:center;justify-content:center}
 .spi{position:absolute;font-size:28px}
-.at{font-family:'Fraunces',serif;font-size:20px;color:#fff}
+.at{font-family:'Fraunces',serif;font-size:20px;color:var(--on-accent)}
 .as{display:flex;flex-direction:column;gap:9px;width:240px}
 .as-s{display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.35);transition:color .4s}
-.as-s.on{color:#fff}.as-s.dn{color:var(--sage)}
+.as-s.on{color:var(--on-accent)}.as-s.dn{color:var(--sage)}
 .as-d{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0;transition:background .4s}
-.as-s.on .as-d{background:#fff;box-shadow:0 0 6px rgba(255,255,255,.6)}
+.as-s.on .as-d{background:var(--surface);box-shadow:0 0 6px rgba(255,255,255,.6)}
 .as-s.dn .as-d{background:var(--sage)}
 
 /* ===== RESULT ===== */
 #s-result{background:var(--cream)}
 /* .r-top defined above with safe-top padding */
 .r-ttl{font-family:'Fraunces',serif;font-size:20px;color:var(--char)}
-.pb{display:flex;align-items:center;gap:14px;padding:14px 20px 16px;background:#fff;border-radius:0 0 22px 22px;box-shadow:0 2px 8px rgba(0,0,0,.06);flex-shrink:0}
+.pb{display:flex;align-items:center;gap:14px;padding:14px 20px 16px;background:var(--surface);border-radius:0 0 22px 22px;box-shadow:0 2px 8px rgba(0,0,0,.06);flex-shrink:0}
 .pi{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
 .pn{font-family:'Fraunces',serif;font-size:17px;color:var(--char);line-height:1.2}
 .pbr{font-size:12px;color:var(--ash);margin-top:2px}
@@ -171,9 +217,9 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .score-c{border-radius:var(--r-xl);padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
 .eco-c{background:var(--forest)}.mid-c{background:#7a4218}.bad-c{background:#8a2020}
 .sc-tp{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
-.sc-n{font-family:'Fraunces',serif;font-size:60px;color:#fff;line-height:1}
+.sc-n{font-family:'Fraunces',serif;font-size:60px;color:var(--on-accent);line-height:1}
 .sc-d{font-size:18px;color:rgba(255,255,255,.45);font-weight:300}
-.sc-v{font-size:17px;font-weight:500;color:#fff;line-height:1.2;margin-bottom:3px}
+.sc-v{font-size:17px;font-weight:500;color:var(--on-accent);line-height:1.2;margin-bottom:3px}
 .sc-s{font-size:12px;color:rgba(255,255,255,.6);line-height:1.45;max-width:180px}
 .sc-bar{height:5px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden;margin-bottom:14px}
 .sc-fill{height:100%;border-radius:3px;background:rgba(255,255,255,.65);transition:width 1.1s cubic-bezier(.4,0,.2,1)}
@@ -181,23 +227,23 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .sc-m{background:var(--forest);padding:11px 14px;display:flex;flex-direction:column;gap:3px;min-height:54px;justify-content:center}
 .score-c.mid-c .sc-m{background:#7a4218}
 .score-c.bad-c .sc-m{background:#8a2020}
-.sc-mv{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:#fff;line-height:1;letter-spacing:-.01em}
+.sc-mv{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--on-accent);line-height:1;letter-spacing:-.01em}
 .sc-ml{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.12em;text-transform:uppercase;font-weight:500}
-.dc{background:#fff;border-radius:var(--r-lg);padding:18px;margin-bottom:10px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
+.dc{background:var(--surface);border-radius:var(--r-lg);padding:18px;margin-bottom:10px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
 .dc-t{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
 .dr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:.5px solid rgba(0,0,0,.06);font-size:13px}
 .dr:last-child{border-bottom:none;padding-bottom:0}
 .dk{color:var(--ash)}.dv{font-weight:500;color:var(--char);text-align:right;max-width:58%;font-size:12px}
 .sc-grade-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
-.sc-grade{font-family:'Fraunces',serif;font-size:46px;font-weight:600;color:#fff;line-height:1;letter-spacing:-.02em;background:rgba(255,255,255,.1);width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,.18)}
+.sc-grade{font-family:'Fraunces',serif;font-size:46px;font-weight:600;color:var(--on-accent);line-height:1;letter-spacing:-.02em;background:rgba(255,255,255,.1);width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,.18)}
 .sc-grade-num{font-size:11px;color:rgba(255,255,255,.7);font-weight:500;margin-top:4px}
 .sc-grade-lbl{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em}
-.rationale-card{background:#fff;border-radius:var(--r-lg);padding:18px;margin-bottom:10px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
+.rationale-card{background:var(--surface);border-radius:var(--r-lg);padding:18px;margin-bottom:10px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
 .rat-row{display:flex;gap:14px;padding:14px 0;border-bottom:.5px solid rgba(26,58,31,.08)}
 .rat-row:first-of-type{padding-top:0}
 .rat-row:last-of-type{border-bottom:none;padding-bottom:0}
 .rat-h{font-family:'Fraunces',serif;font-weight:600;font-size:14px;color:var(--char);letter-spacing:-.01em;margin-bottom:4px;text-transform:none}
-.rat-ic{width:30px;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--leaf);flex-shrink:0;padding-top:4px}
+/* .rat-ic replaced by .itile component */
 .rat-body{flex:1;min-width:0}
 .rat-tx{font-size:13px;color:var(--char);line-height:1.5}
 .rat-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:14px;border-top:.5px solid rgba(26,58,31,.08)}
@@ -207,20 +253,20 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .aic{background:var(--forest);border-radius:var(--r-lg);padding:18px;margin-bottom:10px}
 .ai-h{display:flex;align-items:center;gap:7px;margin-bottom:10px}
 .ai-b{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500}
-.ai-tt{font-size:13px;color:#fff;font-weight:500}
+.ai-tt{font-size:13px;color:var(--on-accent);font-weight:500}
 .ai-tx{font-size:13px;color:rgba(255,255,255,.78);line-height:1.65}
 
 /* ─── ALTERNATIVES — NEW DESIGN ─── */
 .alts-section{margin-bottom:12px}
 .alts-hdr{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
 .alts-grid{display:flex;flex-direction:column;gap:10px}
-.alt-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);border:.5px solid rgba(0,0,0,.05)}
+.alt-card{background:var(--surface);border-radius:20px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);border:.5px solid rgba(0,0,0,.05)}
 .alt-img-wrap{height:130px;position:relative;overflow:hidden;background:#f0ece4}
 .alt-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s ease}
 .alt-card:active .alt-img{transform:scale(1.02)}
 .alt-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px}
-.alt-eco-badge{position:absolute;top:10px;right:10px;background:var(--forest);color:#fff;font-size:10px;font-weight:500;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(8px)}
-.alt-cert-badge{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);color:var(--good);font-size:9px;font-weight:500;padding:3px 8px;border-radius:20px;backdrop-filter:blur(8px)}
+.alt-eco-badge{position:absolute;top:10px;right:10px;background:var(--forest);color:var(--on-accent);font-size:10px;font-weight:500;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(8px)}
+.alt-cert-badge{position:absolute;top:10px;left:10px;background:var(--surface);color:var(--good);font-size:9px;font-weight:500;padding:3px 8px;border-radius:20px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(8px);border:.5px solid var(--line)}
 .alt-body{padding:13px 14px 14px}
 .alt-brand-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .alt-brand{font-size:10px;color:var(--ash);letter-spacing:.04em;text-transform:uppercase}
@@ -238,26 +284,26 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 /* ===== IMPACT ===== */
 #s-impact{background:var(--cream)}
-.wc{background:#fff;border-radius:var(--r-lg);padding:15px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.wc{background:var(--surface);border-radius:var(--r-lg);padding:15px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
 .sd{display:flex;gap:5px;justify-content:space-between;margin-top:11px}
 .dc2{display:flex;flex-direction:column;align-items:center;gap:4px}
 .dr2{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500}
-.dd{background:var(--forest);color:#fff}.dt{background:var(--glight);border:2px solid var(--leaf);color:var(--leaf)}.dsk{background:var(--parch);color:var(--fog)}
+.dd{background:var(--forest);color:var(--on-accent)}.dt{background:var(--glight);border:2px solid var(--leaf);color:var(--leaf)}.dsk{background:var(--parch);color:var(--fog)}
 .dl{font-size:10px;color:var(--ash)}
 .page-h{padding:calc(var(--safe-top) + 22px) 20px 16px;flex-shrink:0}
 .page-h-t{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--char);line-height:1.1;letter-spacing:-.01em}
 .page-h-s{font-size:13px;color:var(--ash);margin-top:4px}
 .ig{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.is{background:#fff;border-radius:var(--r-lg);padding:16px 18px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;display:flex;flex-direction:column;justify-content:flex-end;min-height:96px}
+.is{background:var(--surface);border-radius:var(--r-lg);padding:16px 18px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;display:flex;flex-direction:column;justify-content:flex-end;min-height:96px}
 .is.ft{background:var(--forest);border-color:transparent}
-.is.ft .iv{color:#fff}.is.ft .il{color:rgba(196,227,187,.7)}
+.is.ft .iv{color:var(--on-accent)}.is.ft .il{color:rgba(196,227,187,.7)}
 .iv{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--char);line-height:1;letter-spacing:-.01em;margin-top:6px}
 .iu{font-size:11px;color:var(--ash);font-weight:400;margin-left:2px}
 .is.ft .iu{color:rgba(196,227,187,.7)}
 .il{font-size:10px;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;font-weight:500;line-height:1.3}
 .eqc{background:var(--forest);border-radius:var(--r-lg);padding:18px 22px;margin-bottom:14px}
 .eql{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500;margin-bottom:8px}
-.eqt{font-size:14px;color:#fff;line-height:1.55}
+.eqt{font-size:14px;color:var(--on-accent);line-height:1.55}
 .eqt strong{color:var(--mist);font-weight:600}
 
 /* ===== RECIPES ===== */
@@ -267,8 +313,8 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .rp-sub{font-size:13px;color:var(--ash);margin-top:4px}
 .cat-row{display:flex;gap:8px;overflow-x:auto;padding:12px 20px 0;scrollbar-width:none;flex-shrink:0}
 .cat-row::-webkit-scrollbar{display:none}
-.ctp{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid rgba(0,0,0,.1);background:#fff;color:var(--ash);transition:all .18s;-webkit-user-select:none;white-space:nowrap}
-.ctp.on{background:var(--forest);color:#fff;border-color:var(--forest)}
+.ctp{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid rgba(0,0,0,.1);background:var(--surface);color:var(--ash);transition:all .18s;-webkit-user-select:none;white-space:nowrap}
+.ctp.on{background:var(--forest);color:var(--on-accent);border-color:var(--forest)}
 .ctp:active{transform:scale(.96)}
 .ai-gen{margin:12px 20px 0;background:var(--forest);border-radius:var(--r-xl);padding:16px 18px;position:relative;overflow:hidden;cursor:pointer;transition:transform .15s;flex-shrink:0}
 .ai-gen:active{transform:scale(.98)}
@@ -276,7 +322,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .ag-row{display:flex;align-items:center;gap:12px}
 .ag-ic{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .ag-lbl{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500}
-.ag-ttl{font-family:'Fraunces',serif;font-size:16px;color:#fff;line-height:1.2;margin-top:1px}
+.ag-ttl{font-family:'Fraunces',serif;font-size:16px;color:var(--on-accent);line-height:1.2;margin-top:1px}
 .rp-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(80px + var(--safe-bot))}
 .rp-scroll::-webkit-scrollbar{display:none}
 .feat-wrap{padding:12px 20px 0}
@@ -292,13 +338,13 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .feat-cat{font-size:10px;color:var(--sage);letter-spacing:.07em;text-transform:uppercase;font-weight:500}
 .feat-dot{width:3px;height:3px;border-radius:50%;background:var(--sage);opacity:.5}
 .feat-eco{font-size:10px;color:var(--mist)}
-.feat-name{font-family:'Fraunces',serif;font-size:20px;color:#fff;line-height:1.2;margin-bottom:8px}
+.feat-name{font-family:'Fraunces',serif;font-size:20px;color:var(--on-accent);line-height:1.2;margin-bottom:8px}
 .feat-desc{font-size:12px;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:12px}
 .feat-tags{display:flex;gap:6px;flex-wrap:wrap}
 .ftg{font-size:10px;padding:4px 9px;border-radius:20px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
 .ftg.g{background:rgba(111,172,94,.2);color:var(--sage)}
 .rg{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 20px 0}
-.rcard{background:#fff;border-radius:var(--r-lg);overflow:hidden;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.07);transition:transform .15s;-webkit-user-select:none}
+.rcard{background:var(--surface);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.07);transition:transform .15s;-webkit-user-select:none}
 .rcard:active{transform:scale(.97)}
 .rthumb{height:90px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden}
 .rthumb-bg{position:absolute;inset:0}
@@ -315,8 +361,8 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 #rgen-ov.on{display:flex}
 .rg-r{width:72px;height:72px;border-radius:50%;border:2px solid rgba(111,172,94,.2);border-top-color:var(--sage);animation:spin 1.1s linear infinite}
 .rg-w{position:relative;display:flex;align-items:center;justify-content:center}
-.rg-i{position:absolute;font-size:26px}
-.rg-t{font-family:'Fraunces',serif;font-size:20px;color:#fff}
+.rg-i{position:absolute;width:30px;height:30px;color:var(--sage)}
+.rg-t{font-family:'Fraunces',serif;font-size:20px;color:var(--on-accent)}
 .rg-s{font-size:12px;color:rgba(255,255,255,.45);text-align:center;max-width:220px;line-height:1.5}
 
 /* ===== RECIPE DETAIL ===== */
@@ -326,7 +372,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .rd-hphoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .rd-hem{position:relative;z-index:3;filter:drop-shadow(0 6px 20px rgba(0,0,0,.3))}
 .rd-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,var(--cream));z-index:4}
-.rd-bk{position:absolute;top:calc(var(--safe-top) + 14px);left:16px;width:36px;height:36px;border-radius:12px;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;z-index:10;cursor:pointer;border:none}
+.rd-bk{position:absolute;top:calc(var(--safe-top) + 14px);left:16px;width:36px;height:36px;border-radius:12px;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--on-accent);z-index:10;cursor:pointer;border:none}
 @media(min-width:600px){.rd-bk{top:46px}}
 .rd-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 20px calc(40px + var(--safe-bot))}
 .rd-body::-webkit-scrollbar{display:none}
@@ -335,15 +381,15 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .rd-name{font-family:'Fraunces',serif;font-size:26px;color:var(--forest);line-height:1.15;margin-bottom:8px}
 .rd-desc{font-size:13px;color:var(--ash);line-height:1.6;margin-bottom:14px}
 .rd-stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.rd-st{display:flex;align-items:center;gap:5px;background:#fff;border-radius:10px;padding:6px 10px;font-size:12px;color:var(--smoke);box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.rd-sti{font-size:14px}
+.rd-st{display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:10px;padding:6px 10px;font-size:12px;color:var(--smoke);border:.5px solid var(--line)}
+.rd-sti{width:13px;height:13px;color:var(--accent);flex-shrink:0}
 .rd-eco{background:var(--forest);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
-.rd-en{font-family:'Fraunces',serif;font-size:32px;color:#fff;line-height:1}
+.rd-en{font-family:'Fraunces',serif;font-size:32px;color:var(--on-accent);line-height:1}
 .rd-el{font-size:10px;color:var(--sage);letter-spacing:.05em}
 .rd-et{font-size:11px;color:rgba(255,255,255,.65);line-height:1.45;flex:1}
 .rd-sec{margin-bottom:16px}
 .rd-sec-t{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px}
-.ing-r{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#fff;border-radius:12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.ing-r{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface);border-radius:12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 .ing-r:last-child{margin-bottom:0}
 .ing-em{font-size:20px;width:28px;text-align:center;flex-shrink:0}
 .ing-in{flex:1}
@@ -351,8 +397,8 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .ing-q{font-size:11px;color:var(--ash);margin-top:1px}
 .ing-e{font-size:10px;color:var(--leaf);font-weight:500;margin-top:1px}
 .stp-r{display:flex;gap:12px;margin-bottom:10px}
-.stp-n{width:28px;height:28px;border-radius:50%;background:var(--forest);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;margin-top:1px}
-.stp-c{flex:1;background:#fff;border-radius:13px;padding:11px 13px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.stp-n{width:28px;height:28px;border-radius:50%;background:var(--forest);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;margin-top:1px}
+.stp-c{flex:1;background:var(--surface);border-radius:13px;padding:11px 13px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 .stp-t{font-size:12px;font-weight:500;color:var(--forest);margin-bottom:3px}
 .stp-x{font-size:12px;color:var(--smoke);line-height:1.55}
 .etips{background:var(--glight);border-radius:var(--r-lg);padding:14px;margin-bottom:14px;border:.5px solid rgba(42,95,42,.15)}
@@ -366,30 +412,31 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .thc{background:var(--forest);border-radius:var(--r-xl);padding:22px;margin-bottom:14px;position:relative;overflow:hidden}
 .th-tp{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
 .th-l{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px;font-weight:500}
-.th-a{font-family:'Fraunces',serif;font-size:48px;font-weight:600;color:#fff;line-height:1;letter-spacing:-.02em}
+.th-a{font-family:'Fraunces',serif;font-size:48px;font-weight:600;color:var(--on-accent);line-height:1;letter-spacing:-.02em}
 .th-s{font-size:12px;color:rgba(255,255,255,.45);margin-top:4px}
 .th-cs{display:flex;gap:10px}
 .th-c{flex:1;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;border:.5px solid rgba(255,255,255,.08)}
 .th-cl{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;margin-bottom:4px;font-weight:500}
-.th-cv{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:#fff;letter-spacing:-.01em}
+.th-cv{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--on-accent);letter-spacing:-.01em}
 .bg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
-.bc{background:#fff;border-radius:var(--r-md);padding:14px 16px;text-align:left;border:.5px solid rgba(26,58,31,.08);box-shadow:none;display:flex;flex-direction:column;gap:4px;min-height:74px;justify-content:center}
-.bc.ul{background:#fff;border-color:var(--leaf)}
+.bc{background:var(--surface);border-radius:var(--r-md);padding:14px;text-align:left;border:.5px solid var(--line);display:flex;align-items:center;gap:12px;min-height:64px}
+.bc.ul{background:var(--surface);border-color:var(--accent)}
+.bw{display:flex;flex-direction:column;gap:2px;min-width:0}
 .bn{font-size:13px;font-weight:600;color:var(--char);line-height:1.2}
 .bs{font-size:11px;color:var(--ash)}
 .bc.ul .bs{color:var(--leaf)}
-.stl{background:#fff;border-radius:var(--r-lg);padding:4px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;margin-bottom:14px}
+.stl{background:var(--surface);border-radius:var(--r-lg);padding:4px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;margin-bottom:14px}
 .str{display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;cursor:pointer;transition:background .15s;-webkit-user-select:none}
 .str:active{background:var(--parch)}
 .sti{flex:1}
 .stn{font-size:14px;font-weight:500;color:var(--char)}
 .stc{font-size:11px;color:var(--ash);margin-top:2px;letter-spacing:.04em}
-.rdb{padding:9px 16px;background:var(--forest);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s;flex-shrink:0}
+.rdb{padding:9px 16px;background:var(--forest);color:var(--on-accent);border:none;border-radius:10px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s;flex-shrink:0}
 .rdb:active{background:var(--moss)}
 .stdv{height:.5px;background:rgba(0,0,0,.06);margin:0 14px}
 
 /* TOAST */
-#toast{position:absolute;bottom:calc(76px + var(--safe-bot));left:16px;right:16px;background:rgba(28,28,30,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;border-radius:14px;padding:12px 16px;font-size:13px;font-weight:500;text-align:center;z-index:500;opacity:0;transform:translateY(8px);transition:all .28s cubic-bezier(.4,0,.2,1);pointer-events:none}
+#toast{position:absolute;bottom:calc(76px + var(--safe-bot));left:16px;right:16px;background:rgba(28,28,30,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--on-accent);border-radius:14px;padding:12px 16px;font-size:13px;font-weight:500;text-align:center;z-index:500;opacity:0;transform:translateY(8px);transition:all .28s cubic-bezier(.4,0,.2,1);pointer-events:none}
 #toast.on{opacity:1;transform:translateY(0)}
 
 /* ALT DETAIL MODAL */
@@ -400,8 +447,8 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .am-img-wrap{height:220px;position:relative;overflow:hidden;border-radius:20px 20px 0 0;background:#f0ece4}
 .am-img{width:100%;height:100%;object-fit:cover;display:block}
 .am-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px}
-.am-close{position:absolute;top:14px;right:14px;width:32px;height:32px;background:rgba(0,0,0,.35);backdrop-filter:blur(8px);border-radius:50%;border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.am-eco{position:absolute;top:14px;left:14px;background:var(--forest);color:#fff;font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px}
+.am-close{position:absolute;top:14px;right:14px;width:32px;height:32px;background:rgba(0,0,0,.35);backdrop-filter:blur(8px);border-radius:50%;border:none;color:var(--on-accent);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.am-eco{position:absolute;top:14px;left:14px;background:var(--forest);color:var(--on-accent);font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px}
 .am-body{padding:20px 20px 28px}
 .am-brand{font-size:10px;color:var(--ash);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
 .am-name{font-family:'Fraunces',serif;font-size:24px;color:var(--forest);line-height:1.2;margin-bottom:8px}
@@ -413,7 +460,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .am-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
 .am-pill{font-size:11px;padding:4px 11px;border-radius:20px;background:var(--glight);color:var(--good)}
 .am-pill.neutral{background:var(--parch);color:var(--ash)}
-.am-rows{background:#fff;border-radius:16px;padding:4px;margin-bottom:14px}
+.am-rows{background:var(--surface);border-radius:16px;padding:4px;margin-bottom:14px}
 .am-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:.5px solid rgba(0,0,0,.06);font-size:13px}
 .am-row:last-child{border-bottom:none}
 .am-rk{color:var(--ash)}
@@ -426,6 +473,47 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 </style>
 </head>
 <body>
+
+<!-- ── ICON LIBRARY ── one-time defs; reference with <svg><use href="#i-NAME"/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 8V4h4"/><path d="M21 8V4h-4"/><path d="M3 16v4h4"/><path d="M21 16v4h-4"/><path d="M7 12h10"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c2 4 6 6 6 11a6 6 0 1 1-12 0c0-3 2-5 3-7 1 2 3 3 3 5 0-3 0-6 0-9z"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c8 0 14-6 14-14C9 5 5 11 5 19z"/><path d="M5 19l8-8"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.7-1.5A4 4 0 0 0 7 18z"/></symbol>
+    <symbol id="i-droplet" viewBox="0 0 24 24"><path d="M12 3s7 7 7 12a7 7 0 1 1-14 0c0-5 7-12 7-12z"/></symbol>
+    <symbol id="i-recycle" viewBox="0 0 24 24"><path d="M7 4l-4 6 4 6"/><path d="M3 10h12a4 4 0 0 1 4 4v2"/><path d="M19 22l-3-4 3-4"/><path d="M21 14h-8a4 4 0 0 0-4 4v2"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2l3 12h11l2-8H7"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 7h13l-3-3"/><path d="M17 17H4l3 3"/></symbol>
+    <symbol id="i-tree" viewBox="0 0 24 24"><path d="M12 3l5 7h-3l4 6h-4v5h-4v-5H6l4-6H7l5-7z"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13 13 0 0 1 0 18"/><path d="M12 3a13 13 0 0 0 0 18"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4"/><path d="M12 11v10"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12 3l9 9-9 9-9-9 4-4 5-5z"/><circle cx="9" cy="9" r="1.5"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 4v6"/><path d="M12 14v6"/><path d="M4 12h6"/><path d="M14 12h6"/><path d="M6 6l4 4"/><path d="M14 14l4 4"/><path d="M6 18l4-4"/><path d="M14 10l4-4"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><circle cx="12" cy="17" r=".7" fill="currentColor"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></symbol>
+    <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M9 10h4a2 2 0 0 1 0 4h-4"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2"/><path d="M12 19v2"/><path d="M3 12h2"/><path d="M19 12h2"/><path d="M5.6 5.6l1.4 1.4"/><path d="M17 17l1.4 1.4"/><path d="M5.6 18.4l1.4-1.4"/><path d="M17 7l1.4-1.4"/></symbol>
+    <symbol id="i-bowl" viewBox="0 0 24 24"><path d="M3 11h18"/><path d="M4 11a8 8 0 0 0 16 0"/><path d="M9 6c1 2 4 2 6 0"/></symbol>
+    <symbol id="i-utensils" viewBox="0 0 24 24"><path d="M7 3v8a3 3 0 0 0 0 0v10"/><path d="M11 3v6"/><path d="M3 3v6a4 4 0 0 0 4 0"/><path d="M17 3c0 5 0 10 0 18"/><path d="M21 3c-3 0-3 6-3 8s2 2 3 2"/></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="11" rx="1"/><path d="M3 13h18"/><path d="M12 9v11"/><path d="M8 9c-2 0-3-2-2-3 1-1 4 0 4 3"/><path d="M16 9c2 0 3-2 2-3-1-1-4 0-4 3"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 8z"/><path d="M9 8a3 3 0 1 1 6 0"/></symbol>
+    <symbol id="i-meat" viewBox="0 0 24 24"><path d="M5 19l4-4a4 4 0 0 1 6-6l4-4"/><circle cx="8" cy="16" r="2"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24"><path d="M12 8c0-3 3-4 5-3-1 4-3 5-5 5z"/><path d="M12 21c-4 0-7-3-7-8 0-4 3-6 7-5 4-1 7 1 7 5 0 5-3 8-7 8z"/></symbol>
+    <symbol id="i-bottle" viewBox="0 0 24 24"><path d="M10 2h4v4l2 3v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9l2-3z"/></symbol>
+    <symbol id="i-grain" viewBox="0 0 24 24"><path d="M12 22V8"/><path d="M12 14c-3-1-5-3-5-7 4 0 5 3 5 7z"/><path d="M12 14c3-1 5-3 5-7-4 0-5 3-5 7z"/><path d="M12 8c-2-1-3-3-3-5 3 0 3 2 3 5z"/></symbol>
+    <symbol id="i-milk" viewBox="0 0 24 24"><path d="M8 3h8l-1 4h-6L8 3z"/><path d="M9 7h6l1 13a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1L9 7z"/></symbol>
+  </defs>
+</svg>
+
 <div class="shell">
 <div class="notch"></div>
 
@@ -464,7 +552,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   <nav class="bnav">
     <button class="nb on" id="nb-home" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
     <button class="nb" id="nb-impact" onclick="showTab('impact')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
-    <button class="nb nb-scan-fab" id="nb-scan" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
+    <button class="nb nb-scan-fab" id="nb-scan" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" id="nb-recipes" onclick="showTab('recipes')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb" id="nb-rewards" onclick="showTab('rewards')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
   </nav>
@@ -479,9 +567,10 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   <div class="cam">
     <video id="cam-video" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1"></video>
     <div id="cam-error" style="position:absolute;inset:0;background:rgba(8,15,8,.97);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:30;padding:30px;gap:14px;text-align:center">
-      <div id="cam-error-title" style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:#fff;letter-spacing:-.01em"></div>
+      <div class="itile lg on-dark"><svg><use href="#i-warn"/></svg></div>
+      <div id="cam-error-title" style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--on-accent);letter-spacing:-.01em"></div>
       <div id="cam-error-text" style="font-size:13px;color:rgba(255,255,255,.55);line-height:1.6;max-width:260px"></div>
-      <button onclick="manualBarcodeEntry()" style="margin-top:8px;padding:11px 22px;background:#fff;color:var(--forest);border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Enter barcode manually</button>
+      <button onclick="manualBarcodeEntry()" style="margin-top:8px;padding:11px 22px;background:var(--accent-2);color:var(--ink);border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Enter barcode manually</button>
     </div>
     <div class="co">
       <div class="sf">
@@ -505,13 +594,13 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
     <div class="cstrip">
       <div class="cl">Tap to demo · or scan a real barcode</div>
       <div class="cr">
-        <div class="pc" onclick="manualBarcodeEntry()"><div class="pce">⌨️</div><div class="pcn">Enter barcode</div><div class="pcb">Manual entry</div></div>
-        <div class="pc" onclick="doScan('beef')"><div class="pce">🥩</div><div class="pcn">Ground Beef</div><div class="pcb">Conventional</div></div>
-        <div class="pc" onclick="doScan('lentils')"><div class="pce">🫘</div><div class="pcn">Green Lentils</div><div class="pcb">Bob's Red Mill</div></div>
-        <div class="pc" onclick="doScan('water')"><div class="pce">🧴</div><div class="pcn">Bottled Water</div><div class="pcb">Dasani</div></div>
-        <div class="pc" onclick="doScan('oatmilk')"><div class="pce">🌾</div><div class="pcn">Oat Milk</div><div class="pcb">Oatly</div></div>
-        <div class="pc" onclick="doScan('chips')"><div class="pce">🍟</div><div class="pcn">Palm Oil Chips</div><div class="pcb">Lay's</div></div>
-        <div class="pc" onclick="doScan('organic_milk')"><div class="pce">🥛</div><div class="pcn">Organic Milk</div><div class="pcb">Organic Valley</div></div>
+        <div class="pc" onclick="manualBarcodeEntry()"><div class="itile sm on-dark"><svg><use href="#i-keyboard"/></svg></div><div class="pcn">Enter barcode</div><div class="pcb">Manual entry</div></div>
+        <div class="pc" onclick="doScan('beef')"><div class="itile sm on-dark"><svg><use href="#i-meat"/></svg></div><div class="pcn">Ground Beef</div><div class="pcb">Conventional</div></div>
+        <div class="pc" onclick="doScan('lentils')"><div class="itile sm on-dark"><svg><use href="#i-grain"/></svg></div><div class="pcn">Green Lentils</div><div class="pcb">Bob's Red Mill</div></div>
+        <div class="pc" onclick="doScan('water')"><div class="itile sm on-dark"><svg><use href="#i-bottle"/></svg></div><div class="pcn">Bottled Water</div><div class="pcb">Dasani</div></div>
+        <div class="pc" onclick="doScan('oatmilk')"><div class="itile sm on-dark"><svg><use href="#i-grain"/></svg></div><div class="pcn">Oat Milk</div><div class="pcb">Oatly</div></div>
+        <div class="pc" onclick="doScan('chips')"><div class="itile sm on-dark"><svg><use href="#i-bag"/></svg></div><div class="pcn">Palm Oil Chips</div><div class="pcb">Lay's</div></div>
+        <div class="pc" onclick="doScan('organic_milk')"><div class="itile sm on-dark"><svg><use href="#i-milk"/></svg></div><div class="pcn">Organic Milk</div><div class="pcb">Organic Valley</div></div>
       </div>
     </div>
   </div>
@@ -552,7 +641,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   <nav class="bnav">
     <button class="nb" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
     <button class="nb on"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
-    <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
+    <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
   </nav>
@@ -575,8 +664,9 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   </div>
   <div class="ai-gen" onclick="generateAIRecipe()">
     <div class="ag-row">
+      <div class="itile lg on-dark"><svg><use href="#i-spark"/></svg></div>
       <div><div class="ag-lbl">AI · Claude</div><div class="ag-ttl">Generate a custom eco recipe</div></div>
-      <span style="color:rgba(255,255,255,.4);font-size:20px;margin-left:auto">›</span>
+      <div class="itile sm on-dark" style="margin-left:auto"><svg><use href="#i-arrow-r"/></svg></div>
     </div>
   </div>
   <div class="rp-scroll">
@@ -586,27 +676,27 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
         <div class="feat-img">
           <img class="feat-img-photo" src="https://www.floridamilk.com/file/26/summer-skillet-lasagna.jpg" alt="Summer Skillet Lasagna" loading="lazy" onerror="this.style.display='none'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1">
           <div class="feat-img-bg" style="background:linear-gradient(135deg,#3a1a10,#8a3520)"></div>
-          <div class="feat-img-em" style="z-index:3">🍝</div>
+          <div class="feat-img-em" style="z-index:3"><svg width="48" height="48" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color:#fff;opacity:.7"><use href="#i-utensils"/></svg></div>
         </div>
         <div class="feat-body">
           <div class="feat-meta"><span class="feat-cat">Dinner</span><div class="feat-dot"></div><span class="feat-eco">Eco Score 8.6/10</span></div>
           <div class="feat-name">Summer Skillet Lasagna</div>
           <div class="feat-desc">A fresh one-pan lasagna with seasonal zucchini, summer squash, and bright tomato sauce. No oven needed — done entirely in one cast iron skillet.</div>
-          <div class="feat-tags"><span class="ftg g">🌿 Seasonal veggies</span><span class="ftg g">🍳 One skillet</span><span class="ftg">⏱ 45 min</span><span class="ftg">🍽 4 servings</span></div>
+          <div class="feat-tags"><span class="ftg g">Seasonal veggies</span><span class="ftg g">One skillet</span><span class="ftg">45 min</span><span class="ftg">4 servings</span></div>
         </div>
       </div>
     </div>
     <div class="rg" id="recipe-grid"></div>
   </div>
   <div id="rgen-ov">
-    <div class="rg-w"><div class="rg-r"></div><div class="rg-i">👨‍🍳</div></div>
+    <div class="rg-w"><div class="rg-r"></div><svg class="rg-i" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-spark"/></svg></div>
     <div class="rg-t">Crafting your recipe…</div>
     <div class="rg-s">Claude is creating a custom eco-friendly recipe using seasonal, low-impact ingredients</div>
   </div>
   <nav class="bnav">
     <button class="nb" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
     <button class="nb" onclick="showTab('impact')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
-    <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
+    <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
     <button class="nb on"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
   </nav>
@@ -641,26 +731,26 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
     </div>
     <div class="sh" style="margin-bottom:10px"><span class="sh-t">Badges</span></div>
     <div class="bg">
-      <div class="bc ul"><div class="bn">First scan</div><div class="bs">Unlocked</div></div>
-      <div class="bc ul"><div class="bn">7-day streak</div><div class="bs">Unlocked</div></div>
-      <div class="bc ul"><div class="bn">Swap star</div><div class="bs">Unlocked</div></div>
-      <div class="bc"><div class="bn">Water saver</div><div class="bs">153 gal left</div></div>
-      <div class="bc"><div class="bn">Carbon hero</div><div class="bs">7.6 lbs left</div></div>
-      <div class="bc"><div class="bn">Eco champ</div><div class="bs">30-day streak</div></div>
+      <div class="bc ul"><div class="itile sm good"><svg><use href="#i-leaf"/></svg></div><div class="bw"><div class="bn">First scan</div><div class="bs">Unlocked</div></div></div>
+      <div class="bc ul"><div class="itile sm good"><svg><use href="#i-flame"/></svg></div><div class="bw"><div class="bn">7-day streak</div><div class="bs">Unlocked</div></div></div>
+      <div class="bc ul"><div class="itile sm good"><svg><use href="#i-recycle"/></svg></div><div class="bw"><div class="bn">Swap star</div><div class="bs">Unlocked</div></div></div>
+      <div class="bc"><div class="itile sm"><svg><use href="#i-droplet"/></svg></div><div class="bw"><div class="bn">Water saver</div><div class="bs">153 gal left</div></div></div>
+      <div class="bc"><div class="itile sm"><svg><use href="#i-cloud"/></svg></div><div class="bw"><div class="bn">Carbon hero</div><div class="bs">7.6 lbs left</div></div></div>
+      <div class="bc"><div class="itile sm"><svg><use href="#i-trophy"/></svg></div><div class="bw"><div class="bn">Eco champ</div><div class="bs">30-day streak</div></div></div>
     </div>
     <div class="sh" style="margin-bottom:10px"><span class="sh-t">Redeem tokens</span></div>
     <div class="stl">
-      <div class="str"><div class="sti"><div class="stn">$5 off at Whole Foods</div><div class="stc">200 tokens</div></div><button class="rdb" onclick="rdm('Whole Foods')">Redeem</button></div>
+      <div class="str"><div class="itile"><svg><use href="#i-bag"/></svg></div><div class="sti"><div class="stn">$5 off at Whole Foods</div><div class="stc">200 tokens</div></div><button class="rdb" onclick="rdm('Whole Foods')">Redeem</button></div>
       <div class="stdv"></div>
-      <div class="str"><div class="sti"><div class="stn">Plant a real tree</div><div class="stc">300 tokens</div></div><button class="rdb" onclick="rdm('Tree')">Redeem</button></div>
+      <div class="str"><div class="itile"><svg><use href="#i-tree"/></svg></div><div class="sti"><div class="stn">Plant a real tree</div><div class="stc">300 tokens</div></div><button class="rdb" onclick="rdm('Tree')">Redeem</button></div>
       <div class="stdv"></div>
-      <div class="str"><div class="sti"><div class="stn">Reusable bag bundle</div><div class="stc">150 tokens</div></div><button class="rdb" onclick="rdm('Bags')">Redeem</button></div>
+      <div class="str"><div class="itile"><svg><use href="#i-gift"/></svg></div><div class="sti"><div class="stn">Reusable bag bundle</div><div class="stc">150 tokens</div></div><button class="rdb" onclick="rdm('Bags')">Redeem</button></div>
     </div>
   </div>
   <nav class="bnav">
     <button class="nb" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
     <button class="nb" onclick="showTab('impact')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
-    <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
+    <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb on"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
   </nav>
@@ -675,7 +765,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 <div id="streak-modal" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:300;display:none;align-items:flex-end;padding:12px" onclick="if(event.target===this)closeStreakModal()">
   <div style="background:var(--cream);border-radius:28px;width:100%;padding:26px 24px 32px;position:relative">
     <button onclick="closeStreakModal()" style="position:absolute;top:14px;right:14px;width:32px;height:32px;background:var(--parch);border-radius:50%;border:none;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ash)">✕</button>
-    <div style="font-size:38px;margin-bottom:6px">🔥</div>
+    <div class="itile lg" style="margin-bottom:14px"><svg><use href="#i-flame"/></svg></div>
     <div style="font-family:'Fraunces',serif;font-size:28px;color:var(--forest);line-height:1;margin-bottom:4px" id="impact-streak-title">0-day streak</div>
     <div style="font-size:13px;color:var(--ash);margin-bottom:22px" id="impact-streak-best">Best: 0</div>
     <div class="sd">
@@ -1188,7 +1278,7 @@ async function doScan(key){
   steps.forEach(s=>{const el=document.getElementById(s);el.classList.remove('on','dn');});
   renderResult(p,ai);
   showScr('result');
-  toast('+10 🌿 tokens earned!');
+  toast('+10 tokens earned');
   if(typeof recordScan==='function')recordScan(p,key);
 }
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
@@ -1304,21 +1394,21 @@ function renderResult(p,ai){
 
     <div class="rationale-card fi">
       <div class="rat-row">
-        <div class="rat-ic">01</div>
+        <div class="itile sm"><svg><use href="#i-pin"/></svg></div>
         <div class="rat-body">
           <div class="rat-h">Where it comes from</div>
           <div class="rat-tx">${originStory}</div>
         </div>
       </div>
       <div class="rat-row">
-        <div class="rat-ic">02</div>
+        <div class="itile sm"><svg><use href="#i-globe"/></svg></div>
         <div class="rat-body">
           <div class="rat-h">Impact on the ecosystem</div>
           <div class="rat-tx">${ecosystemImpact}</div>
         </div>
       </div>
       <div class="rat-row">
-        <div class="rat-ic">03</div>
+        <div class="itile sm"><svg><use href="#i-leaf"/></svg></div>
         <div class="rat-body">
           <div class="rat-h">Why this rating</div>
           <div class="rat-tx">${whyRating}</div>
@@ -1350,8 +1440,8 @@ function buildAltCard(id){
     <div class="alt-img-wrap">
       <img class="alt-img" src="${a.img}" alt="${a.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="alt-img-placeholder" style="display:none">${a.em}</div>
-      <div class="alt-eco-badge">🌿 ${a.score}/10</div>
-      <div class="alt-cert-badge">✓ ${a.cert.split(',')[0]}</div>
+      <div class="alt-eco-badge"><svg width="11" height="11" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-leaf"/></svg>${a.score}/10</div>
+      <div class="alt-cert-badge"><svg width="11" height="11" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg>${a.cert.split(',')[0]}</div>
     </div>
     <div class="alt-body">
       <div class="alt-brand-row">
@@ -1381,7 +1471,7 @@ function openAltModal(id){
       <img class="am-img" src="${a.img}" alt="${a.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="am-img-ph" style="display:none">${a.em}</div>
       <button class="am-close" onclick="closeAltModal()">✕</button>
-      <div class="am-eco">🌿 Eco Score ${a.score}/10 — Pre-approved</div>
+      <div class="am-eco"><svg width="11" height="11" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-leaf"/></svg> Eco Score ${a.score}/10</div>
     </div>
     <div class="am-body">
       <div class="am-brand">${a.brand}</div>
@@ -1464,15 +1554,15 @@ function openRecipe(id){
       <div class="rd-name">${r.name}</div>
       <div class="rd-desc">${r.desc}</div>
       <div class="rd-stats">
-        <div class="rd-st"><span class="rd-sti">⏱</span>${r.time} min</div>
-        <div class="rd-st"><span class="rd-sti">🍽</span>${r.servings} servings</div>
-        <div class="rd-st"><span class="rd-sti">🌿</span>Eco ${r.ecoScore}/10</div>
+        <div class="rd-st"><svg class="rd-sti" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-clock"/></svg>${r.time} min</div>
+        <div class="rd-st"><svg class="rd-sti" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bowl"/></svg>${r.servings} servings</div>
+        <div class="rd-st"><svg class="rd-sti" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#i-leaf"/></svg>Eco ${r.ecoScore}/10</div>
       </div>
       <div class="feat-tags" style="margin-top:8px">${tags}</div>
     </div>
     <div class="rd-eco"><div><div class="rd-el">ECO SCORE</div><div class="rd-en">${r.ecoScore}</div></div><div class="rd-et">${r.ecoNote}</div></div>
-    <div class="rd-sec"><div class="rd-sec-t">🥬 Ingredients</div>${ings}</div>
-    <div class="rd-sec"><div class="rd-sec-t">👨‍🍳 Instructions</div>${steps}</div>
+    <div class="rd-sec"><div class="rd-sec-t">Ingredients</div>${ings}</div>
+    <div class="rd-sec"><div class="rd-sec-t">Instructions</div>${steps}</div>
     <div class="etips"><div class="etips-t">Sustainability tips</div>${tips}</div>`;
   document.getElementById('rd-body').scrollTop=0;
   showScr('rdet');
@@ -1502,12 +1592,12 @@ Respond ONLY in this JSON (no markdown):
     ov.classList.remove('on');
     renderRecipeGrid(curCat);
     openRecipe(id);
-    toast('✨ Custom recipe created!');
+    toast('Custom recipe created');
   }catch(e){
     ov.classList.remove('on');
     const keys=Object.keys(RECIPES).filter(k=>!k.startsWith('ai_'));
     openRecipe(keys[Math.floor(Math.random()*keys.length)]);
-    toast('✨ Try this featured recipe!');
+    toast('Try this featured recipe');
   }
 }
 

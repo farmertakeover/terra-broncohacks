@@ -284,7 +284,7 @@ async function lookupAndScan(code) {
       if (typeof renderResult === 'function') renderResult(prod, ai);
       if (typeof showScr === 'function') showScr('result');
       recordScan(prod, hit.variant);
-      if (typeof toast === 'function') toast('+10 🌿 tokens earned!');
+      if (typeof toast === 'function') toast('+10 tokens earned');
       return;
     }
     if (ov) ov.classList.remove('on');

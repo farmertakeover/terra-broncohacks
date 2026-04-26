@@ -54,7 +54,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;display:flex;align-item
 .scr{padding-top:var(--safe-top)}
 
 /* BOTTOM NAV */
-.bnav{position:absolute;bottom:0;left:0;right:0;height:calc(64px + var(--safe-bot));padding-bottom:var(--safe-bot);background:rgba(245,240,232,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:.5px solid rgba(0,0,0,.09);display:flex;align-items:flex-start;padding-top:10px;z-index:100}
+.bnav{position:absolute;bottom:0;left:0;right:0;height:calc(72px + var(--safe-bot));padding-bottom:var(--safe-bot);background:rgba(245,240,232,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:.5px solid rgba(0,0,0,.09);display:flex;align-items:flex-start;padding-top:10px;z-index:100;overflow:visible}
 @media(min-width:600px){.bnav{border-radius:0 0 44px 44px}}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:4px 0}
 .nb-pip{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:background .18s}
@@ -64,14 +64,14 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;display:flex;align-item
 .nb.on .nb-pip svg.nb-svg{stroke:var(--forest)}
 .nb-lbl{font-size:10px;color:var(--ash);font-family:'DM Sans',sans-serif}
 .nb.on .nb-lbl{color:var(--forest);font-weight:500}
-.nb-scan-fab{margin-top:-18px;gap:5px}
+.nb-scan-fab{margin-top:-22px;gap:6px}
 .nb-scan-fab .nb-pip{width:56px;height:56px;border-radius:50%;background:var(--forest);box-shadow:0 4px 16px rgba(26,58,31,.45);transition:transform .15s,box-shadow .15s}
 .nb-scan-fab:active .nb-pip{transform:scale(.92);box-shadow:0 2px 8px rgba(26,58,31,.25)}
 .nb-scan-fab .nb-lbl{color:var(--forest);font-weight:600;font-size:11px}
 .nb-scan-fab.on .nb-pip{background:var(--forest)}
 
 /* SCROLL */
-.sv{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(80px + var(--safe-bot))}
+.sv{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(90px + var(--safe-bot))}
 .sv::-webkit-scrollbar{display:none}
 
 /* ===== HOME ===== */
@@ -281,7 +281,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;display:flex;align-item
 .ag-ic{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .ag-lbl{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500}
 .ag-ttl{font-family:'Fraunces',serif;font-size:16px;color:#fff;line-height:1.2;margin-top:1px}
-.rp-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(80px + var(--safe-bot))}
+.rp-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(90px + var(--safe-bot))}
 .rp-scroll::-webkit-scrollbar{display:none}
 .feat-wrap{padding:12px 20px 0}
 .feat-lbl{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
@@ -537,7 +537,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;display:flex;align-item
 <!-- ═══ IMPACT ═══ -->
 <div class="scr" id="s-impact">
   <div class="page-h"><div class="page-h-t">Your impact</div><div class="page-h-s">This month, in real units.</div></div>
-  <div class="sv" style="padding:0 20px calc(88px + var(--safe-bot))">
+  <div class="sv" style="padding:0 20px calc(98px + var(--safe-bot))">
     <div class="ig">
       <div class="is ft"><div class="il">Water saved</div><div class="iv"><span id="impact-water2">0</span> <span class="iu">gal</span></div></div>
       <div class="is ft"><div class="il">CO₂ avoided</div><div class="iv"><span id="impact-co22">0</span> <span class="iu">lbs</span></div></div>
@@ -629,7 +629,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;display:flex;align-item
 <!-- ═══ REWARDS ═══ -->
 <div class="scr" id="s-rewards">
   <div class="page-h"><div class="page-h-t">Rewards</div><div class="page-h-s">Trade your eco tokens for real-world impact.</div></div>
-  <div class="sv" style="padding:0 20px calc(88px + var(--safe-bot))">
+  <div class="sv" style="padding:0 20px calc(98px + var(--safe-bot))">
     <div class="thc">
       <div class="th-tp">
         <div>

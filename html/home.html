@@ -51,6 +51,11 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .nb-em{font-size:19px;line-height:1}
 .nb-lbl{font-size:10px;color:var(--ash);font-family:'DM Sans',sans-serif}
 .nb.on .nb-lbl{color:var(--forest);font-weight:500}
+#nb-scan{margin-top:-18px;gap:5px}
+#nb-scan .nb-pip{width:56px;height:56px;border-radius:50%;background:var(--forest);box-shadow:0 4px 16px rgba(26,58,31,.45);transition:transform .15s,box-shadow .15s}
+#nb-scan:active .nb-pip{transform:scale(.92);box-shadow:0 2px 8px rgba(26,58,31,.25)}
+#nb-scan .nb-lbl{color:var(--forest);font-weight:600;font-size:11px}
+#nb-scan.on .nb-pip{background:var(--forest)}
 
 /* SCROLL */
 .sv{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(80px + var(--safe-bot))}
@@ -411,13 +416,6 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
     <div class="h-title">Shop green<br>today 🌿</div>
   </div>
   <div class="sv hp">
-    <div class="hero" onclick="goScan()">
-      <div class="hero-lbl">Quick action</div>
-      <div class="hero-ttl">Scan a product<br>&amp; check its impact</div>
-      <button class="hero-btn" onclick="event.stopPropagation();goScan()">
-        <div class="hbi">📷</div><span>Scan barcode</span><span style="margin-left:auto;opacity:.5;font-size:18px">›</span>
-      </button>
-    </div>
     <div class="sr2">
       <div class="sc"><div class="sc-ic">🔥</div><div class="sc-v" id="stat-streak">0</div><div class="sc-l">day streak</div></div>
       <div class="sc"><div class="sc-ic">🌿</div><div class="sc-v" id="stat-tokens">0</div><div class="sc-l">eco tokens</div></div>
@@ -437,8 +435,8 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   </div>
   <nav class="bnav">
     <button class="nb on" id="nb-home" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb" id="nb-scan" onclick="goScan()"><div class="nb-pip"><span class="nb-em">📷</span></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" id="nb-impact" onclick="showTab('impact')"><div class="nb-pip"><span class="nb-em">📊</span></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb" id="nb-scan" onclick="goScan()"><div class="nb-pip"></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" id="nb-recipes" onclick="showTab('recipes')"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb" id="nb-rewards" onclick="showTab('rewards')"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
   </nav>
@@ -538,8 +536,8 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   </div>
   <nav class="bnav">
     <button class="nb" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb" onclick="goScan()"><div class="nb-pip"><span class="nb-em">📷</span></div><span class="nb-lbl">Scan</span></button>
     <button class="nb on"><div class="nb-pip"><span class="nb-em">📊</span></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb" onclick="goScan()"><div class="nb-pip"></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
   </nav>
@@ -594,8 +592,8 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   </div>
   <nav class="bnav">
     <button class="nb" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb" onclick="goScan()"><div class="nb-pip"><span class="nb-em">📷</span></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" onclick="showTab('impact')"><div class="nb-pip"><span class="nb-em">📊</span></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb" onclick="goScan()"><div class="nb-pip"></div><span class="nb-lbl">Scan</span></button>
     <button class="nb on"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
   </nav>
@@ -640,8 +638,8 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   </div>
   <nav class="bnav">
     <button class="nb" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb" onclick="goScan()"><div class="nb-pip"><span class="nb-em">📷</span></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" onclick="showTab('impact')"><div class="nb-pip"><span class="nb-em">📊</span></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb" onclick="goScan()"><div class="nb-pip"></div><span class="nb-lbl">Scan</span></button>
     <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
     <button class="nb on"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
   </nav>

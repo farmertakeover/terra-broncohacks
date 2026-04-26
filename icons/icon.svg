@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#1a3a1f"/>
+  <!-- Leaf body -->
+  <path d="M256 55 C300 55 375 110 385 200 C395 290 345 355 256 390 C167 355 117 290 127 200 C137 110 212 55 256 55Z" fill="#6fac5e"/>
+  <!-- Center vein -->
+  <line x1="256" y1="55" x2="256" y2="390" stroke="#2d5a27" stroke-width="14" stroke-linecap="round"/>
+  <!-- Left veins -->
+  <path d="M256 165 Q205 193 172 185" stroke="#2d5a27" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <path d="M256 235 Q195 268 158 258" stroke="#2d5a27" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <path d="M256 305 Q208 325 183 315" stroke="#2d5a27" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <!-- Right veins -->
+  <path d="M256 165 Q307 193 340 185" stroke="#2d5a27" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <path d="M256 235 Q317 268 354 258" stroke="#2d5a27" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <path d="M256 305 Q304 325 329 315" stroke="#2d5a27" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <!-- Stem into basket -->
+  <line x1="256" y1="390" x2="256" y2="435" stroke="#6fac5e" stroke-width="18" stroke-linecap="round"/>
+  <!-- Basket handle -->
+  <path d="M196 420 Q256 370 316 420" fill="none" stroke="#c4e3bb" stroke-width="18" stroke-linecap="round"/>
+  <!-- Basket body -->
+  <path d="M175 428 L162 472 Q160 487 178 487 L334 487 Q352 487 350 472 L337 428 Z" fill="#c4e3bb"/>
+  <!-- Basket rim -->
+  <rect x="163" y="420" width="186" height="22" rx="11" fill="#c4e3bb"/>
+  <!-- Basket weave -->
+  <line x1="215" y1="442" x2="204" y2="487" stroke="#6fac5e" stroke-width="6" opacity="0.6"/>
+  <line x1="256" y1="442" x2="256" y2="487" stroke="#6fac5e" stroke-width="6" opacity="0.6"/>
+  <line x1="297" y1="442" x2="308" y2="487" stroke="#6fac5e" stroke-width="6" opacity="0.6"/>
+  <line x1="170" y1="462" x2="342" y2="462" stroke="#6fac5e" stroke-width="6" opacity="0.6"/>
+</svg>

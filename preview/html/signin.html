@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#1a3a1f">
+<meta name="theme-color" content="#3e5746">
 <title>terra.ai</title>
 <link rel="manifest" href="../manifest.json">
 <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
@@ -26,22 +26,29 @@ if ('serviceWorker' in navigator) {
 html{height:100%}
 
 :root{
-  /* ─── BRAND PALETTE ─── 8 tokens, swap to change the entire app */
-  --bg:        #f3ede0;
-  --surface:   #fbf6ec;
-  --surface-2: #ede4d3;
-  --ink:       #1b2a1a;
-  --ink-soft:  #5a6657;
-  --ink-mute:  #8a8e83;
-  --line:      rgba(27,42,26,.10);
-  --accent:    #2d5a27;
-  --accent-2:  #6fac5e;
-  --on-accent: #f4ead6;
-  /* derived */
-  --forest:#1a3a1f;--moss:var(--accent);--leaf:#3d7a32;--sage:var(--accent-2);
-  --mist:#c4e3bb;--cream:var(--bg);--parch:var(--surface-2);
-  --char:var(--ink);--smoke:#2c3a2a;--ash:var(--ink-soft);--fog:var(--ink-mute);
-  --sand:#d4c5a9;
+  /* ─── BRAND PALETTE ─── 5 brand colours + derived. Mirror with home.html. */
+  --c1: #563635;
+  --c2: #5B6057;
+  --c3: #6E9075;
+  --c4: #78C091;
+  --c5: #81F0E5;
+
+  --bg:        #dee5df;
+  --surface:   #ecf0eb;
+  --surface-2: #d2dcd4;
+  --ink:       var(--c1);
+  --ink-soft:  var(--c2);
+  --ink-mute:  #8b958b;
+  --line:      rgba(86,54,53,.12);
+  --accent:    var(--c3);
+  --accent-2:  var(--c4);
+  --accent-3:  var(--c5);
+  --on-accent: #f7fdf9;
+
+  --forest:#3e5746;--moss:var(--accent);--leaf:#5b8068;--sage:var(--accent-2);
+  --mist:#c8e5cf;--cream:var(--bg);--parch:var(--surface-2);
+  --char:var(--ink);--smoke:#3a4039;--ash:var(--ink-soft);--fog:var(--ink-mute);
+  --sand:#cfd9d2;
   --safe-top:env(safe-area-inset-top,0px);
   --safe-bot:env(safe-area-inset-bottom,0px);
 }
@@ -49,7 +56,7 @@ html{height:100%}
 html,body{height:100%;width:100%;overflow:hidden;overscroll-behavior:none}
 body{
   font-family:'DM Sans',sans-serif;
-  background:#0e1a0f;
+  background:#1d201d;
   display:flex;align-items:center;justify-content:center;
   position:fixed;inset:0;
 }
@@ -61,8 +68,8 @@ body{
 @media(min-width:600px){
   body{
     background-image:
-      radial-gradient(ellipse at 20% 50%,rgba(42,80,35,.35) 0%,transparent 55%),
-      radial-gradient(ellipse at 80% 20%,rgba(26,58,31,.2) 0%,transparent 50%);
+      radial-gradient(ellipse at 20% 50%,rgba(110,144,117,.30) 0%,transparent 55%),
+      radial-gradient(ellipse at 80% 20%,rgba(120,192,145,.18) 0%,transparent 50%);
   }
   .app-shell{
     width:390px;height:min(844px,100%);border-radius:52px;
@@ -115,7 +122,7 @@ body{
 .intro-stage.show{opacity:1;pointer-events:auto}
 
 /* ──────── SPLASH ──────── */
-#splash{background:linear-gradient(160deg,#1a3a1f 0%,#0e1a0f 100%);color:var(--on-accent)}
+#splash{background:linear-gradient(160deg,#3e5746 0%,#1d201d 100%);color:var(--on-accent)}
 #splash::before{
   content:'';position:absolute;top:-30%;right:-30%;
   width:120%;height:120%;
@@ -127,7 +134,7 @@ body{
 .splash-title{
   font-family:'Fraunces',serif;
   font-size:84px;font-weight:700;
-  background:linear-gradient(135deg,#c4e3bb 0%,#6fac5e 40%,#fff 70%,#c4e3bb 100%);
+  background:linear-gradient(135deg,#78C091 0%,#81F0E5 40%,#c8e5cf 70%,#78C091 100%);
   background-size:200% 200%;
   -webkit-background-clip:text;background-clip:text;
   -webkit-text-fill-color:transparent;color:transparent;
@@ -336,7 +343,7 @@ body{
 
 /* ──────── ALL SET ──────── */
 #allset{
-  background:linear-gradient(160deg,#1a3a1f 0%,#0e1a0f 100%);
+  background:linear-gradient(160deg,#3e5746 0%,#1d201d 100%);
   color:var(--on-accent);
 }
 #allset::before{

@@ -155,46 +155,54 @@ body{
   overflow-y:auto;
   text-align:center;
 }
-.cp-mascot-host{margin-bottom:18px}
-.cp-emoji{font-size:36px;margin-bottom:6px}
+.cp-mascot-host{margin-bottom:32px}
+.cp-eyebrow{
+  font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--leaf);margin-bottom:14px;
+}
 .cp-h{
-  font-family:'Fraunces',serif;
-  font-size:26px;color:var(--forest);line-height:1.18;
-  margin-bottom:12px;
+  font-family:'Fraunces',serif;font-weight:600;
+  font-size:30px;color:var(--forest);line-height:1.15;letter-spacing:-.01em;
+  margin-bottom:16px;max-width:340px;
 }
 .cp-tx{
-  font-size:15px;color:var(--smoke);line-height:1.55;
-  margin-bottom:18px;max-width:320px;
-}
-.cp-feature-list{display:flex;flex-direction:column;gap:10px;margin-top:6px;width:100%;max-width:320px}
-.cp-feature-row{
-  display:flex;align-items:center;gap:12px;
-  background:#fff;border-radius:14px;padding:12px 14px;
-  box-shadow:0 1px 4px rgba(0,0,0,.05);
-  font-size:13px;color:var(--char);
-  text-align:left;
-}
-.cp-feature-ic{
-  width:32px;height:32px;background:var(--cream);
-  border-radius:9px;display:flex;align-items:center;justify-content:center;
-  font-size:16px;flex-shrink:0;
+  font-size:15px;color:var(--smoke);line-height:1.6;
+  max-width:320px;font-weight:400;
 }
 
-/* Survey on a page */
-.cp-survey-q{font-family:'Fraunces',serif;font-size:22px;color:var(--forest);margin-bottom:4px;line-height:1.25;max-width:320px}
-.cp-survey-sub{font-size:13px;color:var(--ash);margin-bottom:14px}
+/* Survey */
+.cp-survey-q{
+  font-family:'Fraunces',serif;font-weight:600;
+  font-size:26px;color:var(--forest);line-height:1.2;letter-spacing:-.01em;
+  margin-bottom:6px;max-width:320px;
+}
+.cp-survey-sub{font-size:13px;color:var(--ash);margin-bottom:24px;letter-spacing:.01em}
 .cp-opts{display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px}
 .cp-opt{
-  background:#fff;border:1.5px solid transparent;
-  border-radius:14px;padding:12px 14px;
-  font-size:14px;color:var(--char);
+  background:#fff;
+  border:.5px solid rgba(26,58,31,.12);
+  border-radius:14px;
+  padding:15px 18px;
+  font-size:14.5px;font-weight:500;color:var(--char);
   text-align:left;cursor:pointer;font-family:inherit;
-  display:flex;align-items:center;gap:10px;
-  transition:all .15s;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  transition:border-color .18s,background .18s,transform .12s;
+  position:relative;
 }
-.cp-opt:active{transform:scale(.98)}
-.cp-opt.sel{border-color:var(--leaf);background:#e6f4e6}
-.cp-opt-em{font-size:18px;flex-shrink:0}
+.cp-opt::after{
+  content:'';
+  width:18px;height:18px;border-radius:50%;
+  border:1.5px solid rgba(26,58,31,.2);
+  flex-shrink:0;
+  transition:all .18s;
+}
+.cp-opt:active{transform:scale(.985)}
+.cp-opt.sel{border-color:var(--forest);background:#fff}
+.cp-opt.sel::after{
+  background:var(--forest);
+  border-color:var(--forest);
+  box-shadow:inset 0 0 0 4px #fff;
+}
 
 /* Footer: just dots, no buttons. Continue button only on the last page. */
 .carousel-footer{
@@ -351,7 +359,7 @@ body{
   <!-- 1. Splash -->
   <div class="intro-stage" id="splash">
     <div class="splash-title">terra<span style="color:var(--mist)">.ai</span></div>
-    <div class="splash-tag">scan • learn • shop greener</div>
+    <div class="splash-tag">Scan. Learn. Shop greener.</div>
     <div class="splash-mascot">
       <!-- mascot injected by JS so we can reuse one template -->
       <div class="mascot-wrap lg" id="splash-mascot-host"></div>
@@ -365,70 +373,61 @@ body{
         <!-- Tutorial 1 -->
         <div class="carousel-page" data-idx="0">
           <div class="mascot-wrap cp-mascot-host" data-anim="dance"></div>
-          <div class="cp-emoji">📷</div>
-          <div class="cp-h">Scan any product, instantly know its impact</div>
-          <div class="cp-tx">Point your camera at a barcode and Terra reads it. We pull verified sustainability data straight from Open Food Facts — no guesswork.</div>
-          <div class="cp-feature-list">
-            <div class="cp-feature-row"><div class="cp-feature-ic">⚡</div><div>Native barcode scanning, works on any phone</div></div>
-            <div class="cp-feature-row"><div class="cp-feature-ic">📊</div><div>Real CO₂, water, and packaging data</div></div>
-          </div>
+          <div class="cp-eyebrow">Scan</div>
+          <div class="cp-h">Know what you're buying, instantly.</div>
+          <div class="cp-tx">Point your camera at a barcode. Terra pulls verified sustainability data straight from Open Food Facts — no guesswork.</div>
         </div>
         <!-- Tutorial 2 -->
         <div class="carousel-page" data-idx="1">
           <div class="mascot-wrap cp-mascot-host" data-anim="spin"></div>
-          <div class="cp-emoji">🌍</div>
-          <div class="cp-h">See how your shopping shapes the planet</div>
-          <div class="cp-tx">Every scan adds to your weekly impact: water saved, CO₂ avoided, eco swaps made. Build a streak and watch it grow.</div>
-          <div class="cp-feature-list">
-            <div class="cp-feature-row"><div class="cp-feature-ic">💧</div><div>Track gallons of water saved</div></div>
-            <div class="cp-feature-row"><div class="cp-feature-ic">🔥</div><div>Daily streaks reward consistent choices</div></div>
-          </div>
+          <div class="cp-eyebrow">Track</div>
+          <div class="cp-h">See how your shopping shapes the planet.</div>
+          <div class="cp-tx">Every scan adds up. Water saved, carbon avoided, swaps made — your real impact, week after week.</div>
         </div>
         <!-- Tutorial 3 -->
         <div class="carousel-page" data-idx="2">
           <div class="mascot-wrap cp-mascot-host" data-anim="cheer"></div>
-          <div class="cp-emoji">♻️</div>
-          <div class="cp-h">Greener swaps &amp; recipes, picked for you</div>
-          <div class="cp-tx">Whenever a product scores low, Terra suggests pre-vetted alternatives and seasonal recipes that match your goals.</div>
-          <div class="cp-feature-list">
-            <div class="cp-feature-row"><div class="cp-feature-ic">🥗</div><div>Curated eco-friendly alternatives</div></div>
-            <div class="cp-feature-row"><div class="cp-feature-ic">✨</div><div>AI-generated recipes from low-impact ingredients</div></div>
-          </div>
+          <div class="cp-eyebrow">Discover</div>
+          <div class="cp-h">Greener swaps, picked for you.</div>
+          <div class="cp-tx">Low-scoring products come with pre-vetted alternatives and seasonal recipes that match your goals.</div>
         </div>
         <!-- Survey Q1 -->
         <div class="carousel-page" data-idx="3">
           <div class="mascot-wrap cp-mascot-host" data-anim="dance"></div>
+          <div class="cp-eyebrow">A few questions</div>
           <div class="cp-survey-q">How often do you check a product's environmental impact?</div>
           <div class="cp-survey-sub">Be honest — there's no wrong answer.</div>
           <div class="cp-opts" data-key="habit">
-            <button class="cp-opt" data-val="always"><span class="cp-opt-em">🌱</span><span>Almost every time I shop</span></button>
-            <button class="cp-opt" data-val="sometimes"><span class="cp-opt-em">🛒</span><span>Sometimes, for big purchases</span></button>
-            <button class="cp-opt" data-val="rarely"><span class="cp-opt-em">🤔</span><span>Rarely — I'd like to start</span></button>
-            <button class="cp-opt" data-val="never"><span class="cp-opt-em">🆕</span><span>Never, this is new to me</span></button>
+            <button class="cp-opt" data-val="always"><span>Almost every time I shop</span></button>
+            <button class="cp-opt" data-val="sometimes"><span>Sometimes, for big purchases</span></button>
+            <button class="cp-opt" data-val="rarely"><span>Rarely — I'd like to start</span></button>
+            <button class="cp-opt" data-val="never"><span>Never, this is new to me</span></button>
           </div>
         </div>
         <!-- Survey Q2 -->
         <div class="carousel-page" data-idx="4">
           <div class="mascot-wrap cp-mascot-host" data-anim="spin"></div>
+          <div class="cp-eyebrow">A few questions</div>
           <div class="cp-survey-q">Which sustainability goal matters most to you?</div>
           <div class="cp-survey-sub">We'll tailor your insights around it.</div>
           <div class="cp-opts" data-key="goal">
-            <button class="cp-opt" data-val="carbon"><span class="cp-opt-em">💨</span><span>Cut my carbon footprint</span></button>
-            <button class="cp-opt" data-val="plastic"><span class="cp-opt-em">♻️</span><span>Reduce plastic &amp; waste</span></button>
-            <button class="cp-opt" data-val="water"><span class="cp-opt-em">💧</span><span>Save water</span></button>
-            <button class="cp-opt" data-val="biodiversity"><span class="cp-opt-em">🌳</span><span>Protect forests &amp; biodiversity</span></button>
+            <button class="cp-opt" data-val="carbon"><span>Cut my carbon footprint</span></button>
+            <button class="cp-opt" data-val="plastic"><span>Reduce plastic and waste</span></button>
+            <button class="cp-opt" data-val="water"><span>Save water</span></button>
+            <button class="cp-opt" data-val="biodiversity"><span>Protect forests and biodiversity</span></button>
           </div>
         </div>
         <!-- Survey Q3 -->
         <div class="carousel-page" data-idx="5">
           <div class="mascot-wrap cp-mascot-host" data-anim="cheer"></div>
+          <div class="cp-eyebrow">A few questions</div>
           <div class="cp-survey-q">What's your diet like?</div>
           <div class="cp-survey-sub">Helps us suggest meaningful swaps.</div>
           <div class="cp-opts" data-key="diet">
-            <button class="cp-opt" data-val="omnivore"><span class="cp-opt-em">🥩</span><span>Eat meat regularly</span></button>
-            <button class="cp-opt" data-val="flex"><span class="cp-opt-em">🍗</span><span>Mostly chicken or fish</span></button>
-            <button class="cp-opt" data-val="veg"><span class="cp-opt-em">🥗</span><span>Vegetarian</span></button>
-            <button class="cp-opt" data-val="vegan"><span class="cp-opt-em">🌱</span><span>Vegan / plant-based</span></button>
+            <button class="cp-opt" data-val="omnivore"><span>Eat meat regularly</span></button>
+            <button class="cp-opt" data-val="flex"><span>Mostly chicken or fish</span></button>
+            <button class="cp-opt" data-val="veg"><span>Vegetarian</span></button>
+            <button class="cp-opt" data-val="vegan"><span>Vegan or plant-based</span></button>
           </div>
         </div>
       </div>
@@ -444,7 +443,7 @@ body{
     <div class="auth-hero">
       <div class="auth-mascot"><div class="mascot-wrap" id="auth-mascot-host"></div></div>
       <div class="auth-app-name">terra<span style="color:var(--mist)">.ai</span></div>
-      <div class="auth-tagline">Almost there — sign in to save your eco journey.</div>
+      <div class="auth-tagline">Sign in to save your progress and track your impact.</div>
     </div>
     <div class="auth-body">
       <div class="auth-card">
@@ -461,8 +460,8 @@ body{
   <div class="intro-stage" id="allset">
     <div class="allset-confetti" id="allset-confetti"></div>
     <div class="allset-mascot"><div class="mascot-wrap lg cheer" id="allset-mascot-host"></div></div>
-    <div class="allset-title">All set to enjoy<br>terra<span style="color:var(--mist)">.ai</span>!</div>
-    <div class="allset-sub">Let's start scanning 🌱</div>
+    <div class="allset-title">All set to enjoy<br>terra<span style="color:var(--mist)">.ai</span>.</div>
+    <div class="allset-sub">Let's start scanning.</div>
   </div>
 
 </div>

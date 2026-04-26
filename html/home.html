@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#f5f0e8">
-<title>EcoBasket</title>
+<title>terra.ai</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
@@ -46,6 +46,8 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .nb-pip{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:background .18s}
 .nb.on .nb-pip{background:rgba(29,65,24,.13)}
 .nb-em{font-size:19px;line-height:1}
+.nb-pip svg.nb-svg{width:22px;height:22px;stroke:var(--ash);stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke .18s}
+.nb.on .nb-pip svg.nb-svg{stroke:var(--forest)}
 .nb-lbl{font-size:10px;color:var(--ash);font-family:'DM Sans',sans-serif}
 .nb.on .nb-lbl{color:var(--forest);font-weight:500}
 .nb-scan-fab{margin-top:-18px;gap:5px}
@@ -72,22 +74,23 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .hero-btn:active{background:var(--mist)}
 .hbi{width:34px;height:34px;background:rgba(255,255,255,.24);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .sr2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.sc{background:#fff;border-radius:var(--r-lg);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
-.sc-ic{font-size:22px;margin-bottom:4px}
-.sc-v{font-family:'Fraunces',serif;font-size:28px;color:var(--forest);line-height:1;margin-bottom:2px}
-.sc .sc-v{color:var(--char)}
-.sc-l{font-size:11px;color:var(--ash)}
-.ist{background:var(--forest);border-radius:var(--r-lg);padding:16px 20px;margin-bottom:14px}
-.ist-t{font-size:10px;color:var(--sage);letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:12px}
-.ics{display:flex}
-.ic{flex:1;text-align:center}
-.ic+.ic{border-left:.5px solid rgba(255,255,255,.1)}
-.icn{font-family:'Fraunces',serif;font-size:22px;color:#fff;line-height:1}
-.icu{font-size:10px;color:var(--sage);margin-top:3px;line-height:1.3}
-.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.sh-t{font-size:13px;font-weight:500;color:var(--smoke);letter-spacing:.02em}
+.sc{background:#fff;border-radius:var(--r-lg);padding:16px 18px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;transition:border-color .18s}
+.sc:active{border-color:rgba(26,58,31,.2)}
+.sc-lbl{font-size:10px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+.sc-v{font-family:'Fraunces',serif;font-size:34px;font-weight:600;color:var(--char);line-height:1;letter-spacing:-.01em}
+.sc-meta{font-size:11px;color:var(--fog);margin-top:6px}
+.ist{background:var(--forest);border-radius:var(--r-lg);padding:18px 22px;margin-bottom:14px}
+.ist-t{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500;margin-bottom:14px}
+.ics{display:flex;gap:14px}
+.ic{flex:1;text-align:left}
+.ic+.ic{padding-left:14px;border-left:.5px solid rgba(255,255,255,.08)}
+.icn{font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:#fff;line-height:1;letter-spacing:-.01em}
+.icu{font-size:11px;color:rgba(196,227,187,.7);margin-top:4px;line-height:1.4}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;margin-top:4px}
+.sh-t{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase}
 .sh-l{font-size:12px;color:var(--leaf)}
-.rc{background:#fff;border-radius:var(--r-lg);padding:4px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.rc{background:#fff;border-radius:var(--r-lg);padding:4px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
+.rc-empty{padding:24px 18px;text-align:center;color:var(--ash);font-size:13px;line-height:1.5}
 .rr{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;cursor:pointer;transition:background .15s;-webkit-user-select:none}
 .rr:active{background:var(--parch)}
 .ric{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
@@ -164,13 +167,14 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .sc-s{font-size:12px;color:rgba(255,255,255,.6);line-height:1.45;max-width:180px}
 .sc-bar{height:5px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden;margin-bottom:14px}
 .sc-fill{height:100%;border-radius:3px;background:rgba(255,255,255,.65);transition:width 1.1s cubic-bezier(.4,0,.2,1)}
-.sc-ms{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.sc-m{background:rgba(255,255,255,.11);border-radius:10px;padding:8px 10px;display:flex;align-items:flex-start;gap:7px}
-.sc-mi{font-size:15px;margin-top:1px}
-.sc-mv{font-size:12px;color:#fff;font-weight:500;line-height:1.2}
-.sc-ml{font-size:10px;color:rgba(255,255,255,.55);margin-top:1px}
-.dc{background:#fff;border-radius:var(--r-lg);padding:15px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
-.dc-t{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.06em;text-transform:uppercase;margin-bottom:11px;display:flex;align-items:center;gap:5px}
+.sc-ms{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.08);border-radius:12px;overflow:hidden;margin-top:14px}
+.sc-m{background:var(--forest);padding:11px 14px;display:flex;flex-direction:column;gap:3px;min-height:54px;justify-content:center}
+.score-c.mid-c .sc-m{background:#7a4218}
+.score-c.bad-c .sc-m{background:#8a2020}
+.sc-mv{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:#fff;line-height:1;letter-spacing:-.01em}
+.sc-ml{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.dc{background:#fff;border-radius:var(--r-lg);padding:18px;margin-bottom:10px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
+.dc-t{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
 .dr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:.5px solid rgba(0,0,0,.06);font-size:13px}
 .dr:last-child{border-bottom:none;padding-bottom:0}
 .dk{color:var(--ash)}.dv{font-weight:500;color:var(--char);text-align:right;max-width:58%;font-size:12px}
@@ -178,26 +182,27 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .sc-grade{font-family:'Fraunces',serif;font-size:46px;font-weight:600;color:#fff;line-height:1;letter-spacing:-.02em;background:rgba(255,255,255,.1);width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,.18)}
 .sc-grade-num{font-size:11px;color:rgba(255,255,255,.7);font-weight:500;margin-top:4px}
 .sc-grade-lbl{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em}
-.rationale-card{background:#fff;border-radius:var(--r-lg);padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
-.rat-row{display:flex;gap:12px;padding:10px 4px;border-bottom:.5px solid rgba(0,0,0,.06)}
-.rat-row:last-of-type{border-bottom:none}
-.rat-ic{width:34px;height:34px;border-radius:11px;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.rationale-card{background:#fff;border-radius:var(--r-lg);padding:18px;margin-bottom:10px;border:.5px solid rgba(26,58,31,.08);box-shadow:none}
+.rat-row{display:flex;gap:14px;padding:14px 0;border-bottom:.5px solid rgba(26,58,31,.08)}
+.rat-row:first-of-type{padding-top:0}
+.rat-row:last-of-type{border-bottom:none;padding-bottom:0}
+.rat-h{font-family:'Fraunces',serif;font-weight:600;font-size:14px;color:var(--char);letter-spacing:-.01em;margin-bottom:4px;text-transform:none}
+.rat-ic{width:30px;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--leaf);flex-shrink:0;padding-top:4px}
 .rat-body{flex:1;min-width:0}
-.rat-h{font-size:11px;font-weight:600;color:var(--forest);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
 .rat-tx{font-size:13px;color:var(--char);line-height:1.5}
-.rat-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:.5px solid rgba(0,0,0,.06)}
-.rat-pill{font-size:11px;font-weight:500;padding:5px 10px;border-radius:10px}
-.rat-pill-bad{background:var(--dlight);color:var(--danger)}
-.rat-pill-good{background:var(--glight);color:var(--good)}
-.aic{background:var(--forest);border-radius:var(--r-lg);padding:15px;margin-bottom:10px}
-.ai-h{display:flex;align-items:center;gap:7px;margin-bottom:9px}
-.ai-b{font-size:9px;padding:3px 7px;border-radius:20px;background:rgba(111,172,94,.25);color:var(--sage);border:.5px solid rgba(111,172,94,.3);letter-spacing:.06em;font-weight:500}
+.rat-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:14px;border-top:.5px solid rgba(26,58,31,.08)}
+.rat-pill{font-size:11px;font-weight:500;padding:6px 12px;border-radius:8px;letter-spacing:.02em;border:.5px solid transparent}
+.rat-pill-bad{background:transparent;color:var(--danger);border-color:rgba(184,50,50,.25)}
+.rat-pill-good{background:transparent;color:var(--good);border-color:rgba(42,95,42,.25)}
+.aic{background:var(--forest);border-radius:var(--r-lg);padding:18px;margin-bottom:10px}
+.ai-h{display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.ai-b{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500}
 .ai-tt{font-size:13px;color:#fff;font-weight:500}
-.ai-tx{font-size:12px;color:rgba(255,255,255,.72);line-height:1.65}
+.ai-tx{font-size:13px;color:rgba(255,255,255,.78);line-height:1.65}
 
 /* ─── ALTERNATIVES — NEW DESIGN ─── */
 .alts-section{margin-bottom:12px}
-.alts-hdr{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.alts-hdr{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
 .alts-grid{display:flex;flex-direction:column;gap:10px}
 .alt-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);border:.5px solid rgba(0,0,0,.05)}
 .alt-img-wrap{height:130px;position:relative;overflow:hidden;background:#f0ece4}
@@ -229,23 +234,27 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .dr2{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500}
 .dd{background:var(--forest);color:#fff}.dt{background:var(--glight);border:2px solid var(--leaf);color:var(--leaf)}.dsk{background:var(--parch);color:var(--fog)}
 .dl{font-size:10px;color:var(--ash)}
-.ig{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.is{background:#fff;border-radius:var(--r-lg);padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
-.is.ft{background:var(--forest)}
-.is.ft .iv{color:#fff}.is.ft .il{color:var(--sage)}
-.ii{font-size:22px;margin-bottom:5px}
-.iv{font-family:'Fraunces',serif;font-size:26px;color:var(--char);line-height:1}
-.iu{font-size:10px;color:var(--ash);font-weight:400}
-.il{font-size:11px;color:var(--ash);margin-top:3px;line-height:1.3}
-.eqc{background:var(--forest);border-radius:var(--r-lg);padding:15px;margin-bottom:10px}
-.eql{font-size:10px;color:var(--sage);letter-spacing:.07em;text-transform:uppercase;font-weight:500;margin-bottom:7px}
-.eqt{font-size:13px;color:#fff;line-height:1.6}
+.page-h{padding:calc(var(--safe-top) + 22px) 20px 16px;flex-shrink:0}
+.page-h-t{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--char);line-height:1.1;letter-spacing:-.01em}
+.page-h-s{font-size:13px;color:var(--ash);margin-top:4px}
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.is{background:#fff;border-radius:var(--r-lg);padding:16px 18px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;display:flex;flex-direction:column;justify-content:flex-end;min-height:96px}
+.is.ft{background:var(--forest);border-color:transparent}
+.is.ft .iv{color:#fff}.is.ft .il{color:rgba(196,227,187,.7)}
+.iv{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--char);line-height:1;letter-spacing:-.01em;margin-top:6px}
+.iu{font-size:11px;color:var(--ash);font-weight:400;margin-left:2px}
+.is.ft .iu{color:rgba(196,227,187,.7)}
+.il{font-size:10px;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;font-weight:500;line-height:1.3}
+.eqc{background:var(--forest);border-radius:var(--r-lg);padding:18px 22px;margin-bottom:14px}
+.eql{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500;margin-bottom:8px}
+.eqt{font-size:14px;color:#fff;line-height:1.55}
+.eqt strong{color:var(--mist);font-weight:600}
 
 /* ===== RECIPES ===== */
 #s-recipes{background:var(--cream)}
-.rp-header{padding:calc(var(--safe-top) + 12px) 20px 0;flex-shrink:0}
-.rp-title{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--forest);line-height:1.1}
-.rp-sub{font-size:11px;color:var(--ash);margin-top:2px}
+.rp-header{padding:calc(var(--safe-top) + 22px) 20px 4px;flex-shrink:0}
+.rp-title{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--char);line-height:1.1;letter-spacing:-.01em}
+.rp-sub{font-size:13px;color:var(--ash);margin-top:4px}
 .cat-row{display:flex;gap:8px;overflow-x:auto;padding:12px 20px 0;scrollbar-width:none;flex-shrink:0}
 .cat-row::-webkit-scrollbar{display:none}
 .ctp{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid rgba(0,0,0,.1);background:#fff;color:var(--ash);transition:all .18s;-webkit-user-select:none;white-space:nowrap}
@@ -256,7 +265,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .ai-gen::before{content:'';position:absolute;top:-30px;right:-30px;width:130px;height:130px;background:radial-gradient(circle,rgba(111,172,94,.3) 0%,transparent 70%);border-radius:50%;pointer-events:none}
 .ag-row{display:flex;align-items:center;gap:12px}
 .ag-ic{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.ag-lbl{font-size:10px;color:var(--sage);letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+.ag-lbl{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;font-weight:500}
 .ag-ttl{font-family:'Fraunces',serif;font-size:16px;color:#fff;line-height:1.2;margin-top:1px}
 .rp-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(80px + var(--safe-bot))}
 .rp-scroll::-webkit-scrollbar{display:none}
@@ -338,39 +347,36 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .stp-x{font-size:12px;color:var(--smoke);line-height:1.55}
 .etips{background:var(--glight);border-radius:var(--r-lg);padding:14px;margin-bottom:14px;border:.5px solid rgba(42,95,42,.15)}
 .etips-t{font-size:11px;font-weight:500;color:var(--good);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
-.etip{display:flex;gap:8px;font-size:12px;color:var(--good);line-height:1.5;margin-bottom:5px}
+.etip{display:flex;gap:10px;font-size:13px;color:var(--good);line-height:1.55;margin-bottom:6px;padding-left:2px}
 .etip:last-child{margin-bottom:0}
-.etip::before{content:"🌱";flex-shrink:0}
+.etip::before{content:"";display:block;width:4px;flex-shrink:0;border-radius:2px;background:var(--good);margin:6px 0}
 
 /* ===== REWARDS ===== */
 #s-rewards{background:var(--cream)}
-.thc{background:var(--forest);border-radius:var(--r-xl);padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
-.thc::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:radial-gradient(circle,rgba(111,172,94,.2) 0%,transparent 70%);border-radius:50%;pointer-events:none}
-.th-tp{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
-.th-l{font-size:10px;color:var(--sage);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
-.th-a{font-family:'Fraunces',serif;font-size:44px;color:#fff;line-height:1}
-.th-s{font-size:12px;color:rgba(255,255,255,.45)}
-.th-cs{display:flex;gap:8px}
-.th-c{flex:1;background:rgba(255,255,255,.1);border-radius:11px;padding:9px 11px}
-.th-cl{font-size:10px;color:var(--sage);margin-bottom:2px}
-.th-cv{font-family:'Fraunces',serif;font-size:18px;color:#fff}
-.bg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.bc{background:#fff;border-radius:var(--r-md);padding:12px 8px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07)}
-.bc.ul{background:linear-gradient(135deg,var(--cream),#e4f0e0)}
-.be{font-size:26px;margin-bottom:5px}
-.bn{font-size:10px;font-weight:500;color:var(--char);line-height:1.2}
-.bs{font-size:9px;color:var(--ash);margin-top:2px}
+.thc{background:var(--forest);border-radius:var(--r-xl);padding:22px;margin-bottom:14px;position:relative;overflow:hidden}
+.th-tp{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.th-l{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px;font-weight:500}
+.th-a{font-family:'Fraunces',serif;font-size:48px;font-weight:600;color:#fff;line-height:1;letter-spacing:-.02em}
+.th-s{font-size:12px;color:rgba(255,255,255,.45);margin-top:4px}
+.th-cs{display:flex;gap:10px}
+.th-c{flex:1;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;border:.5px solid rgba(255,255,255,.08)}
+.th-cl{font-size:10px;color:rgba(196,227,187,.7);letter-spacing:.16em;text-transform:uppercase;margin-bottom:4px;font-weight:500}
+.th-cv{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:#fff;letter-spacing:-.01em}
+.bg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.bc{background:#fff;border-radius:var(--r-md);padding:14px 16px;text-align:left;border:.5px solid rgba(26,58,31,.08);box-shadow:none;display:flex;flex-direction:column;gap:4px;min-height:74px;justify-content:center}
+.bc.ul{background:#fff;border-color:var(--leaf)}
+.bn{font-size:13px;font-weight:600;color:var(--char);line-height:1.2}
+.bs{font-size:11px;color:var(--ash)}
 .bc.ul .bs{color:var(--leaf)}
-.stl{background:#fff;border-radius:var(--r-lg);padding:4px;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:10px}
-.str{display:flex;align-items:center;gap:11px;padding:12px;border-radius:14px;cursor:pointer;transition:background .15s;-webkit-user-select:none}
+.stl{background:#fff;border-radius:var(--r-lg);padding:4px;border:.5px solid rgba(26,58,31,.08);box-shadow:none;margin-bottom:14px}
+.str{display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;cursor:pointer;transition:background .15s;-webkit-user-select:none}
 .str:active{background:var(--parch)}
-.ste{font-size:26px}
 .sti{flex:1}
-.stn{font-size:13px;font-weight:500;color:var(--char)}
-.stc{font-size:11px;color:var(--ash);margin-top:1px}
-.rdb{padding:7px 13px;background:var(--forest);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:background .15s;flex-shrink:0}
+.stn{font-size:14px;font-weight:500;color:var(--char)}
+.stc{font-size:11px;color:var(--ash);margin-top:2px;letter-spacing:.04em}
+.rdb{padding:9px 16px;background:var(--forest);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s;flex-shrink:0}
 .rdb:active{background:var(--moss)}
-.stdv{height:.5px;background:rgba(0,0,0,.06);margin:0 12px}
+.stdv{height:.5px;background:rgba(0,0,0,.06);margin:0 14px}
 
 /* TOAST */
 #toast{position:absolute;bottom:calc(76px + var(--safe-bot));left:16px;right:16px;background:rgba(28,28,30,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;border-radius:14px;padding:12px 16px;font-size:13px;font-weight:500;text-align:center;z-index:500;opacity:0;transform:translateY(8px);transition:all .28s cubic-bezier(.4,0,.2,1);pointer-events:none}
@@ -416,33 +422,41 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 <!-- ═══ HOME ═══ -->
 <div class="scr on" id="s-home">
   <div class="h-top">
-    <div class="h-greet" id="home-greet">Good morning, Alex</div>
-    <div class="h-title">Shop green<br>today 🌿</div>
+    <div class="h-greet" id="home-greet">Good morning</div>
+    <div class="h-title">Shop greener<br>today.</div>
   </div>
   <div class="sv hp">
     <div class="sr2">
-      <div class="sc" onclick="openStreakModal()" style="cursor:pointer"><div class="sc-ic">🔥</div><div class="sc-v" id="stat-streak">0</div><div class="sc-l">day streak ›</div></div>
-      <div class="sc"><div class="sc-ic">🌿</div><div class="sc-v" id="stat-tokens">0</div><div class="sc-l">eco tokens</div></div>
+      <div class="sc" onclick="openStreakModal()" style="cursor:pointer">
+        <div class="sc-lbl">Day streak</div>
+        <div class="sc-v" id="stat-streak">0</div>
+        <div class="sc-meta">Tap for history</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Eco tokens</div>
+        <div class="sc-v" id="stat-tokens">0</div>
+        <div class="sc-meta">Earned by scanning</div>
+      </div>
     </div>
     <div class="ist" onclick="showTab('impact')" style="cursor:pointer">
-      <div class="ist-t" style="display:flex;justify-content:space-between;align-items:center">This week's impact <span style="color:var(--sage);font-size:13px;opacity:.7">›</span></div>
+      <div class="ist-t">This week's impact</div>
       <div class="ics">
-        <div class="ic"><div class="icn" id="impact-water">0</div><div class="icu">gal water<br>saved</div></div>
-        <div class="ic"><div class="icn" id="impact-co2">0</div><div class="icu">lbs CO₂<br>avoided</div></div>
-        <div class="ic"><div class="icn" id="impact-swaps">0</div><div class="icu">eco<br>swaps</div></div>
+        <div class="ic"><div class="icn" id="impact-water">0</div><div class="icu">gal water saved</div></div>
+        <div class="ic"><div class="icn" id="impact-co2">0</div><div class="icu">lbs CO₂ avoided</div></div>
+        <div class="ic"><div class="icn" id="impact-swaps">0</div><div class="icu">eco swaps</div></div>
       </div>
     </div>
     <div class="sh"><span class="sh-t">Recent scans</span><span class="sh-l">See all</span></div>
     <div class="rc" id="recent-card-home">
-      <div style="padding:18px;text-align:center;color:var(--ash);font-size:13px">No scans yet — tap Scan to start!</div>
+      <div class="rc-empty">No scans yet. Tap Scan to begin.</div>
     </div>
   </div>
   <nav class="bnav">
-    <button class="nb on" id="nb-home" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb" id="nb-impact" onclick="showTab('impact')"><div class="nb-pip"></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb on" id="nb-home" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
+    <button class="nb" id="nb-impact" onclick="showTab('impact')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
     <button class="nb nb-scan-fab" id="nb-scan" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
-    <button class="nb" id="nb-recipes" onclick="showTab('recipes')"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
-    <button class="nb" id="nb-rewards" onclick="showTab('rewards')"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
+    <button class="nb" id="nb-recipes" onclick="showTab('recipes')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
+    <button class="nb" id="nb-rewards" onclick="showTab('rewards')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
   </nav>
 </div>
 
@@ -455,10 +469,9 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   <div class="cam">
     <video id="cam-video" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1"></video>
     <div id="cam-error" style="position:absolute;inset:0;background:rgba(8,15,8,.97);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:30;padding:30px;gap:14px;text-align:center">
-      <div style="font-size:36px">🚫</div>
-      <div id="cam-error-title" style="font-family:'Fraunces',serif;font-size:18px;color:#fff"></div>
-      <div id="cam-error-text" style="font-size:12px;color:rgba(255,255,255,.55);line-height:1.6"></div>
-      <button onclick="manualBarcodeEntry()" style="margin-top:8px;padding:10px 20px;background:var(--sage);color:var(--forest);border:none;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer">Enter barcode manually</button>
+      <div id="cam-error-title" style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:#fff;letter-spacing:-.01em"></div>
+      <div id="cam-error-text" style="font-size:13px;color:rgba(255,255,255,.55);line-height:1.6;max-width:260px"></div>
+      <button onclick="manualBarcodeEntry()" style="margin-top:8px;padding:11px 22px;background:#fff;color:var(--forest);border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Enter barcode manually</button>
     </div>
     <div class="co">
       <div class="sf">
@@ -466,12 +479,12 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
         <div class="sc2 bl"></div><div class="sc2 br"></div>
         <div class="sbeam"></div>
       </div>
-      <div class="sh2" id="scan-hint">Point at barcode or tap below</div>
-      <div class="ss2">Open Food Facts · Claude AI</div>
+      <div class="sh2" id="scan-hint">Point at a product barcode</div>
+      <div class="ss2">Powered by Open Food Facts</div>
     </div>
     <div id="anlz">
-      <div class="spw"><div class="sp-r"></div><div class="spi">🌿</div></div>
-      <div class="at">Analyzing…</div>
+      <div class="spw"><div class="sp-r"></div></div>
+      <div class="at">Analyzing</div>
       <div class="as">
         <div class="as-s" id="as1"><div class="as-d"></div>Fetching product data</div>
         <div class="as-s" id="as2"><div class="as-d"></div>Calculating sustainability score</div>
@@ -509,48 +522,50 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 <!-- ═══ IMPACT ═══ -->
 <div class="scr" id="s-impact">
-  <div style="padding:calc(var(--safe-top) + 18px) 20px 8px;flex-shrink:0"><span style="font-family:'Fraunces',serif;font-size:24px;color:var(--char)">Your Impact</span></div>
+  <div class="page-h"><div class="page-h-t">Your impact</div><div class="page-h-s">This month, in real units.</div></div>
   <div class="sv" style="padding:0 20px calc(88px + var(--safe-bot))">
     <div class="ig">
-      <div class="is ft"><div class="ii">💧</div><div class="iv"><span id="impact-water2">0</span> <span class="iu">gal</span></div><div class="il">water saved this month</div></div>
-      <div class="is ft"><div class="ii">🌿</div><div class="iv"><span id="impact-co22">0</span> <span class="iu">lbs</span></div><div class="il">CO₂ avoided this month</div></div>
-      <div class="is"><div class="ii">🛒</div><div class="iv" id="impact-total-scans">0</div><div class="il">eco-friendly items</div></div>
-      <div class="is"><div class="ii">🔁</div><div class="iv" id="impact-swaps2">0</div><div class="il">eco swaps made</div></div>
+      <div class="is ft"><div class="il">Water saved</div><div class="iv"><span id="impact-water2">0</span> <span class="iu">gal</span></div></div>
+      <div class="is ft"><div class="il">CO₂ avoided</div><div class="iv"><span id="impact-co22">0</span> <span class="iu">lbs</span></div></div>
+      <div class="is"><div class="il">Eco-friendly items</div><div class="iv" id="impact-total-scans">0</div></div>
+      <div class="is"><div class="il">Eco swaps made</div><div class="iv" id="impact-swaps2">0</div></div>
     </div>
-    <div class="eqc"><div class="eql">🌍 Real-world equivalent</div><div class="eqt">Your choices equal <strong style="color:var(--mist)">3 trees planted</strong> and <strong style="color:var(--mist)">not driving 51 miles</strong> this month.</div></div>
+    <div class="eqc">
+      <div class="eql">Real-world equivalent</div>
+      <div class="eqt">Your choices equal <strong>3 trees planted</strong> and <strong>not driving 51 miles</strong> this month.</div>
+    </div>
     <div class="sh"><span class="sh-t">Recent history</span></div>
     <div class="rc" id="recent-card-impact">
-      <div style="padding:18px;text-align:center;color:var(--ash);font-size:13px">No scans yet — tap Scan to start!</div>
+      <div class="rc-empty">No scans yet. Tap Scan to begin.</div>
     </div>
   </div>
   <nav class="bnav">
-    <button class="nb" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb on"><div class="nb-pip"></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
+    <button class="nb on"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
     <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
-    <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
-    <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
+    <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
+    <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
   </nav>
 </div>
 
 <!-- ═══ RECIPES ═══ -->
 <div class="scr" id="s-recipes">
   <div class="rp-header">
-    <div class="rp-title">Green Kitchen 🌿</div>
-    <div class="rp-sub">Eco-friendly recipes for every meal</div>
+    <div class="rp-title">Green kitchen</div>
+    <div class="rp-sub">Eco-friendly recipes for every meal.</div>
   </div>
   <div class="cat-row">
     <div class="ctp on" onclick="filterCat('all',this)">All</div>
-    <div class="ctp" onclick="filterCat('breakfast',this)">☀️ Breakfast</div>
-    <div class="ctp" onclick="filterCat('lunch',this)">🥗 Lunch</div>
-    <div class="ctp" onclick="filterCat('dinner',this)">🍽️ Dinner</div>
-    <div class="ctp" onclick="filterCat('snack',this)">🫙 Snacks</div>
-    <div class="ctp" onclick="filterCat('dessert',this)">🍓 Dessert</div>
-    <div class="ctp" onclick="filterCat('drink',this)">🥤 Drinks</div>
+    <div class="ctp" onclick="filterCat('breakfast',this)">Breakfast</div>
+    <div class="ctp" onclick="filterCat('lunch',this)">Lunch</div>
+    <div class="ctp" onclick="filterCat('dinner',this)">Dinner</div>
+    <div class="ctp" onclick="filterCat('snack',this)">Snacks</div>
+    <div class="ctp" onclick="filterCat('dessert',this)">Dessert</div>
+    <div class="ctp" onclick="filterCat('drink',this)">Drinks</div>
   </div>
   <div class="ai-gen" onclick="generateAIRecipe()">
     <div class="ag-row">
-      <div class="ag-ic">✨</div>
-      <div><div class="ag-lbl">Claude AI</div><div class="ag-ttl">Generate a custom eco recipe</div></div>
+      <div><div class="ag-lbl">AI · Claude</div><div class="ag-ttl">Generate a custom eco recipe</div></div>
       <span style="color:rgba(255,255,255,.4);font-size:20px;margin-left:auto">›</span>
     </div>
   </div>
@@ -579,11 +594,11 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
     <div class="rg-s">Claude is creating a custom eco-friendly recipe using seasonal, low-impact ingredients</div>
   </div>
   <nav class="bnav">
-    <button class="nb" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb" onclick="showTab('impact')"><div class="nb-pip"></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
+    <button class="nb" onclick="showTab('impact')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
     <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
-    <button class="nb on"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
-    <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
+    <button class="nb on"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
+    <button class="nb" onclick="showTab('rewards')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
   </nav>
 </div>
 
@@ -599,36 +614,45 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 <!-- ═══ REWARDS ═══ -->
 <div class="scr" id="s-rewards">
-  <div style="padding:calc(var(--safe-top) + 18px) 20px 8px;flex-shrink:0"><span style="font-family:'Fraunces',serif;font-size:24px;color:var(--char)">Rewards</span></div>
+  <div class="page-h"><div class="page-h-t">Rewards</div><div class="page-h-s">Trade your eco tokens for real-world impact.</div></div>
   <div class="sv" style="padding:0 20px calc(88px + var(--safe-bot))">
     <div class="thc">
-      <div class="th-tp"><div><div class="th-l">Your balance</div><div class="th-a" id="rewards-tokens">0</div><div class="th-s">eco tokens</div></div><span style="font-size:38px">🌿</span></div>
-      <div class="th-cs"><div class="th-c"><div class="th-cl">EARNED</div><div class="th-cv">480</div></div><div class="th-c"><div class="th-cl">REDEEMED</div><div class="th-cv">140</div></div></div>
+      <div class="th-tp">
+        <div>
+          <div class="th-l">Your balance</div>
+          <div class="th-a" id="rewards-tokens">0</div>
+          <div class="th-s">eco tokens</div>
+        </div>
+      </div>
+      <div class="th-cs">
+        <div class="th-c"><div class="th-cl">Earned</div><div class="th-cv">480</div></div>
+        <div class="th-c"><div class="th-cl">Redeemed</div><div class="th-cv">140</div></div>
+      </div>
     </div>
     <div class="sh" style="margin-bottom:10px"><span class="sh-t">Badges</span></div>
     <div class="bg">
-      <div class="bc ul"><div class="be">🌱</div><div class="bn">First Scan</div><div class="bs">Unlocked</div></div>
-      <div class="bc ul"><div class="be">🔥</div><div class="bn">7-Day Streak</div><div class="bs">Unlocked</div></div>
-      <div class="bc ul"><div class="be">♻️</div><div class="bn">Swap Star</div><div class="bs">Unlocked</div></div>
-      <div class="bc"><div class="be">🌊</div><div class="bn">Water Saver</div><div class="bs">153 gal left</div></div>
-      <div class="bc"><div class="be">🌍</div><div class="bn">Carbon Hero</div><div class="bs">7.6 lbs left</div></div>
-      <div class="bc"><div class="be">🏆</div><div class="bn">Eco Champ</div><div class="bs">30-day streak</div></div>
+      <div class="bc ul"><div class="bn">First scan</div><div class="bs">Unlocked</div></div>
+      <div class="bc ul"><div class="bn">7-day streak</div><div class="bs">Unlocked</div></div>
+      <div class="bc ul"><div class="bn">Swap star</div><div class="bs">Unlocked</div></div>
+      <div class="bc"><div class="bn">Water saver</div><div class="bs">153 gal left</div></div>
+      <div class="bc"><div class="bn">Carbon hero</div><div class="bs">7.6 lbs left</div></div>
+      <div class="bc"><div class="bn">Eco champ</div><div class="bs">30-day streak</div></div>
     </div>
     <div class="sh" style="margin-bottom:10px"><span class="sh-t">Redeem tokens</span></div>
     <div class="stl">
-      <div class="str"><span class="ste">🛍️</span><div class="sti"><div class="stn">$5 off at Whole Foods</div><div class="stc">200 tokens</div></div><button class="rdb" onclick="rdm('Whole Foods')">Redeem</button></div>
+      <div class="str"><div class="sti"><div class="stn">$5 off at Whole Foods</div><div class="stc">200 tokens</div></div><button class="rdb" onclick="rdm('Whole Foods')">Redeem</button></div>
       <div class="stdv"></div>
-      <div class="str"><span class="ste">🌳</span><div class="sti"><div class="stn">Plant a real tree</div><div class="stc">300 tokens</div></div><button class="rdb" onclick="rdm('Tree')">Redeem</button></div>
+      <div class="str"><div class="sti"><div class="stn">Plant a real tree</div><div class="stc">300 tokens</div></div><button class="rdb" onclick="rdm('Tree')">Redeem</button></div>
       <div class="stdv"></div>
-      <div class="str"><span class="ste">🎁</span><div class="sti"><div class="stn">Reusable bag bundle</div><div class="stc">150 tokens</div></div><button class="rdb" onclick="rdm('Bags')">Redeem</button></div>
+      <div class="str"><div class="sti"><div class="stn">Reusable bag bundle</div><div class="stc">150 tokens</div></div><button class="rdb" onclick="rdm('Bags')">Redeem</button></div>
     </div>
   </div>
   <nav class="bnav">
-    <button class="nb" onclick="showTab('home')"><div class="nb-pip"><span class="nb-em">🏠</span></div><span class="nb-lbl">Home</span></button>
-    <button class="nb" onclick="showTab('impact')"><div class="nb-pip"></div><span class="nb-lbl">Impact</span></button>
+    <button class="nb" onclick="showTab('home')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="nb-lbl">Home</span></button>
+    <button class="nb" onclick="showTab('impact')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></div><span class="nb-lbl">Impact</span></button>
     <button class="nb nb-scan-fab" onclick="goScan()"><div class="nb-pip"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9V4h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 4h5v5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 17v5h-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 22H3v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="9" x2="8" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="9" x2="11" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="9" x2="13.5" y2="17" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="15.5" y1="9" x2="15.5" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="9" x2="18" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="nb-lbl">Scan</span></button>
-    <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><span class="nb-em">📖</span></div><span class="nb-lbl">Recipes</span></button>
-    <button class="nb on"><div class="nb-pip"><span class="nb-em">🏆</span></div><span class="nb-lbl">Rewards</span></button>
+    <button class="nb" onclick="showTab('recipes')"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5z"/><path d="M20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z"/></svg></div><span class="nb-lbl">Recipes</span></button>
+    <button class="nb on"><div class="nb-pip"><svg class="nb-svg" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a3 3 0 0 0 3 3"/><path d="M17 6h3a3 3 0 0 1-3 3"/><path d="M10 14v3h4v-3"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div><span class="nb-lbl">Rewards</span></button>
   </nav>
 </div>
 
@@ -1236,7 +1260,7 @@ function renderResult(p,ai){
   const altIds=p.alts||[];
   const altsHTML=altIds.length?`
     <div class="alts-section fi">
-      <div class="alts-hdr">♻️ Eco-friendly alternatives</div>
+      <div class="alts-hdr">Eco-friendly alternatives</div>
       <div class="alts-grid">${altIds.map(id=>buildAltCard(id)).join('')}</div>
     </div>`:''
 
@@ -1261,47 +1285,47 @@ function renderResult(p,ai){
       </div>
       <div class="sc-bar"><div class="sc-fill" style="width:${p.score*10}%"></div></div>
       <div class="sc-ms">
-        <div class="sc-m"><span class="sc-mi">💨</span><div><div class="sc-mv">${p.co2} kg</div><div class="sc-ml">CO₂ per kg</div></div></div>
-        <div class="sc-m"><span class="sc-mi">💧</span><div><div class="sc-mv">${w} L</div><div class="sc-ml">water per kg</div></div></div>
-        <div class="sc-m"><span class="sc-mi">📦</span><div><div class="sc-mv" style="font-size:10px;line-height:1.3">${packShort}</div><div class="sc-ml">packaging</div></div></div>
-        <div class="sc-m"><span class="sc-mi">🏷️</span><div><div class="sc-mv" style="font-size:10px;line-height:1.3">${certShort}</div><div class="sc-ml">certification</div></div></div>
+        <div class="sc-m"><div class="sc-ml">CO₂ per kg</div><div class="sc-mv">${p.co2} kg</div></div>
+        <div class="sc-m"><div class="sc-ml">Water per kg</div><div class="sc-mv">${w} L</div></div>
+        <div class="sc-m"><div class="sc-ml">Packaging</div><div class="sc-mv" style="font-size:11px;line-height:1.3">${packShort}</div></div>
+        <div class="sc-m"><div class="sc-ml">Certification</div><div class="sc-mv" style="font-size:11px;line-height:1.3">${certShort}</div></div>
       </div>
     </div>
 
     <div class="rationale-card fi">
       <div class="rat-row">
-        <div class="rat-ic">📍</div>
+        <div class="rat-ic">01</div>
         <div class="rat-body">
           <div class="rat-h">Where it comes from</div>
           <div class="rat-tx">${originStory}</div>
         </div>
       </div>
       <div class="rat-row">
-        <div class="rat-ic">🌍</div>
+        <div class="rat-ic">02</div>
         <div class="rat-body">
           <div class="rat-h">Impact on the ecosystem</div>
           <div class="rat-tx">${ecosystemImpact}</div>
         </div>
       </div>
       <div class="rat-row">
-        <div class="rat-ic">${good?'⭐':mid?'⚖️':'⚠️'}</div>
+        <div class="rat-ic">03</div>
         <div class="rat-body">
           <div class="rat-h">Why this rating</div>
           <div class="rat-tx">${whyRating}</div>
         </div>
       </div>
       <div class="rat-pills">
-        <span class="rat-pill rat-pill-bad">⚠ ${ai.top_concern||'Top concern'}</span>
-        <span class="rat-pill rat-pill-good">✓ ${ai.positive||'Positive'}</span>
+        <span class="rat-pill rat-pill-bad">${ai.top_concern||'Top concern'}</span>
+        <span class="rat-pill rat-pill-good">${ai.positive||'Positive'}</span>
       </div>
     </div>
 
     <div class="aic fi">
-      <div class="ai-h"><span class="ai-b">AI ANALYSIS</span><span class="ai-tt">Claude's assessment</span></div>
+      <div class="ai-h"><span class="ai-b">AI · Claude</span></div>
       <div class="ai-tx">${ai.headline||''} ${ai.why_rating||''}</div>
     </div>
     ${altsHTML}
-    <div class="dc fi"><div class="dc-t">📊 Full environmental data</div>${drows}</div>`;
+    <div class="dc fi"><div class="dc-t">Full environmental data</div>${drows}</div>`;
 
   document.getElementById('rbody').scrollTop=0;
 }

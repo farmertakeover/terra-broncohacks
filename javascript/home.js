@@ -236,6 +236,9 @@ async function lookupAndScan(code) {
       p.em = p.score >= 8 ? '🌿' : p.score >= 6 ? '🥗' : p.score >= 4 ? '📦' : '⚠️';
     }
 
+    // Fetch alternatives in parallel with the animation delay (score < 7 = bad for environment)
+    const altsFetch = p.score < 7 ? fetchAlternatives(p) : Promise.resolve([]);
+
     await new Promise(r => setTimeout(r, 2900));
     const lastStep = document.getElementById(steps[steps.length-1]);
     if (lastStep) lastStep.classList.add('dn');
@@ -243,6 +246,7 @@ async function lookupAndScan(code) {
     if (ov) ov.classList.remove('on');
     steps.forEach(s => { const el = document.getElementById(s); if(el) el.classList.remove('on','dn'); });
 
+    p.aiAlts = await altsFetch;
     if (typeof renderResult === 'function') renderResult(p, ai);
     showScr('result');
     if (typeof toast === 'function') toast('+10 🌿 tokens earned!');
@@ -381,6 +385,44 @@ function localAI(p) {
     positive,
     explanation: ex
   };
+}
+
+// ── ECO ALTERNATIVES ──
+async function fetchAlternatives(p) {
+  try {
+    const catTags = (p._offRaw?.categories_tags || []);
+    const category = catTags.find(t => !t.startsWith('en:'))
+                  || (p._offRaw?.categories || '').split(',')[0].trim()
+                  || 'general grocery';
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-allow-any-origin': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 500,
+        messages: [{
+          role: 'user',
+          content: `Product scanned: "${p.name}" by ${p.brand}. Environmental score: ${p.score}/10 (poor — needs eco swap).
+
+Suggest exactly 2 specific, real eco-friendly alternatives that serve the same purpose. Focus on environmental impact, not nutrition.
+
+Respond ONLY as a JSON array — no markdown, no explanation:
+[{"name":"exact product name","brand":"brand name","eco_score":8,"em":"🌿","reason":"why it's better for the environment in 15 words max","image_query":"2-3 descriptive words for a stock photo search (e.g. coconut water drink, reusable metal bottle)","tags":["tag1","tag2","tag3"]}]`
+        }]
+      })
+    });
+    const d = await r.json();
+    const text = (d.content?.[0]?.text || '[]').replace(/```json|```/g, '').trim();
+    const arr = JSON.parse(text);
+    return Array.isArray(arr) ? arr.slice(0, 2) : [];
+  } catch(e) {
+    return [];
+  }
 }
 
 // ── INIT ──

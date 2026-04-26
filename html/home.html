@@ -212,7 +212,10 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 /* ─── ALTERNATIVES — NEW DESIGN ─── */
 .alts-section{margin-bottom:12px}
+.alts-hdr-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .alts-hdr{font-size:11px;font-weight:500;color:var(--ash);letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
+.alts-hdr-row .alts-hdr{margin-bottom:0}
+.alts-ai-badge{font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(26,58,31,.12);color:var(--forest);border:.5px solid rgba(26,58,31,.2);letter-spacing:.06em;font-weight:500}
 .alts-grid{display:flex;flex-direction:column;gap:10px}
 .alt-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);border:.5px solid rgba(0,0,0,.05)}
 .alt-img-wrap{height:130px;position:relative;overflow:hidden;background:#f0ece4}
@@ -1268,11 +1271,22 @@ function renderResult(p,ai){
   const drows=Object.entries(p.details).map(([k,v])=>`<div class="dr"><span class="dk">${k}</span><span class="dv">${v}</span></div>`).join('');
 
   const altIds=p.alts||[];
-  const altsHTML=altIds.length?`
+  const aiAlts=p.aiAlts||[];
+  _aiAltsCache=aiAlts;
+  let altsHTML='';
+  if(altIds.length){
+    altsHTML=`
     <div class="alts-section fi">
       <div class="alts-hdr">Eco-friendly alternatives</div>
       <div class="alts-grid">${altIds.map(id=>buildAltCard(id)).join('')}</div>
-    </div>`:''
+    </div>`;
+  }else if(aiAlts.length){
+    altsHTML=`
+    <div class="alts-section fi">
+      <div class="alts-hdr-row"><div class="alts-hdr">Eco-friendly alternatives</div><div class="alts-ai-badge">AI · Claude</div></div>
+      <div class="alts-grid">${aiAlts.map((a,i)=>buildAIAltCard(a,i)).join('')}</div>
+    </div>`;
+  }
 
   const originStory=ai.origin_story||`Sourced from ${origin}.`;
   const ecosystemImpact=ai.ecosystem_impact||ai.explanation||'';
@@ -1364,6 +1378,59 @@ function buildAltCard(id){
       <div class="alt-where"><span class="alt-where-icon">${a.whereIcon}</span><span>Available at <strong>${a.where.split('·')[0].trim()}</strong> + more</span></div>
     </div>
   </div>`;
+}
+
+// ── AI-GENERATED ALT CARDS ──
+let _aiAltsCache=[];
+function buildAIAltCard(a,idx){
+  const pills=(a.tags||[]).map((t,i)=>`<span class="alt-pill ${i>1?'neutral':''}">${t}</span>`).join('');
+  const q=encodeURIComponent(a.image_query||a.name);
+  const imgSrc=`https://source.unsplash.com/featured/400x200/?${q}`;
+  const bg=a.eco_score>=8?'#e8f5e0':a.eco_score>=6?'#fef3e2':'#fdeaea';
+  return `
+  <div class="alt-card" onclick="openAIAltModal(${idx})">
+    <div class="alt-img-wrap">
+      <img class="alt-img" src="${imgSrc}" alt="${a.name}" loading="lazy"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="alt-img-placeholder" style="display:none;background:${bg}">${a.em||'🌿'}</div>
+      <div class="alt-eco-badge">🌿 ${a.eco_score}/10</div>
+    </div>
+    <div class="alt-body">
+      <div class="alt-brand-row">
+        <span class="alt-brand">${a.brand}</span>
+        <div class="alt-score-row"><span class="alt-score-num">${a.eco_score}</span><span class="alt-score-denom">/10</span></div>
+      </div>
+      <div class="alt-name">${a.name}</div>
+      <div class="alt-reason">${a.reason}</div>
+      <div class="alt-pills">${pills}</div>
+    </div>
+  </div>`;
+}
+function openAIAltModal(idx){
+  const a=_aiAltsCache[idx];if(!a)return;
+  const pills=(a.tags||[]).map(t=>`<span class="am-pill">${t}</span>`).join('');
+  const q=encodeURIComponent(a.image_query||a.name);
+  const imgSrc=`https://source.unsplash.com/featured/600x300/?${q}`;
+  const bg=a.eco_score>=8?'#e8f5e0':a.eco_score>=6?'#fef3e2':'#fdeaea';
+  document.getElementById('am-card').innerHTML=`
+    <div class="am-img-wrap">
+      <img class="am-img" src="${imgSrc}" alt="${a.name}" loading="lazy"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="am-img-ph" style="display:none;background:${bg}">${a.em||'🌿'}</div>
+      <button class="am-close" onclick="closeAltModal()">✕</button>
+      <div class="am-eco">🌿 Eco Score ${a.eco_score}/10 — AI Recommended</div>
+    </div>
+    <div class="am-body">
+      <div class="am-brand">${a.brand}</div>
+      <div class="am-name">${a.name}</div>
+      <div class="am-score-row">
+        <span class="am-score">${a.eco_score}</span><span class="am-score-denom">/10</span>
+        <span class="am-score-label">✓ Eco-friendly</span>
+      </div>
+      <div class="am-desc">${a.reason}</div>
+      <div class="am-pills">${pills}</div>
+    </div>`;
+  document.getElementById('alt-modal').classList.add('on');
 }
 
 // ── ALT DETAIL MODAL ──

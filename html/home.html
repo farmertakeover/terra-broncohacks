@@ -73,6 +73,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .sc{background:#fff;border-radius:var(--r-lg);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
 .sc-ic{font-size:22px;margin-bottom:4px}
 .sc-v{font-family:'Fraunces',serif;font-size:28px;color:var(--forest);line-height:1;margin-bottom:2px}
+.sc .sc-v{color:var(--char)}
 .sc-l{font-size:11px;color:var(--ash)}
 .ist{background:var(--forest);border-radius:var(--r-lg);padding:16px 20px;margin-bottom:14px}
 .ist-t{font-size:10px;color:var(--sage);letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:12px}
@@ -406,7 +407,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
     </div>
   </div>
   <div class="h-top">
-    <div class="h-greet">Good morning, Alex</div>
+    <div class="h-greet" id="home-greet">Good morning, Alex</div>
     <div class="h-title">Shop green<br>today 🌿</div>
   </div>
   <div class="sv hp">
@@ -418,22 +419,20 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
       </button>
     </div>
     <div class="sr2">
-      <div class="sc"><div class="sc-ic">🔥</div><div class="sc-v">7</div><div class="sc-l">day streak</div></div>
-      <div class="sc"><div class="sc-ic">🌿</div><div class="sc-v">340</div><div class="sc-l">eco tokens</div></div>
+      <div class="sc"><div class="sc-ic">🔥</div><div class="sc-v" id="stat-streak">0</div><div class="sc-l">day streak</div></div>
+      <div class="sc"><div class="sc-ic">🌿</div><div class="sc-v" id="stat-tokens">0</div><div class="sc-l">eco tokens</div></div>
     </div>
     <div class="ist">
       <div class="ist-t">This week's impact</div>
       <div class="ics">
-        <div class="ic"><div class="icn">847</div><div class="icu">gal water<br>saved</div></div>
-        <div class="ic"><div class="icn">12.4</div><div class="icu">lbs CO₂<br>avoided</div></div>
-        <div class="ic"><div class="icn">14</div><div class="icu">eco<br>swaps</div></div>
+        <div class="ic"><div class="icn" id="impact-water">0</div><div class="icu">gal water<br>saved</div></div>
+        <div class="ic"><div class="icn" id="impact-co2">0</div><div class="icu">lbs CO₂<br>avoided</div></div>
+        <div class="ic"><div class="icn" id="impact-swaps">0</div><div class="icu">eco<br>swaps</div></div>
       </div>
     </div>
     <div class="sh"><span class="sh-t">Recent scans</span><span class="sh-l">See all</span></div>
-    <div class="rc">
-      <div class="rr" onclick="doScan('lentils')"><div class="ric" style="background:#eaf3de">🫘</div><div class="ri"><div class="rn">Green Lentils, Bob's Red Mill</div><div class="rm">Today · Whole Foods</div></div><div class="sp sg">9</div></div>
-      <div class="rr" onclick="doScan('oatmilk')"><div class="ric" style="background:#f5f0e8">🌾</div><div class="ri"><div class="rn">Oat Milk, Oatly</div><div class="rm">Today · Target</div></div><div class="sp sg">8</div></div>
-      <div class="rr" onclick="doScan('beef')"><div class="ric" style="background:#fdeaea">🥩</div><div class="ri"><div class="rn">Ground Beef 80/20</div><div class="rm">Yesterday · Safeway</div></div><div class="sp sb">2</div></div>
+    <div class="rc" id="recent-card-home">
+      <div style="padding:18px;text-align:center;color:var(--ash);font-size:13px">No scans yet — tap Scan to start!</div>
     </div>
   </div>
   <nav class="bnav">
@@ -453,13 +452,20 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
     <div class="s-ttl">Scan Product</div>
   </div>
   <div class="cam">
+    <video id="cam-video" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1"></video>
+    <div id="cam-error" style="position:absolute;inset:0;background:rgba(8,15,8,.97);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:30;padding:30px;gap:14px;text-align:center">
+      <div style="font-size:36px">🚫</div>
+      <div id="cam-error-title" style="font-family:'Fraunces',serif;font-size:18px;color:#fff"></div>
+      <div id="cam-error-text" style="font-size:12px;color:rgba(255,255,255,.55);line-height:1.6"></div>
+      <button onclick="manualBarcodeEntry()" style="margin-top:8px;padding:10px 20px;background:var(--sage);color:var(--forest);border:none;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer">Enter barcode manually</button>
+    </div>
     <div class="co">
       <div class="sf">
         <div class="sc2 tl"></div><div class="sc2 tr"></div>
         <div class="sc2 bl"></div><div class="sc2 br"></div>
         <div class="sbeam"></div>
       </div>
-      <div class="sh2">Point at barcode or tap below</div>
+      <div class="sh2" id="scan-hint">Point at barcode or tap below</div>
       <div class="ss2">Open Food Facts · Claude AI</div>
     </div>
     <div id="anlz">
@@ -473,8 +479,9 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
       </div>
     </div>
     <div class="cstrip">
-      <div class="cl">Tap to simulate scan</div>
+      <div class="cl">Tap to demo · or scan a real barcode</div>
       <div class="cr">
+        <div class="pc" onclick="manualBarcodeEntry()"><div class="pce">⌨️</div><div class="pcn">Enter barcode</div><div class="pcb">Manual entry</div></div>
         <div class="pc" onclick="doScan('beef')"><div class="pce">🥩</div><div class="pcn">Ground Beef</div><div class="pcb">Conventional</div></div>
         <div class="pc" onclick="doScan('lentils')"><div class="pce">🫘</div><div class="pcn">Green Lentils</div><div class="pcb">Bob's Red Mill</div></div>
         <div class="pc" onclick="doScan('water')"><div class="pce">🧴</div><div class="pcn">Bottled Water</div><div class="pcb">Dasani</div></div>
@@ -506,7 +513,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   <div style="padding:2px 20px 8px;flex-shrink:0"><span style="font-family:'Fraunces',serif;font-size:24px;color:var(--char)">Your Impact</span></div>
   <div class="sv" style="padding:0 20px calc(88px + var(--safe-bot))">
     <div class="wc">
-      <div class="sh" style="margin-bottom:0"><span class="sh-t">🔥 7-day streak</span><span class="sh-l">Best: 12</span></div>
+      <div class="sh" style="margin-bottom:0"><span class="sh-t" id="impact-streak-title">🔥 0-day streak</span><span class="sh-l" id="impact-streak-best">Best: 0</span></div>
       <div class="sd">
         <div class="dc2"><div class="dr2 dd">✓</div><div class="dl">Mon</div></div>
         <div class="dc2"><div class="dr2 dd">✓</div><div class="dl">Tue</div></div>
@@ -518,17 +525,15 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
       </div>
     </div>
     <div class="ig">
-      <div class="is ft"><div class="ii">💧</div><div class="iv">847 <span class="iu">gal</span></div><div class="il">water saved this month</div></div>
-      <div class="is ft"><div class="ii">🌿</div><div class="iv">12.4 <span class="iu">lbs</span></div><div class="il">CO₂ avoided this month</div></div>
-      <div class="is"><div class="ii">🛒</div><div class="iv">38</div><div class="il">eco-friendly items</div></div>
-      <div class="is"><div class="ii">🔁</div><div class="iv">14</div><div class="il">eco swaps made</div></div>
+      <div class="is ft"><div class="ii">💧</div><div class="iv"><span id="impact-water2">0</span> <span class="iu">gal</span></div><div class="il">water saved this month</div></div>
+      <div class="is ft"><div class="ii">🌿</div><div class="iv"><span id="impact-co22">0</span> <span class="iu">lbs</span></div><div class="il">CO₂ avoided this month</div></div>
+      <div class="is"><div class="ii">🛒</div><div class="iv" id="impact-total-scans">0</div><div class="il">eco-friendly items</div></div>
+      <div class="is"><div class="ii">🔁</div><div class="iv" id="impact-swaps2">0</div><div class="il">eco swaps made</div></div>
     </div>
     <div class="eqc"><div class="eql">🌍 Real-world equivalent</div><div class="eqt">Your choices equal <strong style="color:var(--mist)">3 trees planted</strong> and <strong style="color:var(--mist)">not driving 51 miles</strong> this month.</div></div>
     <div class="sh"><span class="sh-t">Recent history</span></div>
-    <div class="rc">
-      <div class="rr" onclick="doScan('lentils')"><div class="ric" style="background:#eaf3de">🫘</div><div class="ri"><div class="rn">Green Lentils</div><div class="rm">Today, 2:14 PM</div></div><div class="sp sg">9</div></div>
-      <div class="rr" onclick="doScan('oatmilk')"><div class="ric" style="background:#f5f0e8">🌾</div><div class="ri"><div class="rn">Oat Milk, Oatly</div><div class="rm">Today, 2:11 PM</div></div><div class="sp sg">8</div></div>
-      <div class="rr" onclick="doScan('beef')"><div class="ric" style="background:#fdeaea">🥩</div><div class="ri"><div class="rn">Ground Beef</div><div class="rm">Yesterday</div></div><div class="sp sb">2</div></div>
+    <div class="rc" id="recent-card-impact">
+      <div style="padding:18px;text-align:center;color:var(--ash);font-size:13px">No scans yet — tap Scan to start!</div>
     </div>
   </div>
   <nav class="bnav">
@@ -612,7 +617,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
   <div style="padding:2px 20px 8px;flex-shrink:0"><span style="font-family:'Fraunces',serif;font-size:24px;color:var(--char)">Rewards</span></div>
   <div class="sv" style="padding:0 20px calc(88px + var(--safe-bot))">
     <div class="thc">
-      <div class="th-tp"><div><div class="th-l">Your balance</div><div class="th-a">340</div><div class="th-s">eco tokens</div></div><span style="font-size:38px">🌿</span></div>
+      <div class="th-tp"><div><div class="th-l">Your balance</div><div class="th-a" id="rewards-tokens">0</div><div class="th-s">eco tokens</div></div><span style="font-size:38px">🌿</span></div>
       <div class="th-cs"><div class="th-c"><div class="th-cl">EARNED</div><div class="th-cv">480</div></div><div class="th-c"><div class="th-cl">REDEEMED</div><div class="th-cv">140</div></div></div>
     </div>
     <div class="sh" style="margin-bottom:10px"><span class="sh-t">Badges</span></div>
@@ -650,6 +655,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 <div id="toast"></div>
 </div><!-- shell -->
 
+<script src="../javascript/home.js"></script>
 <script>
 // ════════════════════ PRODUCTS ════════════════════
 const P = {
@@ -1107,6 +1113,7 @@ let curCat='all';
 
 // ════════════════════ NAV ════════════════════
 function showScr(id){
+  if(id!=='scan'&&typeof stopCamera==='function')stopCamera();
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
   document.getElementById('s-'+id).classList.add('on');
 }
@@ -1117,7 +1124,7 @@ function showTab(id){
     if(b) b.classList.toggle('on',t===id);
   });
 }
-function goScan(){showScr('scan')}
+function goScan(){showScr('scan');if(typeof startCamera==='function')startCamera();}
 
 // ════════════════════ SCAN ════════════════════
 async function doScan(key){
@@ -1144,6 +1151,7 @@ async function doScan(key){
   renderResult(p,ai);
   showScr('result');
   toast('+10 🌿 tokens earned!');
+  if(typeof recordScan==='function')recordScan(p,key);
 }
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 

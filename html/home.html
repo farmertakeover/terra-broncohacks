@@ -106,7 +106,19 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .s-ttl{font-family:'Fraunces',serif;font-size:20px;color:#fff}
 .cam{flex:1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#080f08}
 .cam::before{content:'';position:absolute;inset:0;opacity:.03;background-image:linear-gradient(rgba(111,172,94,1) 1px,transparent 1px),linear-gradient(90deg,rgba(111,172,94,1) 1px,transparent 1px);background-size:42px 42px;pointer-events:none}
-.co{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5}
+.cam-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;background:#000}
+.co{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;pointer-events:none}
+.co > *{pointer-events:auto}
+.cam-permission,.cam-error{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 30px;background:rgba(8,15,8,.96);z-index:40;gap:14px}
+.cam-permission.show,.cam-error.show{display:flex}
+.cam-permission-em{font-size:48px}
+.cam-permission-title{font-family:'Fraunces',serif;font-size:22px;color:#fff}
+.cam-permission-text{font-size:13px;color:rgba(255,255,255,.65);max-width:280px;line-height:1.5}
+.cam-allow-btn{margin-top:8px;background:var(--sage);color:#fff;border:none;padding:12px 28px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.cam-allow-btn:active{background:var(--leaf)}
+.cl-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.manual-btn{background:rgba(255,255,255,.08);border:.5px solid rgba(255,255,255,.16);color:#fff;font-family:inherit;font-size:11px;font-weight:500;padding:6px 10px;border-radius:10px;cursor:pointer;flex-shrink:0}
+.manual-btn:active{background:rgba(111,172,94,.25);border-color:rgba(111,172,94,.5)}
 .sf{width:230px;height:150px;position:relative;margin-bottom:18px}
 .sc2{position:absolute;width:26px;height:26px;border-color:var(--sage);border-style:solid}
 .sc2.tl{top:0;left:0;border-width:3px 0 0 3px;border-radius:6px 0 0 0}
@@ -118,7 +130,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .sh2{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:6px}
 .ss2{font-size:11px;color:rgba(255,255,255,.28)}
 .cstrip{position:absolute;bottom:0;left:0;right:0;background:rgba(10,10,10,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:14px 16px 18px;z-index:20}
-.cl{font-size:10px;color:var(--fog);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.cl{font-size:10px;color:var(--fog);letter-spacing:.08em;text-transform:uppercase}
 .cr{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .cr::-webkit-scrollbar{display:none}
 .pc{flex-shrink:0;background:rgba(255,255,255,.07);border:.5px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 13px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:2px;-webkit-user-select:none}
@@ -172,6 +184,21 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .dr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:.5px solid rgba(0,0,0,.06);font-size:13px}
 .dr:last-child{border-bottom:none;padding-bottom:0}
 .dk{color:var(--ash)}.dv{font-weight:500;color:var(--char);text-align:right;max-width:58%;font-size:12px}
+.sc-grade-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.sc-grade{font-family:'Fraunces',serif;font-size:46px;font-weight:600;color:#fff;line-height:1;letter-spacing:-.02em;background:rgba(255,255,255,.1);width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,.18)}
+.sc-grade-num{font-size:11px;color:rgba(255,255,255,.7);font-weight:500;margin-top:4px}
+.sc-grade-lbl{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em}
+.rationale-card{background:#fff;border-radius:var(--r-lg);padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.rat-row{display:flex;gap:12px;padding:10px 4px;border-bottom:.5px solid rgba(0,0,0,.06)}
+.rat-row:last-of-type{border-bottom:none}
+.rat-ic{width:34px;height:34px;border-radius:11px;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.rat-body{flex:1;min-width:0}
+.rat-h{font-size:11px;font-weight:600;color:var(--forest);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.rat-tx{font-size:13px;color:var(--char);line-height:1.5}
+.rat-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:.5px solid rgba(0,0,0,.06)}
+.rat-pill{font-size:11px;font-weight:500;padding:5px 10px;border-radius:10px}
+.rat-pill-bad{background:var(--dlight);color:var(--danger)}
+.rat-pill-good{background:var(--glight);color:var(--good)}
 .aic{background:var(--forest);border-radius:var(--r-lg);padding:15px;margin-bottom:10px}
 .ai-h{display:flex;align-items:center;gap:7px;margin-bottom:9px}
 .ai-b{font-size:9px;padding:3px 7px;border-radius:20px;background:rgba(111,172,94,.25);color:var(--sage);border:.5px solid rgba(111,172,94,.3);letter-spacing:.06em;font-weight:500}
@@ -453,14 +480,27 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
     <div class="s-ttl">Scan Product</div>
   </div>
   <div class="cam">
+    <video id="cam-video" class="cam-video" playsinline autoplay muted></video>
     <div class="co">
       <div class="sf">
         <div class="sc2 tl"></div><div class="sc2 tr"></div>
         <div class="sc2 bl"></div><div class="sc2 br"></div>
         <div class="sbeam"></div>
       </div>
-      <div class="sh2">Point at barcode or tap below</div>
+      <div class="sh2" id="scan-hint">Point at a product barcode</div>
       <div class="ss2">Open Food Facts · Claude AI</div>
+    </div>
+    <div class="cam-permission" id="cam-permission">
+      <div class="cam-permission-em">📷</div>
+      <div class="cam-permission-title">Allow camera access</div>
+      <div class="cam-permission-text">EcoBasket needs your camera to scan product barcodes. Your camera feed never leaves this device.</div>
+      <button class="cam-allow-btn" onclick="startCamera()">Enable camera</button>
+    </div>
+    <div class="cam-error" id="cam-error">
+      <div class="cam-permission-em">🚫</div>
+      <div class="cam-permission-title" id="cam-error-title">Camera unavailable</div>
+      <div class="cam-permission-text" id="cam-error-text">We couldn't access your camera.</div>
+      <button class="cam-allow-btn" onclick="startCamera()">Try again</button>
     </div>
     <div id="anlz">
       <div class="spw"><div class="sp-r"></div><div class="spi">🌿</div></div>
@@ -473,7 +513,10 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
       </div>
     </div>
     <div class="cstrip">
-      <div class="cl">Tap to simulate scan</div>
+      <div class="cl-row">
+        <div class="cl">Tap to simulate scan</div>
+        <button class="manual-btn" onclick="manualBarcodeEntry()">⌨ Type a code</button>
+      </div>
       <div class="cr">
         <div class="pc" onclick="doScan('beef')"><div class="pce">🥩</div><div class="pcn">Ground Beef</div><div class="pcb">Conventional</div></div>
         <div class="pc" onclick="doScan('lentils')"><div class="pce">🫘</div><div class="pcn">Green Lentils</div><div class="pcb">Bob's Red Mill</div></div>
@@ -1107,8 +1150,11 @@ let curCat='all';
 
 // ════════════════════ NAV ════════════════════
 function showScr(id){
+  const prev=document.querySelector('.scr.on');
+  const prevId=prev?prev.id.replace(/^s-/,''):null;
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
   document.getElementById('s-'+id).classList.add('on');
+  if(prevId==='scan'&&id!=='scan'&&typeof stopCamera==='function')stopCamera();
 }
 function showTab(id){
   showScr(id);
@@ -1117,7 +1163,7 @@ function showTab(id){
     if(b) b.classList.toggle('on',t===id);
   });
 }
-function goScan(){showScr('scan')}
+function goScan(){showScr('scan');if(typeof startCamera==='function')startCamera();}
 
 // ════════════════════ SCAN ════════════════════
 async function doScan(key){
@@ -1151,33 +1197,67 @@ async function fetchAI(p){
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,
-        messages:[{role:'user',content:`Sustainability analyst. ONLY use this verified data. No invented facts.
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,
+        messages:[{role:'user',content:`You are a sustainability analyst. Use ONLY the verified data below. NO invented facts.
+
 Product: ${p.name} by ${p.brand}
-CO2: ${p.co2} kg/kg | Water: ${p.water} L/kg | Score: ${p.score}/10
-Packaging: ${p.pack} | Certifications: ${p.cert}
-Respond ONLY in JSON (no markdown):
-{"headline":"max 12 words verdict","explanation":"2-3 sentences max 55 words citing actual numbers","top_concern":"max 7 words","positive":"max 7 words or 'None significant'"}`}]})
+Origin: ${p.origin||'Unknown'}
+CO2 footprint: ${p.co2} kg per kg
+Water use: ${p.water} L per kg
+Packaging: ${p.pack}
+Certifications: ${p.cert}
+Sustainability score: ${p.score}/10
+
+Respond ONLY in JSON (no markdown). Keep each field tight.
+{
+  "headline":"max 12 words verdict",
+  "origin_story":"1 sentence (max 28 words): where the product comes from and how it gets to shelves, citing the origin field",
+  "ecosystem_impact":"2 sentences (max 55 words): how producing this affects ecosystems — land use, biodiversity, emissions, water, packaging waste — citing the actual numbers",
+  "why_rating":"1 sentence (max 30 words): plainly explain why it earned ${p.score}/10",
+  "top_concern":"max 7 words",
+  "positive":"max 7 words or 'None significant'"
+}`}]})
     });
     const d=await r.json();
     return JSON.parse((d.content?.[0]?.text||'').replace(/```json|```/g,'').trim());
   }catch(e){return localAI(p)}
 }
 function localAI(p){
-  const h=p.score>=8?'One of the most sustainable choices available.':p.score>=6?'Good choice with manageable trade-offs.':p.score>=4?'Significant environmental concerns present.':'Among the least sustainable in its category.';
-  const ex=p.score>=7?`This product has a verified footprint of ${p.co2} kg CO₂ and ${p.water.toLocaleString()}L water per kg — well below category averages. ${p.cert!=='None'?`${p.cert} certification confirms responsible production.`:'Its packaging and origin further reduce environmental burden.'}`:`This product generates ${p.co2} kg CO₂ and requires ${p.water.toLocaleString()}L water per kg — among the highest in its category. ${p.pack.includes('Non')||p.pack.includes('Mylar')?'Its non-recyclable packaging compounds the environmental cost.':'Better alternatives exist with significantly lower footprints.'}`;
-  const c=p.co2>10?'Very high GHG emissions':p.pack.includes('Non')||p.pack.includes('Mylar')?'Non-recyclable packaging':p.water>5000?'Excessive freshwater use':'No sustainability certifications';
-  const pos=p.score<4?'None significant':p.cert!=='None'?p.cert+' certified':p.co2<2?'Low carbon footprint':'Lower than conventional options';
-  return{headline:h,explanation:ex,top_concern:c,positive:pos};
+  const origin=p.origin||'Unknown origin';
+  const headline=p.score>=8?'One of the most sustainable choices in its category.'
+                :p.score>=6?'A reasonable choice with some trade-offs.'
+                :p.score>=4?'Significant environmental concerns to weigh.'
+                :'One of the least sustainable picks in its category.';
+  const origin_story=`Sourced from ${origin}, then packaged in ${p.pack.toLowerCase()} and distributed to retailers.`;
+  const ecosystem_impact=p.score>=7
+    ? `Production releases roughly ${p.co2} kg CO₂ and uses ${(+p.water).toLocaleString()} L of water per kg — well below category averages. ${p.cert!=='None'?`${p.cert} certification supports lower-impact land use and biodiversity.`:'Lighter packaging and a shorter supply chain reduce ecosystem stress.'}`
+    : `Production releases about ${p.co2} kg CO₂ and consumes ${(+p.water).toLocaleString()} L of water per kg — high for this category. ${p.pack.includes('Non')||p.pack.includes('Mylar')||p.pack.includes('PET')?'The non-recyclable packaging compounds long-term waste and microplastic pressure on ecosystems.':'Land-use intensity and limited certifications increase pressure on local biodiversity.'}`;
+  const why_rating=p.score>=8?`Low emissions, low water footprint, and ${p.cert!=='None'?'recognized certification':'minimal-impact production'} push it to ${p.score}/10.`
+                  :p.score>=6?`Decent footprint and packaging, but ${p.cert==='None'?'no certifications':'limited verification'} keep it at ${p.score}/10.`
+                  :p.score>=4?`Moderate-to-high emissions and ${p.pack.includes('Non')?'non-recyclable packaging':'limited certifications'} hold it at ${p.score}/10.`
+                  :`High emissions (${p.co2} kg CO₂/kg) and significant ecosystem pressure earn it just ${p.score}/10.`;
+  const top_concern=p.co2>10?'Very high GHG emissions':p.pack.includes('Non')||p.pack.includes('Mylar')?'Non-recyclable packaging':+p.water>5000?'Excessive freshwater use':p.cert==='None'?'No sustainability certification':'Moderate ecosystem impact';
+  const positive=p.score<4?'None significant':p.cert!=='None'?p.cert+' certified':p.co2<2?'Low carbon footprint':'Lower than category average';
+  return{headline,origin_story,ecosystem_impact,why_rating,top_concern,positive,explanation:ecosystem_impact};
 }
 
 // ════════════════════ RENDER RESULT ════════════════════
+function letterGrade(s){
+  if(s>=9)return{l:'A+',label:'Outstanding'};
+  if(s>=8)return{l:'A',label:'Excellent'};
+  if(s>=7)return{l:'B',label:'Good'};
+  if(s>=5)return{l:'C',label:'Fair'};
+  if(s>=3)return{l:'D',label:'Poor'};
+  return{l:'F',label:'Very poor'};
+}
 function renderResult(p,ai){
   const good=p.score>=7,mid=p.score>=4&&p.score<7;
   const cc=good?'eco-c':mid?'mid-c':'bad-c';
   const iconBg=good?'#eaf3de':mid?'#fef3e2':'#fdeaea';
-  const verdict=good?'✓ Eco-friendly':mid?'⚠ Use with caution':'✗ Not eco-friendly';
+  const verdict=good?'✓ Sustainable choice':mid?'⚠ Use with caution':'✗ High-impact choice';
   const w=p.water>=1000?(p.water/1000).toFixed(1)+'K':p.water;
+  const grade=letterGrade(p.score);
+  const origin=p.origin||(p.details&&(p.details['Origin']||p.details['origin']))||'Unknown origin';
 
   document.getElementById('prod-bar').innerHTML=`
     <div class="pi" style="background:${iconBg}">${p.em}</div>
@@ -1185,7 +1265,6 @@ function renderResult(p,ai){
 
   const drows=Object.entries(p.details).map(([k,v])=>`<div class="dr"><span class="dk">${k}</span><span class="dv">${v}</span></div>`).join('');
 
-  // NEW: Alternatives section — rich product cards, no re-scan
   const altIds=p.alts||[];
   const altsHTML=altIds.length?`
     <div class="alts-section fi">
@@ -1193,23 +1272,63 @@ function renderResult(p,ai){
       <div class="alts-grid">${altIds.map(id=>buildAltCard(id)).join('')}</div>
     </div>`:''
 
+  const originStory=ai.origin_story||`Sourced from ${origin}.`;
+  const ecosystemImpact=ai.ecosystem_impact||ai.explanation||'';
+  const whyRating=ai.why_rating||`Earned ${p.score}/10 based on emissions, water use, packaging, and certifications.`;
+
   document.getElementById('rbody').innerHTML=`
     <div class="score-c ${cc} fi">
       <div class="sc-tp">
-        <div><div class="sc-v">${verdict}</div><div class="sc-s">${ai.headline}</div></div>
-        <div><span class="sc-n">${p.score}</span><span class="sc-d">/10</span></div>
+        <div>
+          <div class="sc-v">${verdict}</div>
+          <div class="sc-s">${ai.headline||''}</div>
+        </div>
+        <div class="sc-grade-wrap">
+          <div class="sc-grade">${grade.l}</div>
+          <div class="sc-grade-num">${p.score}/10</div>
+          <div class="sc-grade-lbl">${grade.label}</div>
+        </div>
       </div>
       <div class="sc-bar"><div class="sc-fill" style="width:${p.score*10}%"></div></div>
       <div class="sc-ms">
         <div class="sc-m"><span class="sc-mi">💨</span><div><div class="sc-mv">${p.co2} kg</div><div class="sc-ml">CO₂ per kg</div></div></div>
         <div class="sc-m"><span class="sc-mi">💧</span><div><div class="sc-mv">${w} L</div><div class="sc-ml">water per kg</div></div></div>
-        <div class="sc-m"><span class="sc-mi">⚠️</span><div><div class="sc-mv" style="font-size:10px;line-height:1.3">${ai.top_concern}</div><div class="sc-ml">top concern</div></div></div>
-        <div class="sc-m"><span class="sc-mi">✅</span><div><div class="sc-mv" style="font-size:10px;line-height:1.3">${ai.positive}</div><div class="sc-ml">positive</div></div></div>
+        <div class="sc-m"><span class="sc-mi">📦</span><div><div class="sc-mv" style="font-size:10px;line-height:1.3">${(p.pack||'Unknown').replace(/\(.*\)/,'').trim()}</div><div class="sc-ml">packaging</div></div></div>
+        <div class="sc-m"><span class="sc-mi">🏷️</span><div><div class="sc-mv" style="font-size:10px;line-height:1.3">${p.cert||'None'}</div><div class="sc-ml">certification</div></div></div>
       </div>
     </div>
+
+    <div class="rationale-card fi">
+      <div class="rat-row">
+        <div class="rat-ic">📍</div>
+        <div class="rat-body">
+          <div class="rat-h">Where it comes from</div>
+          <div class="rat-tx">${originStory}</div>
+        </div>
+      </div>
+      <div class="rat-row">
+        <div class="rat-ic">🌍</div>
+        <div class="rat-body">
+          <div class="rat-h">Impact on the ecosystem</div>
+          <div class="rat-tx">${ecosystemImpact}</div>
+        </div>
+      </div>
+      <div class="rat-row">
+        <div class="rat-ic">${good?'⭐':mid?'⚖️':'⚠️'}</div>
+        <div class="rat-body">
+          <div class="rat-h">Why this rating</div>
+          <div class="rat-tx">${whyRating}</div>
+        </div>
+      </div>
+      <div class="rat-pills">
+        <span class="rat-pill rat-pill-bad">⚠ ${ai.top_concern||'Top concern'}</span>
+        <span class="rat-pill rat-pill-good">✓ ${ai.positive||'Positive'}</span>
+      </div>
+    </div>
+
     <div class="aic fi">
       <div class="ai-h"><span class="ai-b">AI ANALYSIS</span><span class="ai-tt">Claude's assessment</span></div>
-      <div class="ai-tx">${ai.explanation}</div>
+      <div class="ai-tx">${ai.headline||''} ${ai.why_rating||''}</div>
     </div>
     ${altsHTML}
     <div class="dc fi"><div class="dc-t">📊 Full environmental data</div>${drows}</div>`;
@@ -1405,5 +1524,205 @@ updateClock();setInterval(updateClock,30000);
 
 window.addEventListener('DOMContentLoaded',()=>{renderRecipeGrid('all')});
 </script>
+
+<!-- ZXing barcode reader (loaded once, used by the scanner module below) -->
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+<script>
+// ════════════════════ LIVE BARCODE SCANNER (camera + Open Food Facts) ════════════════════
+// Self-contained: only adds startCamera, stopCamera, manualBarcodeEntry to window.
+// Reuses the inline P, doScan, showScr, toast functions defined above.
+(function(){
+  let _stream=null,_reader=null,_scanning=false,_lastCode=null,_lastAt=0;
+
+  function setHint(t){const el=document.getElementById('scan-hint');if(el)el.textContent=t;}
+  function showOverlay(which){
+    ['cam-permission','cam-error'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.classList.toggle('show',id===which);
+    });
+  }
+  function setCamError(title,text){
+    const t=document.getElementById('cam-error-title');const b=document.getElementById('cam-error-text');
+    if(t)t.textContent=title;if(b)b.textContent=text;
+    showOverlay('cam-error');
+  }
+
+  window.startCamera=async function(){
+    if(_scanning)return;
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+      setCamError('Camera not supported','Try Safari or Chrome over HTTPS.');return;
+    }
+    if(!window.isSecureContext){
+      setCamError('HTTPS required','Browsers only allow camera access on https:// or localhost.');return;
+    }
+    if(!window.ZXing){
+      setCamError('Scanner failed to load','Please refresh the page and try again.');return;
+    }
+    let stream;
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    }catch(err){
+      if(err.name==='NotAllowedError'||err.name==='SecurityError')
+        setCamError('Camera permission denied','Tap the lock icon in your address bar, allow Camera, then reload.');
+      else if(err.name==='NotFoundError')
+        setCamError('No camera found','This device doesn\'t seem to have a camera.');
+      else
+        setCamError('Camera error',err.message||'Could not start the camera.');
+      return;
+    }
+    _stream=stream;_scanning=true;
+    showOverlay(null);setHint('Point at a product barcode');
+    const video=document.getElementById('cam-video');
+    const hints=new Map();
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[
+      ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E,
+      ZXing.BarcodeFormat.CODE_128,ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.ITF,ZXing.BarcodeFormat.QR_CODE
+    ]);
+    _reader=new ZXing.BrowserMultiFormatReader(hints,300);
+    _reader.decodeFromStream(stream,video,(result)=>{
+      if(result&&_scanning)onCodeDetected(result.getText());
+    }).catch(err=>{
+      if(_scanning)setCamError('Scanner error',err.message||'Could not read camera frames.');
+    });
+  };
+
+  window.stopCamera=function(){
+    _scanning=false;
+    if(_reader){try{_reader.reset();}catch(_){}_reader=null;}
+    if(_stream){_stream.getTracks().forEach(t=>t.stop());_stream=null;}
+    const video=document.getElementById('cam-video');
+    if(video){try{video.pause();}catch(_){}video.srcObject=null;}
+    _lastCode=null;_lastAt=0;
+  };
+
+  function onCodeDetected(raw){
+    if(!_scanning||!raw)return;
+    const code=String(raw).trim();
+    const now=Date.now();
+    if(code===_lastCode&&(now-_lastAt)<2500)return;
+    _lastCode=code;_lastAt=now;
+    if(navigator.vibrate)navigator.vibrate(60);
+    setHint('Detected: '+code);
+    doScanByCode(code);
+  }
+
+  function barcodeVariants(raw){
+    const digits=String(raw||'').replace(/[^0-9]/g,'');
+    if(!digits)return[];
+    const out=new Set();
+    out.add(digits);
+    if(digits.length===12){out.add('0'+digits);out.add(digits.replace(/^0+/,''));}
+    else if(digits.length===13){if(digits.startsWith('0'))out.add(digits.slice(1));out.add(digits.replace(/^0+/,''));}
+    else if(digits.length===11){out.add('0'+digits);out.add('00'+digits);}
+    else if(digits.length===8){out.add(digits);}
+    else{out.add(digits.replace(/^0+/,''));out.add('0'+digits);}
+    return Array.from(out).filter(c=>c&&c.length>=6&&c.length<=14);
+  }
+
+  function findLocalProduct(code){
+    if(typeof P==='undefined')return null;
+    const variants=barcodeVariants(code);
+    return Object.keys(P).find(k=>{
+      const local=String((P[k]||{}).code||'').replace(/[^0-9]/g,'');
+      return variants.some(v=>v===local||v===local.replace(/^0+/,''));
+    });
+  }
+
+  async function doScanByCode(code){
+    stopCamera();
+    const localKey=findLocalProduct(code);
+    if(localKey&&typeof doScan==='function')return doScan(localKey);
+    await lookupAndScan(code);
+  }
+
+  async function fetchOFFVariant(code){
+    try{
+      const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json`);
+      if(!r.ok)return null;
+      const data=await r.json();
+      if(data&&data.status===1&&data.product)return{variant:code,product:data.product};
+      return null;
+    }catch(e){return null;}
+  }
+
+  function lookupOFFAnyVariant(code){
+    const variants=barcodeVariants(code);
+    if(!variants.length)return Promise.resolve(null);
+    return new Promise(resolve=>{
+      let remaining=variants.length,resolved=false;
+      variants.forEach(v=>{
+        fetchOFFVariant(v).then(hit=>{
+          if(resolved)return;
+          if(hit){resolved=true;resolve(hit);return;}
+          remaining--;
+          if(remaining===0&&!resolved){resolved=true;resolve(null);}
+        });
+      });
+    });
+  }
+
+  function productFromOFF(p,code){
+    const name=p.product_name||p.generic_name||'Unknown product';
+    const brand=(p.brands||'Unknown brand').split(',')[0].trim();
+    const eco=(p.ecoscore_grade||'').toLowerCase();
+    const ecoMap={a:9,b:7,c:5,d:3,e:2};
+    const score=ecoMap[eco]||5;
+    const co2=(p.ecoscore_data&&p.ecoscore_data.agribalyse&&p.ecoscore_data.agribalyse.co2_total)||null;
+    const pack=p.packaging||'Unknown packaging';
+    const origin=p.origins||p.countries||'Unknown origin';
+    const labels=p.labels||'None';
+    const em=score>=8?'🌿':score>=6?'🥗':score>=4?'📦':'⚠️';
+    const details={
+      'Eco-Score':eco?eco.toUpperCase():'Unknown',
+      'CO₂ / kg':co2!=null?(co2.toFixed(1)+' kg CO₂'):'Not reported',
+      'Packaging':pack,
+      'Origin':origin,
+      'Certifications':labels,
+      'Categories':(p.categories||'N/A').split(',').slice(0,3).join(', '),
+      'Brand':brand,
+      'Source':'Open Food Facts'
+    };
+    return{name,brand,code,em,score,co2:co2!=null?+co2.toFixed(2):0,water:0,pack,origin,cert:labels,details,alts:[]};
+  }
+
+  async function lookupAndScan(code){
+    showScr('scan');
+    const ov=document.getElementById('anlz');
+    if(ov)ov.classList.add('on');
+    try{
+      const hit=await lookupOFFAnyVariant(code);
+      if(hit){
+        const prod=productFromOFF(hit.product,hit.variant);
+        const ai=await fetchAI(prod);
+        if(ov)ov.classList.remove('on');
+        renderResult(prod,ai);
+        showScr('result');
+        if(typeof toast==='function')toast('+10 🌿 tokens earned!');
+        return;
+      }
+      if(ov)ov.classList.remove('on');
+      if(typeof toast==='function')toast('Barcode '+code+' not in Open Food Facts');
+      setTimeout(()=>{if(document.getElementById('s-scan').classList.contains('on'))startCamera();},600);
+    }catch(e){
+      if(ov)ov.classList.remove('on');
+      if(typeof toast==='function')toast('Lookup failed — check connection');
+      setTimeout(()=>{if(document.getElementById('s-scan').classList.contains('on'))startCamera();},600);
+    }
+  }
+
+  window.manualBarcodeEntry=function(){
+    const input=window.prompt('Enter a product barcode (8 to 13 digits):','');
+    if(input==null)return;
+    const code=String(input).replace(/[^0-9]/g,'');
+    if(code.length<6){if(typeof toast==='function')toast('That doesn\'t look like a barcode');return;}
+    doScanByCode(code);
+  };
+
+  // Stop the camera if the user backgrounds the tab
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopCamera();});
+})();
+</script>
+
 </body>
 </html>

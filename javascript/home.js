@@ -142,9 +142,6 @@ function goScan() {
 
 // ── LIVE CAMERA + BARCODE SCANNER ──
 let _camStream = null;
-let _scanRAF = null;
-let _scanInterval = null;
-let _detector = null;
 let _zxingReader = null;
 let _scanning = false;
 let _lastDetectedCode = null;
@@ -158,106 +155,11 @@ function showCamScreen(which) {
 }
 
 function setCamError(title, text) {
-  document.getElementById('cam-error-title').textContent = title;
-  document.getElementById('cam-error-text').textContent = text;
+  const t = document.getElementById('cam-error-title');
+  const b = document.getElementById('cam-error-text');
+  if(t) t.textContent = title;
+  if(b) b.textContent = text;
   showCamScreen('cam-error');
-}
-
-async function startCamera() {
-  if(_scanning) return;
-
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    setCamError('Camera not supported',
-      'This browser doesn\'t support camera access. Try Chrome or Safari, and make sure the page is served over HTTPS or localhost.');
-    return;
-  }
-  if(!window.isSecureContext) {
-    setCamError('HTTPS required',
-      'Browsers only allow camera access on https:// or localhost. Open this page over HTTPS (e.g. via a tunnel like cloudflared/ngrok) and try again.');
-    return;
-  }
-
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: false
-    });
-    _camStream = stream;
-    const video = document.getElementById('cam-video');
-    video.srcObject = stream;
-    await video.play().catch(()=>{});
-    showCamScreen(null);
-    document.getElementById('scan-hint').textContent = 'Point at a product barcode';
-    _scanning = true;
-    startScanLoop(video);
-  } catch(err) {
-    if(err && (err.name==='NotAllowedError' || err.name==='SecurityError')) {
-      setCamError('Camera permission denied',
-        'You blocked camera access. Tap the lock icon in your browser\'s address bar, allow Camera, then reload.');
-    } else if(err && err.name==='NotFoundError') {
-      setCamError('No camera found', 'This device doesn\'t seem to have a camera available.');
-    } else {
-      setCamError('Camera error', (err && err.message) ? err.message : 'Could not start the camera.');
-    }
-  }
-}
-
-function stopCamera() {
-  _scanning = false;
-  if(_scanRAF) { cancelAnimationFrame(_scanRAF); _scanRAF = null; }
-  if(_scanInterval) { clearInterval(_scanInterval); _scanInterval = null; }
-  if(_zxingReader && _zxingReader.reset) { try { _zxingReader.reset(); } catch(_){} }
-  _zxingReader = null;
-  if(_camStream) {
-    _camStream.getTracks().forEach(t => t.stop());
-    _camStream = null;
-  }
-  const video = document.getElementById('cam-video');
-  if(video) { try { video.pause(); } catch(_){} video.srcObject = null; }
-  _lastDetectedCode = null;
-}
-
-async function startScanLoop(video) {
-  let nativeStarted = false;
-  if('BarcodeDetector' in window) {
-    try {
-      const formats = await window.BarcodeDetector.getSupportedFormats();
-      _detector = new window.BarcodeDetector({ formats: formats.length ? formats : ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf'] });
-      _scanInterval = setInterval(()=>nativeDetect(video), 250);
-      nativeStarted = true;
-    } catch(_){ /* fall through to ZXing */ }
-  }
-  setTimeout(async () => {
-    if(!_scanning || _zxingReader) return;
-    await loadZXing();
-    if(!_scanning || _zxingReader) return;
-    if(!window.ZXing) {
-      if(!nativeStarted) document.getElementById('scan-hint').textContent = 'Live scanning unavailable — type a code below';
-      return;
-    }
-    try {
-      const hints = new Map();
-      const formats = [
-        ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
-        ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E,
-        ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
-        ZXing.BarcodeFormat.ITF, ZXing.BarcodeFormat.QR_CODE
-      ];
-      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
-      _zxingReader = new ZXing.BrowserMultiFormatReader(hints, 250);
-      _zxingReader.decodeFromVideoElement(video, (result) => {
-        if(result && _scanning) onCodeDetected(result.getText());
-      });
-    } catch(e) { /* keep native detection going */ }
-  }, nativeStarted ? 1500 : 0);
-}
-
-async function nativeDetect(video) {
-  if(!_scanning || !_detector || video.readyState < 2) return;
-  try {
-    const codes = await _detector.detect(video);
-    if(codes && codes.length) onCodeDetected(codes[0].rawValue);
-  } catch(_){}
 }
 
 function loadZXing() {
@@ -265,10 +167,89 @@ function loadZXing() {
     if(window.ZXing) return resolve();
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.0/umd/index.min.js';
-    s.onload = ()=>resolve();
-    s.onerror = ()=>resolve();
+    s.onload = resolve;
+    s.onerror = resolve;
     document.head.appendChild(s);
   });
+}
+
+// Pre-load ZXing in the background so it is ready before the user taps Scan
+setTimeout(loadZXing, 800);
+
+async function startCamera() {
+  if (_scanning) return;
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    setCamError('Camera not supported',
+      'Try Safari or Chrome and make sure the page is served over HTTPS.');
+    return;
+  }
+  if (!window.isSecureContext) {
+    setCamError('HTTPS required',
+      'Browsers only allow camera access on https:// or localhost.');
+    return;
+  }
+
+  // Ensure ZXing is ready before opening the camera — fixes iOS race condition
+  await loadZXing();
+  if (!window.ZXing) {
+    setCamError('Scanner failed to load', 'Please refresh the page and try again.');
+    return;
+  }
+
+  let stream;
+  try {
+    // Do NOT request specific width/height — causes OverconstrainedError on many iOS devices
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false
+    });
+  } catch (err) {
+    if (err.name === 'NotAllowedError' || err.name === 'SecurityError') {
+      setCamError('Camera permission denied',
+        'Tap the lock icon in your browser\'s address bar, allow Camera, then reload.');
+    } else if (err.name === 'NotFoundError') {
+      setCamError('No camera found', 'This device doesn\'t seem to have a camera.');
+    } else {
+      setCamError('Camera error', err.message || 'Could not start the camera.');
+    }
+    return;
+  }
+
+  _camStream = stream;
+  _scanning = true;
+  showCamScreen(null);
+  const hint = document.getElementById('scan-hint');
+  if (hint) hint.textContent = 'Point at a product barcode';
+
+  const video = document.getElementById('cam-video');
+  const hints = new Map();
+  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+    ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+    ZXing.BarcodeFormat.UPC_A,  ZXing.BarcodeFormat.UPC_E,
+    ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
+    ZXing.BarcodeFormat.ITF,    ZXing.BarcodeFormat.QR_CODE
+  ]);
+  _zxingReader = new ZXing.BrowserMultiFormatReader(hints, 300);
+
+  // decodeFromStream attaches the stream to the video element internally and
+  // waits for loadedmetadata before sampling frames — required for iOS Safari,
+  // which blocks canvas.drawImage(video) when srcObject is set externally.
+  _zxingReader.decodeFromStream(stream, video, (result, err) => {
+    if (result && _scanning) onCodeDetected(result.getText());
+  }).catch(err => {
+    if (_scanning) setCamError('Scanner error', err.message || 'Could not read camera frames.');
+  });
+}
+
+function stopCamera() {
+  _scanning = false;
+  if (_zxingReader) { try { _zxingReader.reset(); } catch(_){} _zxingReader = null; }
+  if (_camStream)   { _camStream.getTracks().forEach(t => t.stop()); _camStream = null; }
+  const video = document.getElementById('cam-video');
+  if (video) { try { video.pause(); } catch(_){} video.srcObject = null; }
+  _lastDetectedCode = null;
+  _lastDetectedAt = 0;
 }
 
 function onCodeDetected(rawCode) {

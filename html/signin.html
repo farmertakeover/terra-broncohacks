@@ -7,271 +7,462 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1a3a1f">
-<title>EcoBasket — Sign In</title>
+<title>terra.ai</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<!-- Google Identity Services -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async></script>
 <style>
-/* ── RESET ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { height: 100%; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%}
 
-/* ── TOKENS ── */
-:root {
-  --forest: #1a3a1f;
-  --moss:   #2d5a27;
-  --leaf:   #3d7a32;
-  --sage:   #6fac5e;
-  --mist:   #c4e3bb;
-  --cream:  #f5f0e8;
-  --parch:  #ede7d9;
-  --white:  #ffffff;
-  --char:   #1c1c1e;
-  --smoke:  #3a3a3c;
-  --ash:    #636366;
-  --fog:    #aeaeb2;
-  --sand:   #d4c5a9;
-
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bot: env(safe-area-inset-bottom, 0px);
+:root{
+  --forest:#1a3a1f;--moss:#2d5a27;--leaf:#3d7a32;--sage:#6fac5e;--mist:#c4e3bb;
+  --cream:#f5f0e8;--parch:#ede7d9;--white:#fff;--char:#1c1c1e;--smoke:#3a3a3c;
+  --ash:#636366;--fog:#aeaeb2;--sand:#d4c5a9;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
 }
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: #0e1a0f;
-  min-height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#0e1a0f;
+  min-height:100%;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
 }
-
-.app-shell {
-  width: 100%;
-  height: 100dvh;
-  background: var(--cream);
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  flex-direction: column;
+.app-shell{
+  width:100%;height:100dvh;background:var(--cream);
+  overflow:hidden;position:relative;
+  display:flex;flex-direction:column;
 }
-
-@media (min-width: 600px) {
-  body {
-    background: #0e1a0f;
+@media(min-width:600px){
+  body{
     background-image:
-      radial-gradient(ellipse at 20% 50%, rgba(42,80,35,.35) 0%, transparent 55%),
-      radial-gradient(ellipse at 80% 20%, rgba(26,58,31,.2) 0%, transparent 50%);
+      radial-gradient(ellipse at 20% 50%,rgba(42,80,35,.35) 0%,transparent 55%),
+      radial-gradient(ellipse at 80% 20%,rgba(26,58,31,.2) 0%,transparent 50%);
   }
-  .app-shell {
-    width: 390px;
-    height: 844px;
-    border-radius: 52px;
-    box-shadow:
-      0 0 0 .5px rgba(255,255,255,.18),
-      0 0 0 1px rgba(0,0,0,.7),
-      0 32px 80px rgba(0,0,0,.55),
-      inset 0 0 0 .5px rgba(255,255,255,.06);
-  }
-  .phone-notch {
-    display: block !important;
-    position: absolute;
-    top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 120px; height: 32px;
-    background: #111;
-    border-radius: 0 0 22px 22px;
-    z-index: 999;
-    pointer-events: none;
+  .app-shell{
+    width:390px;height:844px;border-radius:52px;
+    box-shadow:0 0 0 .5px rgba(255,255,255,.18),0 0 0 1px rgba(0,0,0,.7),0 32px 80px rgba(0,0,0,.55),inset 0 0 0 .5px rgba(255,255,255,.06);
   }
 }
-.phone-notch { display: none; }
 
-/* ── HERO ── */
-.auth-hero {
-  background: var(--forest);
-  padding: calc(var(--safe-top) + 64px) 28px 44px;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+/* ──────── EARTH MASCOT ──────── */
+.mascot-wrap{
+  position:relative;width:120px;height:140px;flex-shrink:0;
+  -webkit-user-select:none;user-select:none;
+  animation:mascot-float 3.4s ease-in-out infinite;
 }
-@media (min-width:600px) { .auth-hero { padding-top: 80px; } }
+.mascot-wrap.lg{width:160px;height:186px}
+@keyframes mascot-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.mascot-svg{width:100%;height:100%;overflow:visible;display:block;filter:drop-shadow(0 8px 18px rgba(26,58,31,.25))}
+.m-shadow{
+  position:absolute;left:50%;bottom:-2px;width:60px;height:7px;
+  background:rgba(0,0,0,.18);border-radius:50%;
+  transform:translateX(-50%);filter:blur(3px);
+  animation:m-shadow 3.4s ease-in-out infinite;z-index:0;
+}
+@keyframes m-shadow{0%,100%{transform:translateX(-50%) scale(1);opacity:.18}50%{transform:translateX(-50%) scale(.78);opacity:.08}}
+.m-eye{transform-origin:center;animation:m-blink 4.5s infinite}
+.m-eye.right{animation-delay:.04s}
+@keyframes m-blink{0%,92%,100%{transform:scaleY(1)}94%,96%{transform:scaleY(.1)}}
+.m-arm-r{transform-origin:56px 60px;animation:m-wave 2.6s ease-in-out infinite}
+@keyframes m-wave{0%,100%{transform:rotate(-12deg)}25%{transform:rotate(28deg)}50%{transform:rotate(-4deg)}75%{transform:rotate(22deg)}}
+.m-arm-l{transform-origin:40px 60px;animation:m-arm-sway 3.4s ease-in-out infinite}
+@keyframes m-arm-sway{0%,100%{transform:rotate(8deg)}50%{transform:rotate(-6deg)}}
+.m-leg-l{transform-origin:42px 86px;animation:m-leg 3.4s ease-in-out infinite}
+.m-leg-r{transform-origin:54px 86px;animation:m-leg 3.4s ease-in-out infinite reverse}
+@keyframes m-leg{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(4deg)}}
+/* Mascot dance variation per page */
+.mascot-wrap.dance{animation:mascot-dance 2.2s ease-in-out infinite}
+@keyframes mascot-dance{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+.mascot-wrap.spin .mascot-svg{animation:mascot-spin 5s linear infinite}
+@keyframes mascot-spin{to{transform:rotate(360deg)}}
+.mascot-wrap.cheer{animation:mascot-cheer 1.4s ease-in-out infinite}
+@keyframes mascot-cheer{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.05)}}
 
-.auth-hero::before {
-  content: '';
-  position: absolute; top: -70px; right: -50px;
-  width: 220px; height: 220px;
-  background: radial-gradient(circle, rgba(111,172,94,.2) 0%, transparent 70%);
-  border-radius: 50%; pointer-events: none;
+/* ──────── SCREENS (stacked) ──────── */
+.intro-stage{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:calc(var(--safe-top) + 40px) 28px calc(var(--safe-bot) + 28px);
+  opacity:0;pointer-events:none;
+  transition:opacity .55s ease;
 }
-.auth-hero::after {
-  content: '';
-  position: absolute; bottom: -40px; left: -40px;
-  width: 160px; height: 160px;
-  background: radial-gradient(circle, rgba(196,227,187,.07) 0%, transparent 70%);
-  border-radius: 50%; pointer-events: none;
+.intro-stage.show{opacity:1;pointer-events:auto}
+
+/* ──────── SPLASH ──────── */
+#splash{background:linear-gradient(160deg,#1a3a1f 0%,#0e1a0f 100%);color:#fff}
+#splash::before{
+  content:'';position:absolute;top:-30%;right:-30%;
+  width:120%;height:120%;
+  background:radial-gradient(circle,rgba(111,172,94,.3) 0%,transparent 50%);
+  pointer-events:none;
+  animation:splash-glow 6s ease-in-out infinite;
+}
+@keyframes splash-glow{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.15) rotate(20deg)}}
+.splash-title{
+  font-family:'Fraunces',serif;
+  font-size:84px;font-weight:700;
+  background:linear-gradient(135deg,#c4e3bb 0%,#6fac5e 40%,#fff 70%,#c4e3bb 100%);
+  background-size:200% 200%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  letter-spacing:-.04em;line-height:1;
+  animation:splash-shimmer 3s ease-in-out infinite,splash-rise 1.1s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes splash-shimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes splash-rise{
+  0%{opacity:0;transform:translateY(20px) scale(.8)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+.splash-tag{
+  margin-top:14px;
+  font-size:14px;color:rgba(255,255,255,.65);
+  letter-spacing:.18em;text-transform:uppercase;
+  animation:splash-tag-fade 1.2s ease .4s both;
+}
+@keyframes splash-tag-fade{from{opacity:0;transform:translateY(10px)}to{opacity:.85;transform:translateY(0)}}
+.splash-mascot{margin-top:36px;animation:splash-mascot-fade 1.4s ease .25s both}
+@keyframes splash-mascot-fade{from{opacity:0;transform:translateY(20px) scale(.8)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* fade-out class */
+.intro-stage.fading{animation:stage-fade .6s ease forwards}
+@keyframes stage-fade{to{opacity:0;transform:scale(1.04);filter:blur(4px)}}
+
+/* ──────── CAROUSEL (tutorial + survey) ──────── */
+#carousel{background:var(--cream);padding:0;flex-direction:column;justify-content:flex-start}
+.carousel-shell{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+}
+.carousel-track{
+  flex:1;
+  display:flex;
+  overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  -webkit-overflow-scrolling:touch;
+}
+.carousel-track::-webkit-scrollbar{display:none}
+.carousel-page{
+  flex:0 0 100%;
+  scroll-snap-align:start;
+  display:flex;flex-direction:column;align-items:center;
+  padding:calc(var(--safe-top) + 32px) 28px 24px;
+  overflow-y:auto;
+  text-align:center;
+}
+.cp-mascot-host{margin-bottom:18px}
+.cp-emoji{font-size:36px;margin-bottom:6px}
+.cp-h{
+  font-family:'Fraunces',serif;
+  font-size:26px;color:var(--forest);line-height:1.18;
+  margin-bottom:12px;
+}
+.cp-tx{
+  font-size:15px;color:var(--smoke);line-height:1.55;
+  margin-bottom:18px;max-width:320px;
+}
+.cp-feature-list{display:flex;flex-direction:column;gap:10px;margin-top:6px;width:100%;max-width:320px}
+.cp-feature-row{
+  display:flex;align-items:center;gap:12px;
+  background:#fff;border-radius:14px;padding:12px 14px;
+  box-shadow:0 1px 4px rgba(0,0,0,.05);
+  font-size:13px;color:var(--char);
+  text-align:left;
+}
+.cp-feature-ic{
+  width:32px;height:32px;background:var(--cream);
+  border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
 }
 
-.hero-icon-wrap {
-  width: 72px; height: 72px;
-  background: rgba(255,255,255,.1);
-  border-radius: 22px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px;
-  margin-bottom: 18px;
-  border: 1px solid rgba(255,255,255,.12);
+/* Survey on a page */
+.cp-survey-q{font-family:'Fraunces',serif;font-size:22px;color:var(--forest);margin-bottom:4px;line-height:1.25;max-width:320px}
+.cp-survey-sub{font-size:13px;color:var(--ash);margin-bottom:14px}
+.cp-opts{display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px}
+.cp-opt{
+  background:#fff;border:1.5px solid transparent;
+  border-radius:14px;padding:12px 14px;
+  font-size:14px;color:var(--char);
+  text-align:left;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;gap:10px;
+  transition:all .15s;
 }
-.auth-app-name {
-  font-family: 'Fraunces', serif;
-  font-size: 32px; font-weight: 600;
-  color: var(--white); line-height: 1.1;
-  margin-bottom: 8px;
-}
-.auth-tagline {
-  font-size: 14px;
-  color: rgba(255,255,255,.5);
-  line-height: 1.5;
-  max-width: 240px;
-}
+.cp-opt:active{transform:scale(.98)}
+.cp-opt.sel{border-color:var(--leaf);background:#e6f4e6}
+.cp-opt-em{font-size:18px;flex-shrink:0}
 
-/* ── BODY ── */
-.auth-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 28px calc(24px + var(--safe-bot));
-  gap: 20px;
-  margin-top: -300px;
+/* Footer: just dots, no buttons. Continue button only on the last page. */
+.carousel-footer{
+  flex-shrink:0;
+  padding:14px 28px calc(var(--safe-bot) + 22px);
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  pointer-events:none;
 }
+.carousel-footer > *{pointer-events:auto}
+.carousel-dots{display:flex;gap:8px;align-items:center}
+.cdot{
+  width:7px;height:7px;border-radius:50%;
+  background:rgba(29,65,24,.18);
+  transition:all .25s ease;
+  cursor:pointer;
+}
+.cdot.on{background:var(--forest);width:22px;border-radius:4px}
+.carousel-continue{
+  display:none;
+  background:var(--forest);color:#fff;
+  border:none;border-radius:14px;
+  padding:13px 36px;font-size:15px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+  box-shadow:0 6px 16px rgba(26,58,31,.25);
+  transition:opacity .2s,background .15s,transform .2s;
+  animation:cont-rise .35s cubic-bezier(.34,1.56,.64,1);
+}
+.carousel-continue.show{display:inline-flex}
+.carousel-continue:active{background:var(--moss);transform:scale(.97)}
+@keyframes cont-rise{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-.auth-label {
-  font-size: 15px;
-  color: var(--smoke);
-  font-weight: 500;
-  text-align: center;
+/* ──────── AUTH STAGE ──────── */
+#auth-stage{padding:0}
+.auth-hero{
+  background:var(--forest);
+  padding:calc(var(--safe-top) + 56px) 28px 110px;
+  flex-shrink:0;width:100%;
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  border-radius:0 0 36px 36px;
 }
+.auth-hero::before{
+  content:'';position:absolute;top:-70px;right:-50px;
+  width:220px;height:220px;
+  background:radial-gradient(circle,rgba(111,172,94,.22) 0%,transparent 70%);
+  border-radius:50%;pointer-events:none;
+}
+.auth-hero::after{
+  content:'';position:absolute;bottom:-40px;left:-40px;
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(196,227,187,.08) 0%,transparent 70%);
+  border-radius:50%;pointer-events:none;
+}
+.auth-mascot{margin-bottom:14px;position:relative;z-index:2}
+.auth-app-name{
+  font-family:'Fraunces',serif;font-size:34px;font-weight:600;
+  color:#fff;line-height:1.1;margin-bottom:6px;letter-spacing:-.02em;
+  position:relative;z-index:2;
+}
+.auth-tagline{
+  font-size:14px;color:rgba(255,255,255,.6);
+  line-height:1.55;max-width:240px;
+  position:relative;z-index:2;
+}
+.auth-body{
+  flex:1;width:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:36px 28px calc(var(--safe-bot) + 28px);
+  gap:18px;
+  margin-top:-56px;
+  position:relative;z-index:3;
+}
+.auth-card{
+  background:#fff;border-radius:22px;
+  padding:22px;
+  box-shadow:0 8px 24px rgba(26,58,31,.12);
+  width:100%;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+}
+.auth-label{
+  font-size:14px;color:var(--smoke);font-weight:500;text-align:center;
+}
+#google-btn{display:flex;justify-content:center;width:100%}
+#google-btn > div{border-radius:14px!important;overflow:hidden}
+#error-banner{
+  background:#fdeaea;border:1px solid #f5c0c0;
+  border-radius:12px;padding:11px 15px;
+  font-size:13px;color:#b83232;
+  text-align:center;display:none;width:100%;
+}
+#error-banner.show{display:block}
+.terms-note{font-size:11px;color:var(--fog);text-align:center;line-height:1.6;margin-top:4px}
 
-/* ── GOOGLE BUTTON WRAPPER ── */
-/* Centers the GIS-rendered button and makes it fill available width */
-#google-btn {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+/* Loading state */
+#loading-state{
+  display:none;flex-direction:column;align-items:center;gap:14px;
+  padding:24px 0;
 }
+#loading-state.show{display:flex}
+.spin-ring{
+  width:44px;height:44px;border-radius:50%;
+  border:2px solid rgba(26,58,31,.15);
+  border-top-color:var(--leaf);
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--ash)}
 
-/* Override Google's iframe container to match our radius */
-#google-btn > div {
-  border-radius: 14px !important;
-  overflow: hidden;
+/* ──────── ALL SET ──────── */
+#allset{
+  background:linear-gradient(160deg,#1a3a1f 0%,#0e1a0f 100%);
+  color:#fff;
 }
-
-/* ── DIVIDER ── */
-.auth-divider {
-  display: flex; align-items: center; gap: 12px;
-  color: var(--fog); font-size: 12px;
-  width: 100%;
+#allset::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 30%,rgba(111,172,94,.35) 0%,transparent 55%);
+  pointer-events:none;
+  animation:allset-glow 4s ease-in-out infinite;
 }
-.auth-divider::before, .auth-divider::after {
-  content: ''; flex: 1; height: .5px; background: var(--sand);
+@keyframes allset-glow{0%,100%{opacity:.7}50%{opacity:1}}
+.allset-title{
+  font-family:'Fraunces',serif;font-size:34px;font-weight:600;
+  color:#fff;line-height:1.18;text-align:center;
+  margin-top:32px;letter-spacing:-.01em;
+  animation:allset-rise 1s cubic-bezier(.34,1.56,.64,1) both;
 }
-
-/* ── FEATURES LIST ── */
-.feature-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  background: var(--white);
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+.allset-sub{
+  margin-top:10px;font-size:14px;color:rgba(255,255,255,.55);
+  text-align:center;
+  animation:allset-rise 1.1s cubic-bezier(.34,1.56,.64,1) .15s both;
 }
-.feature-row {
-  display: flex; align-items: center; gap: 12px;
-  font-size: 13px; color: var(--smoke);
+@keyframes allset-rise{0%{opacity:0;transform:translateY(18px)}100%{opacity:1;transform:translateY(0)}}
+.allset-mascot{animation:allset-mascot 1.2s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes allset-mascot{0%{opacity:0;transform:translateY(20px) scale(.7)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.allset-confetti{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;overflow:hidden;
 }
-.feature-ic {
-  width: 32px; height: 32px;
-  background: var(--parch);
-  border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
+.confetti-piece{
+  position:absolute;width:8px;height:8px;border-radius:2px;
+  animation:confetti 2.4s ease-out forwards;
+  opacity:0;
 }
-
-/* ── LOADING STATE ── */
-#loading-state {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
+@keyframes confetti{
+  0%{transform:translate(0,-20px) rotate(0);opacity:0}
+  10%{opacity:1}
+  100%{transform:translate(var(--cx,0),120vh) rotate(720deg);opacity:0}
 }
-#loading-state.show { display: flex; }
-.spin-ring {
-  width: 44px; height: 44px; border-radius: 50%;
-  border: 2px solid rgba(26,58,31,.15);
-  border-top-color: var(--leaf);
-  animation: spin 1s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.loading-text { font-size: 14px; color: var(--ash); }
-
-/* ── TERMS ── */
-.terms-note {
-  font-size: 11px; color: var(--fog);
-  text-align: center; line-height: 1.6;
-}
-.terms-note a { color: var(--ash); text-decoration: underline; }
-
-/* ── ERROR BANNER ── */
-#error-banner {
-  background: #fdeaea;
-  border: 1px solid #f5c0c0;
-  border-radius: 12px;
-  padding: 11px 15px;
-  font-size: 13px; color: #b83232;
-  text-align: center;
-  display: none;
-  width: 100%;
-}
-#error-banner.show { display: block; }
 </style>
 </head>
 <body>
 <div class="app-shell">
-  <div class="phone-notch"></div>
 
-  <!-- Hero branding -->
-  <div class="auth-hero">
-    <div class="hero-icon-wrap">🌿</div>
-    <div class="auth-app-name">EcoBasket</div>
-    <div class="auth-tagline">Scan products, track your environmental impact, earn rewards</div>
-  </div>
-
-  <!-- Sign-in body -->
-  <div class="auth-body" id="auth-body">
-
-    <div class="auth-label">Sign in or create an account</div>
-
-    <!-- Google Sign-In button rendered by GIS -->
-    <div id="google-btn"></div>
-
-    <div id="error-banner">Something went wrong. Please try again.</div>
-  </div>
-
-  <!-- Loading overlay (shown while authenticating) -->
-  <div class="auth-body" id="loading-body" style="display:none">
-    <div id="loading-state" class="show">
-      <div class="spin-ring"></div>
-      <div class="loading-text">Signing you in…</div>
+  <!-- 1. Splash -->
+  <div class="intro-stage" id="splash">
+    <div class="splash-title">terra<span style="color:var(--mist)">.ai</span></div>
+    <div class="splash-tag">scan • learn • shop greener</div>
+    <div class="splash-mascot">
+      <!-- mascot injected by JS so we can reuse one template -->
+      <div class="mascot-wrap lg" id="splash-mascot-host"></div>
     </div>
+  </div>
+
+  <!-- 2. Carousel: tutorial pages (idx 0..2) + survey pages (idx 3..5) -->
+  <div class="intro-stage" id="carousel">
+    <div class="carousel-shell">
+      <div class="carousel-track" id="carousel-track">
+        <!-- Tutorial 1 -->
+        <div class="carousel-page" data-idx="0">
+          <div class="mascot-wrap cp-mascot-host" data-anim="dance"></div>
+          <div class="cp-emoji">📷</div>
+          <div class="cp-h">Scan any product, instantly know its impact</div>
+          <div class="cp-tx">Point your camera at a barcode and Terra reads it. We pull verified sustainability data straight from Open Food Facts — no guesswork.</div>
+          <div class="cp-feature-list">
+            <div class="cp-feature-row"><div class="cp-feature-ic">⚡</div><div>Native barcode scanning, works on any phone</div></div>
+            <div class="cp-feature-row"><div class="cp-feature-ic">📊</div><div>Real CO₂, water, and packaging data</div></div>
+          </div>
+        </div>
+        <!-- Tutorial 2 -->
+        <div class="carousel-page" data-idx="1">
+          <div class="mascot-wrap cp-mascot-host" data-anim="spin"></div>
+          <div class="cp-emoji">🌍</div>
+          <div class="cp-h">See how your shopping shapes the planet</div>
+          <div class="cp-tx">Every scan adds to your weekly impact: water saved, CO₂ avoided, eco swaps made. Build a streak and watch it grow.</div>
+          <div class="cp-feature-list">
+            <div class="cp-feature-row"><div class="cp-feature-ic">💧</div><div>Track gallons of water saved</div></div>
+            <div class="cp-feature-row"><div class="cp-feature-ic">🔥</div><div>Daily streaks reward consistent choices</div></div>
+          </div>
+        </div>
+        <!-- Tutorial 3 -->
+        <div class="carousel-page" data-idx="2">
+          <div class="mascot-wrap cp-mascot-host" data-anim="cheer"></div>
+          <div class="cp-emoji">♻️</div>
+          <div class="cp-h">Greener swaps &amp; recipes, picked for you</div>
+          <div class="cp-tx">Whenever a product scores low, Terra suggests pre-vetted alternatives and seasonal recipes that match your goals.</div>
+          <div class="cp-feature-list">
+            <div class="cp-feature-row"><div class="cp-feature-ic">🥗</div><div>Curated eco-friendly alternatives</div></div>
+            <div class="cp-feature-row"><div class="cp-feature-ic">✨</div><div>AI-generated recipes from low-impact ingredients</div></div>
+          </div>
+        </div>
+        <!-- Survey Q1 -->
+        <div class="carousel-page" data-idx="3">
+          <div class="mascot-wrap cp-mascot-host" data-anim="dance"></div>
+          <div class="cp-survey-q">How often do you check a product's environmental impact?</div>
+          <div class="cp-survey-sub">Be honest — there's no wrong answer.</div>
+          <div class="cp-opts" data-key="habit">
+            <button class="cp-opt" data-val="always"><span class="cp-opt-em">🌱</span><span>Almost every time I shop</span></button>
+            <button class="cp-opt" data-val="sometimes"><span class="cp-opt-em">🛒</span><span>Sometimes, for big purchases</span></button>
+            <button class="cp-opt" data-val="rarely"><span class="cp-opt-em">🤔</span><span>Rarely — I'd like to start</span></button>
+            <button class="cp-opt" data-val="never"><span class="cp-opt-em">🆕</span><span>Never, this is new to me</span></button>
+          </div>
+        </div>
+        <!-- Survey Q2 -->
+        <div class="carousel-page" data-idx="4">
+          <div class="mascot-wrap cp-mascot-host" data-anim="spin"></div>
+          <div class="cp-survey-q">Which sustainability goal matters most to you?</div>
+          <div class="cp-survey-sub">We'll tailor your insights around it.</div>
+          <div class="cp-opts" data-key="goal">
+            <button class="cp-opt" data-val="carbon"><span class="cp-opt-em">💨</span><span>Cut my carbon footprint</span></button>
+            <button class="cp-opt" data-val="plastic"><span class="cp-opt-em">♻️</span><span>Reduce plastic &amp; waste</span></button>
+            <button class="cp-opt" data-val="water"><span class="cp-opt-em">💧</span><span>Save water</span></button>
+            <button class="cp-opt" data-val="biodiversity"><span class="cp-opt-em">🌳</span><span>Protect forests &amp; biodiversity</span></button>
+          </div>
+        </div>
+        <!-- Survey Q3 -->
+        <div class="carousel-page" data-idx="5">
+          <div class="mascot-wrap cp-mascot-host" data-anim="cheer"></div>
+          <div class="cp-survey-q">What's your diet like?</div>
+          <div class="cp-survey-sub">Helps us suggest meaningful swaps.</div>
+          <div class="cp-opts" data-key="diet">
+            <button class="cp-opt" data-val="omnivore"><span class="cp-opt-em">🥩</span><span>Eat meat regularly</span></button>
+            <button class="cp-opt" data-val="flex"><span class="cp-opt-em">🍗</span><span>Mostly chicken or fish</span></button>
+            <button class="cp-opt" data-val="veg"><span class="cp-opt-em">🥗</span><span>Vegetarian</span></button>
+            <button class="cp-opt" data-val="vegan"><span class="cp-opt-em">🌱</span><span>Vegan / plant-based</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-footer">
+        <button class="carousel-continue" id="carousel-continue" onclick="finishCarousel()">Continue</button>
+        <div class="carousel-dots" id="carousel-dots"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Auth -->
+  <div class="intro-stage" id="auth-stage">
+    <div class="auth-hero">
+      <div class="auth-mascot"><div class="mascot-wrap" id="auth-mascot-host"></div></div>
+      <div class="auth-app-name">terra<span style="color:var(--mist)">.ai</span></div>
+      <div class="auth-tagline">Almost there — sign in to save your eco journey.</div>
+    </div>
+    <div class="auth-body">
+      <div class="auth-card">
+        <div class="auth-label">Sign in or create an account</div>
+        <div id="google-btn"></div>
+        <div id="error-banner">Something went wrong. Please try again.</div>
+        <div id="loading-state"><div class="spin-ring"></div><div class="loading-text">Signing you in…</div></div>
+      </div>
+      <div class="terms-note">By continuing you agree to use Terra responsibly. We don't sell your data.</div>
+    </div>
+  </div>
+
+  <!-- 4. All set -->
+  <div class="intro-stage" id="allset">
+    <div class="allset-confetti" id="allset-confetti"></div>
+    <div class="allset-mascot"><div class="mascot-wrap lg cheer" id="allset-mascot-host"></div></div>
+    <div class="allset-title">All set to enjoy<br>terra<span style="color:var(--mist)">.ai</span>!</div>
+    <div class="allset-sub">Let's start scanning 🌱</div>
   </div>
 
 </div>

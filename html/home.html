@@ -36,11 +36,8 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .scr{position:absolute;inset:0;overflow:hidden;display:none;flex-direction:column;background:var(--cream)}
 .scr.on{display:flex}
 
-/* STATUS BAR */
-.sbar{padding:calc(var(--safe-top) + 14px) 24px 4px;height:calc(var(--safe-top) + 44px);display:flex;justify-content:space-between;align-items:flex-end;flex-shrink:0;z-index:10}
-@media(min-width:600px){.sbar{padding-top:42px;height:60px}}
-.sbar-t{font-size:15px;font-weight:500;color:var(--char)}
-.sbar-i{display:flex;gap:5px;align-items:center}
+/* Safe-area spacer on every screen so content clears the device notch */
+.scr{padding-top:var(--safe-top)}
 
 /* BOTTOM NAV */
 .bnav{position:absolute;bottom:0;left:0;right:0;height:calc(64px + var(--safe-bot));padding-bottom:var(--safe-bot);background:rgba(245,240,232,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:.5px solid rgba(0,0,0,.09);display:flex;align-items:flex-start;padding-top:10px;z-index:100}
@@ -62,7 +59,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 .sv::-webkit-scrollbar{display:none}
 
 /* ===== HOME ===== */
-.h-top{padding:4px 24px 0;flex-shrink:0}
+.h-top{padding:calc(var(--safe-top) + 12px) 24px 0;flex-shrink:0}
 .h-greet{font-size:12px;color:var(--ash);letter-spacing:.04em;margin-bottom:1px}
 .h-title{font-family:'Fraunces',serif;font-size:30px;font-weight:600;color:var(--forest);line-height:1.1}
 .hp{padding:16px 20px}
@@ -104,9 +101,8 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 /* ===== SCAN ===== */
 #s-scan{background:#0d1a0e}
-#s-scan .sbar{background:transparent}
-#s-scan .sbar-t{color:rgba(255,255,255,.85)}
-.s-top{padding:2px 20px 12px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.s-top{padding:calc(var(--safe-top) + 14px) 20px 12px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.r-top{padding:calc(var(--safe-top) + 12px) 20px 10px;display:flex;align-items:center;gap:14px;flex-shrink:0}
 .bk{width:36px;height:36px;background:rgba(255,255,255,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:none;color:#fff;flex-shrink:0;transition:background .15s}
 .bk:active{background:rgba(255,255,255,.2)}
 .s-ttl{font-family:'Fraunces',serif;font-size:20px;color:#fff}
@@ -148,7 +144,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 /* ===== RESULT ===== */
 #s-result{background:var(--cream)}
-.r-top{padding:2px 20px 10px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+/* .r-top defined above with safe-top padding */
 .r-ttl{font-family:'Fraunces',serif;font-size:20px;color:var(--char)}
 .pb{display:flex;align-items:center;gap:14px;padding:14px 20px 16px;background:#fff;border-radius:0 0 22px 22px;box-shadow:0 2px 8px rgba(0,0,0,.06);flex-shrink:0}
 .pi{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
@@ -247,7 +243,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 /* ===== RECIPES ===== */
 #s-recipes{background:var(--cream)}
-.rp-header{padding:4px 20px 0;flex-shrink:0}
+.rp-header{padding:calc(var(--safe-top) + 12px) 20px 0;flex-shrink:0}
 .rp-title{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--forest);line-height:1.1}
 .rp-sub{font-size:11px;color:var(--ash);margin-top:2px}
 .cat-row{display:flex;gap:8px;overflow-x:auto;padding:12px 20px 0;scrollbar-width:none;flex-shrink:0}
@@ -419,13 +415,6 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 <!-- ═══ HOME ═══ -->
 <div class="scr on" id="s-home">
-  <div class="sbar">
-    <span class="sbar-t" id="clock">9:41</span>
-    <div class="sbar-i">
-      <svg width="17" height="12"><rect x="0" y="3" width="3" height="9" rx="1" fill="#1c1c1e"/><rect x="5" y="1.5" width="3" height="10.5" rx="1" fill="#1c1c1e"/><rect x="10" y="0" width="3" height="12" rx="1" fill="#1c1c1e"/><rect x="15" y="1" width="2" height="11" rx="1" fill="#1c1c1e" opacity=".3"/></svg>
-      <svg width="25" height="12"><rect x="0" y="1" width="22" height="10" rx="3" stroke="#1c1c1e" stroke-width="1" fill="none"/><rect x="1" y="2" width="17" height="8" rx="2" fill="#1c1c1e"/><path d="M23 4v4a2 2 0 000-4z" fill="#1c1c1e" opacity=".4"/></svg>
-    </div>
-  </div>
   <div class="h-top">
     <div class="h-greet" id="home-greet">Good morning, Alex</div>
     <div class="h-title">Shop green<br>today 🌿</div>
@@ -459,7 +448,6 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 <!-- ═══ SCAN ═══ -->
 <div class="scr" id="s-scan">
-  <div class="sbar"><span class="sbar-t" style="color:rgba(255,255,255,.8)">9:41</span></div>
   <div class="s-top">
     <button class="bk" onclick="showScr('home')">‹</button>
     <div class="s-ttl">Scan Product</div>
@@ -508,7 +496,6 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 <!-- ═══ RESULT ═══ -->
 <div class="scr" id="s-result">
-  <div class="sbar"><span class="sbar-t">9:41</span></div>
   <div class="r-top">
     <button class="bk" style="background:rgba(0,0,0,.07);color:var(--char)" onclick="showScr('scan')">‹</button>
     <div class="r-ttl">Product Report</div>
@@ -522,8 +509,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 <!-- ═══ IMPACT ═══ -->
 <div class="scr" id="s-impact">
-  <div class="sbar"><span class="sbar-t">9:41</span></div>
-  <div style="padding:2px 20px 8px;flex-shrink:0"><span style="font-family:'Fraunces',serif;font-size:24px;color:var(--char)">Your Impact</span></div>
+  <div style="padding:calc(var(--safe-top) + 18px) 20px 8px;flex-shrink:0"><span style="font-family:'Fraunces',serif;font-size:24px;color:var(--char)">Your Impact</span></div>
   <div class="sv" style="padding:0 20px calc(88px + var(--safe-bot))">
     <div class="ig">
       <div class="is ft"><div class="ii">💧</div><div class="iv"><span id="impact-water2">0</span> <span class="iu">gal</span></div><div class="il">water saved this month</div></div>
@@ -548,7 +534,6 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 <!-- ═══ RECIPES ═══ -->
 <div class="scr" id="s-recipes">
-  <div class="sbar"><span class="sbar-t">9:41</span></div>
   <div class="rp-header">
     <div class="rp-title">Green Kitchen 🌿</div>
     <div class="rp-sub">Eco-friendly recipes for every meal</div>
@@ -614,8 +599,7 @@ body{font-family:'DM Sans',sans-serif;background:#0a140b;min-height:100%;display
 
 <!-- ═══ REWARDS ═══ -->
 <div class="scr" id="s-rewards">
-  <div class="sbar"><span class="sbar-t">9:41</span></div>
-  <div style="padding:2px 20px 8px;flex-shrink:0"><span style="font-family:'Fraunces',serif;font-size:24px;color:var(--char)">Rewards</span></div>
+  <div style="padding:calc(var(--safe-top) + 18px) 20px 8px;flex-shrink:0"><span style="font-family:'Fraunces',serif;font-size:24px;color:var(--char)">Rewards</span></div>
   <div class="sv" style="padding:0 20px calc(88px + var(--safe-bot))">
     <div class="thc">
       <div class="th-tp"><div><div class="th-l">Your balance</div><div class="th-a" id="rewards-tokens">0</div><div class="th-s">eco tokens</div></div><span style="font-size:38px">🌿</span></div>
@@ -1502,13 +1486,6 @@ function toast(msg){
 function rdm(item){toast(`Redeeming ${item} reward…`)}
 function openStreakModal(){document.getElementById('streak-modal').style.display='flex';}
 function closeStreakModal(){document.getElementById('streak-modal').style.display='none';}
-
-function updateClock(){
-  const n=new Date();
-  const t=`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`;
-  document.querySelectorAll('.sbar-t,.sbar-time').forEach(el=>el.textContent=t);
-}
-updateClock();setInterval(updateClock,30000);
 
 window.addEventListener('DOMContentLoaded',()=>{renderRecipeGrid('all')});
 </script>
